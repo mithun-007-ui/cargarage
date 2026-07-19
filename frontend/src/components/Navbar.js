@@ -16,7 +16,7 @@ export default function Navbar() {
     { name: 'Home', href: '/' },
     { name: 'Services', href: '/services' },
     { name: 'Packages', href: '/packages' },
-    { name: 'Book Service', href: '/booking' },
+    { name: 'Book Service', href: '/vehicle-selection' },
     { name: 'My Bookings', href: '/my-bookings' },
   ];
 

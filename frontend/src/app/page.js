@@ -91,7 +91,7 @@ export default function HomePage() {
               {/* Call-to-actions */}
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <LinkNext
-                  href="/booking"
+                  href="/vehicle-selection"
                   className="bg-accent-500 hover:bg-accent-600 active:scale-[0.98] text-white px-8 py-3.5 rounded-xl font-bold transition-all text-center shadow-lg shadow-accent-500/25 hover:shadow-accent-500/35 border border-accent-600 flex items-center justify-center gap-2 cursor-pointer text-sm"
                 >
                   Book a Service

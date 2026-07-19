@@ -31,7 +31,7 @@ export default function PackageCard({ pkg, onSelect, selected }) {
         <p className="text-sm text-slate-400 mb-6">{pkg.description}</p>
 
         <div className="mb-6 flex items-baseline">
-          <span className="text-4xl font-extrabold text-primary-800">${pkg.price}</span>
+          <span className="text-4xl font-extrabold text-primary-800">₹{pkg.price}</span>
           <span className="text-slate-400 text-xs font-semibold ml-2">/ service bundle</span>
         </div>
 

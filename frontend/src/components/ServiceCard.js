@@ -35,7 +35,7 @@ export default function ServiceCard({ service, onSelect, selected }) {
 
       <div className="flex items-center justify-between border-t border-slate-50 pt-4 mt-auto">
         <span className="text-sm font-semibold text-slate-400">Base Price</span>
-        <span className="text-xl font-extrabold text-primary-800">${service.price}</span>
+        <span className="text-xl font-extrabold text-primary-800">₹{service.price}</span>
       </div>
     </div>
   );

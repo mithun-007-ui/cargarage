@@ -4,113 +4,100 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from 'src/components/Navbar';
 import Footer from 'src/components/Footer';
+import ProgressBar from 'src/components/ProgressBar';
+import VehicleBanner from 'src/components/VehicleBanner';
 import { useAuth } from 'src/context/AuthContext';
 import { addBooking } from 'src/lib/mockDb';
-import { Calendar, Clock, ChevronLeft, CheckCircle2, User, Mail, Sparkles } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, AlertCircle, User, Mail, MapPin, Truck, Building2, Tag, Percent } from 'lucide-react';
+
+const SERVICE_CENTERS = [
+  { id: 'andheri', name: 'AutoCare Pro — Andheri West', address: 'Versova Link Rd, Andheri West, Mumbai 400058', timing: 'Mon–Sat: 8AM–7PM' },
+  { id: 'bandra', name: 'AutoCare Pro — Bandra East', address: 'Station Rd, Bandra East, Mumbai 400051', timing: 'Mon–Sat: 9AM–6PM' },
+  { id: 'powai', name: 'AutoCare Pro — Powai', address: 'Hiranandani Gardens, Powai, Mumbai 400076', timing: 'Mon–Sun: 8AM–8PM' },
+];
+
+const PICKUP_OPTIONS = [
+  { id: 'dropoff', label: 'Drop-off at Center', icon: Building2, description: 'Drive your vehicle to the selected center.' },
+  { id: 'pickup', label: 'Pickup & Delivery', icon: Truck, description: 'We pick up and drop off (₹499 extra).' },
+];
+
+const TIME_SLOTS = ['08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
 
 export default function SlotBookingPage() {
   const router = useRouter();
   const { user } = useAuth();
-  
+
   const [vehicle, setVehicle] = useState(null);
-  const [service, setService] = useState(null);
+  const [selectedServices, setSelectedServices] = useState([]);
   const [pkg, setPkg] = useState(null);
   const [estPrice, setEstPrice] = useState(0);
 
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
+  const [serviceCenter, setServiceCenter] = useState('');
+  const [pickupOption, setPickupOption] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Load configuration
   useEffect(() => {
-    const storedVehicle = localStorage.getItem('booking_flow_vehicle');
-    const storedService = localStorage.getItem('booking_flow_service');
-    const storedPackage = localStorage.getItem('booking_flow_package');
-    const storedPrice = localStorage.getItem('booking_flow_estimated_price');
-
-    if (storedVehicle) setVehicle(JSON.parse(storedVehicle));
-    if (storedService) setService(JSON.parse(storedService));
-    if (storedPackage) {
-      try {
-        const parsed = JSON.parse(storedPackage);
-        setPkg(parsed === 'none' ? null : parsed);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    if (storedPrice) setEstPrice(parseFloat(storedPrice));
-
-    // Prefill name/email if user is logged in
-    if (user) {
-      setName(user.name);
-      setEmail(user.email);
-    }
+    const sv = localStorage.getItem('booking_flow_vehicle');
+    const ss = localStorage.getItem('booking_flow_services');
+    const sp = localStorage.getItem('booking_flow_package');
+    const pr = localStorage.getItem('booking_flow_estimated_price');
+    if (sv) { try { setVehicle(JSON.parse(sv)); } catch (e) {} }
+    if (ss) { try { setSelectedServices(JSON.parse(ss)); } catch (e) {} }
+    if (sp) { try { const p = JSON.parse(sp); setPkg(p === 'none' ? null : p); } catch (e) {} }
+    if (pr) setEstPrice(parseFloat(pr));
+    if (user) { setName(user.name); setEmail(user.email); }
   }, [user]);
 
-  // Generate next 7 days for slot selection
   const getNextDays = () => {
     const days = [];
     const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
-    for (let i = 1; i <= 7; i++) {
+    for (let i = 1; i <= 14; i++) {
       const d = new Date();
       d.setDate(d.getDate() + i);
-      // Skip Sundays
       if (d.getDay() === 0) continue;
-
       const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      const label = `${weekdays[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
-      days.push({ value: dateStr, label });
+      days.push({ value: dateStr, label: `${weekdays[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}` });
     }
-    return days;
+    return days.slice(0, 10);
   };
 
-  const timeSlots = [
-    '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM',
-    '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'
-  ];
+  const pickupExtra = pickupOption === 'pickup' ? 499 : 0;
+  const total = estPrice + pickupExtra;
 
-  const handleConfirmBooking = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!date || !time) {
-      setError('Please select both a date and a time slot.');
-      return;
-    }
-    if (!name || !email) {
-      setError('Please fill in your contact information.');
-      return;
-    }
+    if (!date || !time) { setError('Please select a date and time slot.'); return; }
+    if (!serviceCenter) { setError('Please select a service center.'); return; }
+    if (!pickupOption) { setError('Please select a pickup option.'); return; }
+    if (!name || !email) { setError('Please fill in your contact details.'); return; }
 
     setIsSubmitting(true);
     setError('');
 
-    // Prepare booking object
-    const bookingDetails = {
-      customerName: name,
-      customerEmail: email,
-      vehicle: vehicle || { make: 'Toyota', model: 'Camry', year: '2020', plateNumber: 'MOCK-123' },
-      serviceType: service?.name || 'General Maintenance',
-      packageSelected: pkg?.name || 'None',
-      estimatedPrice: estPrice || 149.00,
-      date,
-      time
-    };
-
-    // Add to DB
     try {
-      const newBooking = addBooking(bookingDetails);
+      const center = SERVICE_CENTERS.find(c => c.id === serviceCenter);
+      const newBooking = addBooking({
+        customerName: name,
+        customerEmail: email,
+        vehicle: vehicle || { make: 'Unknown', model: 'Unknown', year: '2022', plateNumber: 'XX-00-XX-0000' },
+        serviceType: selectedServices[0]?.name || 'General Service',
+        selectedServices,
+        packageSelected: pkg?.name || 'None',
+        packagePrice: pkg?.price || 0,
+        estimatedPrice: total,
+        serviceCenter: center?.name || serviceCenter,
+        pickupOption: pickupOption === 'pickup' ? 'Pickup & Delivery' : 'Drop-off',
+        date, time,
+      });
       localStorage.setItem('booking_flow_confirmed_id', newBooking.id);
-      
-      // Clear flow selections from state
-      localStorage.removeItem('booking_flow_vehicle');
-      localStorage.removeItem('booking_flow_service');
-      localStorage.removeItem('booking_flow_package');
-      localStorage.removeItem('booking_flow_estimated_price');
-
+      ['booking_flow_vehicle', 'booking_flow_services', 'booking_flow_service',
+       'booking_flow_package', 'booking_flow_estimated_price'].forEach(k => localStorage.removeItem(k));
       router.push('/booking-confirmation');
     } catch (err) {
       setError('Failed to record booking. Please try again.');
@@ -119,70 +106,73 @@ export default function SlotBookingPage() {
     }
   };
 
-  const daysList = getNextDays();
-
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-slate-50">
       <Navbar />
+      <main className="flex-grow py-6">
+        <div className="max-w-5xl mx-auto px-4">
+          <ProgressBar currentStep={6} />
 
-      <main className="flex-grow py-12 bg-slate-50">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center mb-8 max-w-xl mx-auto">
-            <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Schedule Your Service</h1>
-            <p className="text-sm text-slate-400 mt-2">Pick an available calendar date and daily time slot to bring in your vehicle.</p>
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-100 rounded-xl p-4 mb-6 text-sm text-red-700 flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-red-500 shrink-0" />
-              <span>{error}</span>
+          {vehicle && (
+            <div className="mb-5">
+              <VehicleBanner vehicle={vehicle} compact />
             </div>
           )}
 
-          <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
-            {/* Scheduler Selection */}
-            <div className="lg:col-span-8 space-y-6">
-              {/* Date Selector */}
-              <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                <h2 className="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
-                  <Calendar size={18} className="text-primary-600" />
-                  Select Service Date
+          <div className="mb-5">
+            <h1 className="text-xl font-extrabold text-slate-800 tracking-tight">Schedule Your Service</h1>
+            <p className="text-xs text-slate-400 mt-1">Pick a date, time slot, and service center to confirm your booking.</p>
+          </div>
+
+          {error && (
+            <div className="mb-4 bg-red-50 border border-red-100 rounded-xl p-3 flex items-center gap-2 text-sm text-red-700">
+              <AlertCircle size={15} className="text-red-500 shrink-0" /><span>{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-5">
+            {/* Left — Scheduler */}
+            <div className="lg:col-span-8 space-y-4">
+
+              {/* Date */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                <h2 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                  <Calendar size={15} className="text-primary-600" /> Select Date
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {daysList.map((day) => (
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                  {getNextDays().map(day => (
                     <button
                       key={day.value}
                       type="button"
                       onClick={() => setDate(day.value)}
-                      className={`p-3.5 border rounded-xl text-center transition-all duration-150 cursor-pointer flex flex-col items-center justify-center gap-1 ${
+                      className={`p-2.5 border rounded-xl text-center transition-all cursor-pointer flex flex-col items-center gap-0.5 ${
                         date === day.value
                           ? 'border-primary-600 bg-primary-50 text-primary-800 font-bold ring-2 ring-primary-500/10'
-                          : 'bg-slate-50 border-slate-100 hover:border-slate-350 text-slate-700'
+                          : 'bg-slate-50 border-slate-100 hover:border-slate-300 text-slate-700'
                       }`}
                     >
-                      <span className="text-xs uppercase text-slate-400">{day.label.split(',')[0]}</span>
-                      <span className="text-sm font-semibold">{day.label.split(',')[1]}</span>
+                      <span className="text-[9px] uppercase text-slate-400 font-semibold">{day.label.split(',')[0]}</span>
+                      <span className="text-xs font-semibold">{day.label.split(',')[1]?.trim()}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Time Slot Selector */}
-              <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                <h2 className="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
-                  <Clock size={18} className="text-primary-600" />
-                  Select Arrival Time
+              {/* Time */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                <h2 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                  <Clock size={15} className="text-primary-600" /> Select Time
                 </h2>
-                <div className="grid grid-cols-3 gap-3">
-                  {timeSlots.map((slot) => (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {TIME_SLOTS.map(slot => (
                     <button
                       key={slot}
                       type="button"
                       onClick={() => setTime(slot)}
-                      className={`py-3 px-2 border rounded-xl text-center text-xs font-semibold transition-all duration-150 cursor-pointer ${
+                      className={`py-2.5 border rounded-xl text-center text-xs font-semibold transition-all cursor-pointer ${
                         time === slot
                           ? 'border-primary-600 bg-primary-50 text-primary-800 font-bold ring-2 ring-primary-500/10'
-                          : 'bg-slate-50 border-slate-100 hover:border-slate-350 text-slate-700'
+                          : 'bg-slate-50 border-slate-100 hover:border-slate-300 text-slate-700'
                       }`}
                     >
                       {slot}
@@ -190,66 +180,108 @@ export default function SlotBookingPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Service Center */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                <h2 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                  <MapPin size={15} className="text-primary-600" /> Service Center
+                </h2>
+                <div className="space-y-2">
+                  {SERVICE_CENTERS.map(center => (
+                    <button
+                      key={center.id}
+                      type="button"
+                      onClick={() => setServiceCenter(center.id)}
+                      className={`w-full text-left p-4 border-2 rounded-xl transition-all cursor-pointer ${
+                        serviceCenter === center.id
+                          ? 'border-primary-500 bg-primary-50/30'
+                          : 'border-slate-100 bg-slate-50 hover:border-slate-200 hover:bg-white'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${serviceCenter === center.id ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                          <Building2 size={14} />
+                        </div>
+                        <div>
+                          <p className={`text-sm font-bold ${serviceCenter === center.id ? 'text-primary-800' : 'text-slate-700'}`}>{center.name}</p>
+                          <p className="text-xs text-slate-400 mt-0.5">{center.address}</p>
+                          <p className="text-[10px] text-slate-400">{center.timing}</p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pickup Option */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+                <h2 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                  <Truck size={15} className="text-primary-600" /> Pickup Option
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {PICKUP_OPTIONS.map(opt => {
+                    const Icon = opt.icon;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setPickupOption(opt.id)}
+                        className={`text-left p-4 border-2 rounded-xl transition-all cursor-pointer ${
+                          pickupOption === opt.id
+                            ? 'border-primary-500 bg-primary-50/30'
+                            : 'border-slate-100 bg-slate-50 hover:border-slate-200'
+                        }`}
+                      >
+                        <Icon size={18} className={`mb-2 ${pickupOption === opt.id ? 'text-primary-600' : 'text-slate-400'}`} />
+                        <p className={`text-xs font-bold ${pickupOption === opt.id ? 'text-primary-800' : 'text-slate-700'}`}>{opt.label}</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{opt.description}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
-            {/* Customer Details & Confirm */}
-            <div className="lg:col-span-4 space-y-6">
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-6">
-                <h2 className="font-bold text-slate-800 text-sm mb-4 pb-3 border-b border-slate-100 flex items-center gap-1.5">
-                  <Sparkles size={16} className="text-accent-500" />
-                  Booking Details
-                </h2>
+            {/* Right — Contact & Confirm */}
+            <div className="lg:col-span-4 space-y-4">
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-5">
+                <h2 className="font-bold text-slate-800 text-sm mb-4 pb-3 border-b border-slate-100">Contact Details</h2>
 
-                <div className="space-y-4 mb-6">
-                  {/* Name field */}
+                <div className="space-y-3 mb-4">
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Your Name</label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <User size={14} />
-                      </div>
+                      <User size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
-                        type="text"
-                        required
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 transition-all font-medium text-slate-700"
-                        placeholder="John Doe"
+                        type="text" required value={name}
+                        onChange={e => setName(e.target.value)}
+                        className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 transition-all font-medium text-slate-700"
+                        placeholder="Full Name"
                       />
                     </div>
                   </div>
-
-                  {/* Email field */}
                   <div>
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Email Address</label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <Mail size={14} />
-                      </div>
+                      <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                       <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 transition-all font-medium text-slate-700"
-                        placeholder="john@example.com"
+                        type="email" required value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 transition-all font-medium text-slate-700"
+                        placeholder="email@example.com"
                       />
                     </div>
                   </div>
 
-                  {/* Summary cost */}
+                  {/* Order Summary */}
                   <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 text-xs space-y-1.5 text-slate-600">
-                    <div className="flex justify-between">
-                      <span>Service:</span>
-                      <span className="font-semibold text-slate-800">{service?.name || 'General Maintenance'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Package:</span>
-                      <span className="font-semibold text-slate-800">{pkg?.name || 'None'}</span>
-                    </div>
-                    <div className="flex justify-between border-t border-slate-200/60 pt-1.5 mt-1.5 text-sm font-bold">
-                      <span className="text-slate-800">Total Estimate:</span>
-                      <span className="text-primary-800">${estPrice.toFixed(2)}</span>
+                    {vehicle && <div className="flex justify-between"><span>Vehicle:</span><span className="font-semibold text-slate-800">{vehicle.make} {vehicle.model}</span></div>}
+                    {selectedServices.length > 0 && <div className="flex justify-between"><span>Services:</span><span className="font-semibold text-slate-800">{selectedServices.length} selected</span></div>}
+                    <div className="flex justify-between"><span>Package:</span><span className="font-semibold text-slate-800">{pkg?.name || 'None'}</span></div>
+                    {pickupOption === 'pickup' && <div className="flex justify-between"><span>Pickup:</span><span className="font-semibold text-slate-800">+₹499</span></div>}
+                    <div className="flex justify-between border-t border-slate-200/60 pt-1.5 mt-1">
+                      <span className="font-bold text-slate-800">Total:</span>
+                      <span className="font-black text-primary-800">₹{total.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                 </div>
@@ -257,28 +289,25 @@ export default function SlotBookingPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-accent-500 hover:bg-accent-600 active:scale-[0.98] text-white py-3 rounded-xl font-bold transition-all text-center shadow-lg shadow-accent-500/20 hover:shadow-accent-500/35 border border-accent-600 flex items-center justify-center gap-1.5 cursor-pointer text-sm disabled:opacity-50"
+                  className="w-full bg-accent-500 hover:bg-accent-600 active:scale-[0.98] text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-accent-500/20 border border-accent-600 flex items-center justify-center gap-1.5 cursor-pointer text-sm disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Recording...' : 'Confirm Service Booking'}
+                  {isSubmitting ? 'Booking...' : 'Confirm Service Booking'}
                 </button>
               </div>
             </div>
           </form>
 
-          {/* Back button */}
           <div className="flex justify-start">
             <button
               type="button"
               onClick={() => router.push('/estimator')}
-              className="border border-slate-200 text-slate-600 hover:bg-slate-100 px-6 py-3 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 cursor-pointer bg-white"
+              className="border border-slate-200 text-slate-600 hover:bg-slate-50 px-5 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 cursor-pointer bg-white"
             >
-              <ChevronLeft size={16} />
-              Back
+              <ChevronLeft size={15} /> Back
             </button>
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   );
