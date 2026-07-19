@@ -313,3 +313,45 @@ body {
 .step-done   { background: #10b981; border-color: #10b981; color: #fff; }
 .step-active { background: #0052ff; border-color: #0052ff; color: #fff; box-shadow: 0 0 0 4px rgba(0,82,255,0.15); }
 .step-idle   { background: #1e2d45; border-color: #1e2d45; color: #64748b; }
+
+/* ────────────────────────────────────────────
+   GLOBAL SELECT FIELD DROPDOWN COLOR FIX
+────────────────────────────────────────────── */
+select {
+  color: #0f172a !important;
+}
+select option {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+/* ────────────────────────────────────────────
+   VIBRANT MOVING CAR ANIMATIONS
+────────────────────────────────────────────── */
+@keyframes rotate-wheel {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-wheel-left {
+  animation: rotate-wheel 0.6s linear infinite;
+}
+.animate-wheel-right {
+  animation: rotate-wheel 0.6s linear infinite;
+}
+
+@keyframes car-vibrate {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-1.5px); }
+}
+.animate-car-body {
+  animation: car-vibrate 0.15s ease-in-out infinite;
+}
+
+@keyframes road-slide {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: 30; }
+}
+.animate-road {
+  animation: road-slide 0.4s linear infinite;
+}
+

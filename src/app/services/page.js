@@ -256,7 +256,8 @@ export default function ChooseServicePage() {
                 placeholder="Search services…"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl text-sm font-medium input-dark"
+                className="w-full pr-4 py-3 rounded-xl text-sm font-medium input-dark"
+                style={{ paddingLeft: '2.75rem' }}
               />
             </div>
             <div className="flex gap-2 flex-wrap">

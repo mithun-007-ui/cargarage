@@ -262,27 +262,41 @@ export default function VehicleSelectionPage() {
                   <div className="w-72 h-72 rounded-full bg-primary-600/8 glow-pulse" />
                 </div>
                 <svg viewBox="0 0 560 280" className="w-full max-w-lg h-auto relative z-10 drop-shadow-[0_0_50px_rgba(0,82,255,0.2)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Road */}
                   <rect x="20" y="240" width="520" height="5" rx="2.5" fill="#1e2d45" opacity="0.6"/>
-                  <path d="M 80,200 L 80,170 C 80,165 85,160 90,158 L 150,140 C 165,128 190,110 230,108 L 330,108 C 370,108 395,126 410,140 L 470,158 C 475,160 480,165 480,170 L 480,200 Z" fill="#111827" stroke="#0052ff" strokeWidth="2"/>
-                  <path d="M 175,140 C 185,118 210,102 245,100 L 315,100 C 350,100 375,116 385,140 Z" fill="#0d1a30" stroke="#1e2d45" strokeWidth="1.5"/>
-                  <path d="M 185,140 C 195,120 215,106 248,104 L 295,104 C 310,104 330,118 340,140 Z" fill="#0052ff" opacity="0.15" stroke="#0052ff" strokeWidth="1" strokeOpacity="0.4"/>
-                  <ellipse cx="96" cy="175" rx="12" ry="8" fill="#0052ff" opacity="0.8"/>
-                  <ellipse cx="96" cy="175" rx="8" ry="5" fill="#60a5fa" opacity="0.9"/>
-                  <path d="M 84,172 L 30,160 M 84,175 L 25,175 M 84,178 L 30,190" stroke="#0052ff" strokeWidth="1.5" opacity="0.3" strokeLinecap="round"/>
-                  <rect x="460" y="168" width="16" height="14" rx="3" fill="#ef4444" opacity="0.7"/>
-                  <circle cx="160" cy="215" r="28" fill="#0f172a" stroke="#1e2d45" strokeWidth="3"/>
-                  <circle cx="160" cy="215" r="20" fill="#111827" stroke="#0052ff" strokeWidth="2.5" opacity="0.8"/>
-                  <circle cx="160" cy="215" r="10" fill="#1e2d45"/>
-                  {[0,60,120,180,240,300].map(deg => (
-                    <line key={deg} x1="160" y1="215" x2={160 + 17 * Math.cos(deg * Math.PI / 180)} y2={215 + 17 * Math.sin(deg * Math.PI / 180)} stroke="#0052ff" strokeWidth="1.5" opacity="0.5"/>
-                  ))}
-                  <circle cx="400" cy="215" r="28" fill="#0f172a" stroke="#1e2d45" strokeWidth="3"/>
-                  <circle cx="400" cy="215" r="20" fill="#111827" stroke="#0052ff" strokeWidth="2.5" opacity="0.8"/>
-                  <circle cx="400" cy="215" r="10" fill="#1e2d45"/>
-                  {[0,60,120,180,240,300].map(deg => (
-                    <line key={deg} x1="400" y1="215" x2={400 + 17 * Math.cos(deg * Math.PI / 180)} y2={215 + 17 * Math.sin(deg * Math.PI / 180)} stroke="#0052ff" strokeWidth="1.5" opacity="0.5"/>
-                  ))}
-                  <rect x="260" y="158" width="40" height="5" rx="2.5" fill="#1e2d45" stroke="#0052ff" strokeWidth="0.8" opacity="0.7"/>
+                  <line x1="30" y1="242" x2="530" y2="242" stroke="#0052ff" strokeWidth="2" strokeDasharray="15, 15" className="animate-road" opacity="0.6"/>
+
+                  {/* Car body group (bounces slightly to simulate running engine) */}
+                  <g className="animate-car-body" style={{ transformOrigin: '280px 200px' }}>
+                    <path d="M 80,200 L 80,170 C 80,165 85,160 90,158 L 150,140 C 165,128 190,110 230,108 L 330,108 C 370,108 395,126 410,140 L 470,158 C 475,160 480,165 480,170 L 480,200 Z" fill="#111827" stroke="#0052ff" strokeWidth="2"/>
+                    <path d="M 175,140 C 185,118 210,102 245,100 L 315,100 C 350,100 375,116 385,140 Z" fill="#0d1a30" stroke="#1e2d45" strokeWidth="1.5"/>
+                    <path d="M 185,140 C 195,120 215,106 248,104 L 295,104 C 310,104 330,118 340,140 Z" fill="#0052ff" opacity="0.15" stroke="#0052ff" strokeWidth="1" strokeOpacity="0.4"/>
+                    <ellipse cx="96" cy="175" rx="12" ry="8" fill="#0052ff" opacity="0.8"/>
+                    <ellipse cx="96" cy="175" rx="8" ry="5" fill="#60a5fa" opacity="0.9"/>
+                    <path d="M 84,172 L 30,160 M 84,175 L 25,175 M 84,178 L 30,190" stroke="#0052ff" strokeWidth="1.5" opacity="0.3" strokeLinecap="round"/>
+                    <rect x="460" y="168" width="16" height="14" rx="3" fill="#ef4444" opacity="0.7"/>
+                    <rect x="260" y="158" width="40" height="5" rx="2.5" fill="#1e2d45" stroke="#0052ff" strokeWidth="0.8" opacity="0.7"/>
+                  </g>
+
+                  {/* Left Wheel */}
+                  <g className="animate-wheel-left" style={{ transformOrigin: '160px 215px' }}>
+                    <circle cx="160" cy="215" r="28" fill="#0f172a" stroke="#1e2d45" strokeWidth="3"/>
+                    <circle cx="160" cy="215" r="20" fill="#111827" stroke="#0052ff" strokeWidth="2.5" opacity="0.8"/>
+                    <circle cx="160" cy="215" r="10" fill="#1e2d45"/>
+                    {[0,60,120,180,240,300].map(deg => (
+                      <line key={deg} x1="160" y1="215" x2={160 + 17 * Math.cos(deg * Math.PI / 180)} y2={215 + 17 * Math.sin(deg * Math.PI / 180)} stroke="#0052ff" strokeWidth="1.5" opacity="0.5"/>
+                    ))}
+                  </g>
+
+                  {/* Right Wheel */}
+                  <g className="animate-wheel-right" style={{ transformOrigin: '400px 215px' }}>
+                    <circle cx="400" cy="215" r="28" fill="#0f172a" stroke="#1e2d45" strokeWidth="3"/>
+                    <circle cx="400" cy="215" r="20" fill="#111827" stroke="#0052ff" strokeWidth="2.5" opacity="0.8"/>
+                    <circle cx="400" cy="215" r="10" fill="#1e2d45"/>
+                    {[0,60,120,180,240,300].map(deg => (
+                      <line key={deg} x1="400" y1="215" x2={400 + 17 * Math.cos(deg * Math.PI / 180)} y2={215 + 17 * Math.sin(deg * Math.PI / 180)} stroke="#0052ff" strokeWidth="1.5" opacity="0.5"/>
+                    ))}
+                  </g>
                 </svg>
               </div>
 
