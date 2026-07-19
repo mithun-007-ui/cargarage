@@ -206,7 +206,12 @@ export const getMockDb = () => {
       services: DEFAULT_SERVICES,
       packages: DEFAULT_PACKAGES,
       bookings: INITIAL_BOOKINGS,
-      notifications: INITIAL_NOTIFICATIONS
+      notifications: INITIAL_NOTIFICATIONS,
+      coupons: [],
+      reviews: [],
+      emergencyRequests: [],
+      savedVehicles: {},
+      slotsSettings: { defaultLimit: 5, blockedDates: [], blockedSlots: {} }
     };
   }
 
@@ -216,18 +221,46 @@ export const getMockDb = () => {
       services: DEFAULT_SERVICES,
       packages: DEFAULT_PACKAGES,
       bookings: INITIAL_BOOKINGS,
-      notifications: INITIAL_NOTIFICATIONS
+      notifications: INITIAL_NOTIFICATIONS,
+      coupons: [
+        { code: 'SLAY10', discount: 10, description: '10% off on all services' },
+        { code: 'WELCOME15', discount: 15, description: '15% off for new customers' }
+      ],
+      reviews: [
+        { id: 'rev-1', customerName: 'John D.', rating: 5, comment: 'Bug Slayers solved my engine stalling issue within 2 hours. Extremely transparent prices!', vehicle: 'Hyundai Creta', verified: true, date: '2026-07-10' },
+        { id: 'rev-2', customerName: 'Sarah J.', rating: 5, comment: 'Love the repair approval feature. I only authorized what was critical.', vehicle: 'BMW M3', verified: true, date: '2026-07-15' },
+      ],
+      emergencyRequests: [
+        { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'Pending', timestamp: new Date().toISOString() }
+      ],
+      savedVehicles: {},
+      slotsSettings: { defaultLimit: 5, blockedDates: [], blockedSlots: {} },
+      version: 3
     };
     localStorage.setItem('autocare_db', JSON.stringify(initialDb));
     return initialDb;
   }
   try {
     const parsed = JSON.parse(db);
-    // Version bump: ensure we have the expanded 15-service list
-    if (!parsed.notifications || !parsed.version || parsed.version < 2) {
-      parsed.notifications = INITIAL_NOTIFICATIONS;
-      parsed.services = DEFAULT_SERVICES; // refresh service list to latest
-      parsed.version = 2;
+    // Version bump: ensure we have version 3 tables
+    if (!parsed.version || parsed.version < 3) {
+      parsed.notifications = parsed.notifications || INITIAL_NOTIFICATIONS;
+      parsed.services = DEFAULT_SERVICES;
+      parsed.packages = DEFAULT_PACKAGES;
+      parsed.coupons = [
+        { code: 'SLAY10', discount: 10, description: '10% off on all services' },
+        { code: 'WELCOME15', discount: 15, description: '15% off for new customers' }
+      ];
+      parsed.reviews = [
+        { id: 'rev-1', customerName: 'John D.', rating: 5, comment: 'Bug Slayers solved my engine stalling issue within 2 hours. Extremely transparent prices!', vehicle: 'Hyundai Creta', verified: true, date: '2026-07-10' },
+        { id: 'rev-2', customerName: 'Sarah J.', rating: 5, comment: 'Love the repair approval feature. I only authorized what was critical.', vehicle: 'BMW M3', verified: true, date: '2026-07-15' },
+      ];
+      parsed.emergencyRequests = [
+        { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'Pending', timestamp: new Date().toISOString() }
+      ];
+      parsed.savedVehicles = parsed.savedVehicles || {};
+      parsed.slotsSettings = parsed.slotsSettings || { defaultLimit: 5, blockedDates: [], blockedSlots: {} };
+      parsed.version = 3;
       localStorage.setItem('autocare_db', JSON.stringify(parsed));
     }
     return parsed;
@@ -238,14 +271,28 @@ export const getMockDb = () => {
       services: DEFAULT_SERVICES,
       packages: DEFAULT_PACKAGES,
       bookings: INITIAL_BOOKINGS,
-      notifications: INITIAL_NOTIFICATIONS
+      notifications: INITIAL_NOTIFICATIONS,
+      coupons: [
+        { code: 'SLAY10', discount: 10, description: '10% off on all services' },
+        { code: 'WELCOME15', discount: 15, description: '15% off for new customers' }
+      ],
+      reviews: [
+        { id: 'rev-1', customerName: 'John D.', rating: 5, comment: 'Bug Slayers solved my engine stalling issue within 2 hours. Extremely transparent prices!', vehicle: 'Hyundai Creta', verified: true, date: '2026-07-10' },
+        { id: 'rev-2', customerName: 'Sarah J.', rating: 5, comment: 'Love the repair approval feature. I only authorized what was critical.', vehicle: 'BMW M3', verified: true, date: '2026-07-15' },
+      ],
+      emergencyRequests: [
+        { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'Pending', timestamp: new Date().toISOString() }
+      ],
+      savedVehicles: {},
+      slotsSettings: { defaultLimit: 5, blockedDates: [], blockedSlots: {} },
+      version: 3
     };
     localStorage.setItem('autocare_db', JSON.stringify(initialDb));
     return initialDb;
   }
 };
 
-const saveMockDb = (db) => {
+export const saveMockDb = (db) => {
   if (isClient()) {
     localStorage.setItem('autocare_db', JSON.stringify(db));
   }
@@ -323,7 +370,6 @@ export const updateBookingStatus = (id, status) => {
   const index = db.bookings.findIndex(b => b.id === id);
   if (index !== -1) {
     const booking = db.bookings[index];
-    const prevStatus = booking.status;
     booking.status = status;
     saveMockDb(db);
 
@@ -331,25 +377,25 @@ export const updateBookingStatus = (id, status) => {
     if (status === 'Vehicle Received') {
       addNotification(booking.customerEmail, `Vehicle Received: Your ${booking.vehicle.make} ${booking.vehicle.model} has been checked in.`);
       addNotification('admin@gmail.com', `Vehicle Checked In: Booking ${id} is ready for assignment.`);
-    } else if (status === 'Inspection Started') {
+    } else if (status === 'Inspection' || status === 'Inspection Started') {
       addNotification(booking.customerEmail, `Inspection Started: A technician is now running diagnostics on your vehicle.`);
       addNotification('admin@gmail.com', `Service Started: Inspection has begun for Booking ${id}.`);
     } else if (status === 'Inspection Completed') {
       addNotification(booking.customerEmail, `Inspection Completed: Diagnostic reports have been drafted. Awaiting report release.`);
       addNotification('admin@gmail.com', `Report Drafted: Inspection report is ready for Booking ${id}.`);
-    } else if (status === 'Waiting for Approval') {
+    } else if (status === 'Waiting for Approval' || status === 'Approval Required') {
       addNotification(booking.customerEmail, `Repair Approval Requested: Please review and approve the recommended repairs.`);
       addNotification('admin@gmail.com', `Approval Request Sent: Invoice recommendations issued for Booking ${id}.`);
-    } else if (status === 'Repair Started') {
+    } else if (status === 'Service in Progress' || status === 'Repair Started') {
       addNotification(booking.customerEmail, `Repair Started: Our team has begun work on the authorized repairs.`);
       addNotification('admin@gmail.com', `Repairs In Progress: Active service underway for Booking ${id}.`);
     } else if (status === 'Quality Check') {
       addNotification(booking.customerEmail, `Quality Check: Servicing complete. Your vehicle is entering final verification inspections.`);
       addNotification('admin@gmail.com', `Quality Control: Checking parameters for Booking ${id}.`);
-    } else if (status === 'Ready for Delivery') {
-      addNotification(booking.customerEmail, `Vehicle Ready for Delivery: All inspections and repairs have been completed successfully.`);
+    } else if (status === 'Ready for Pickup' || status === 'Ready for Delivery') {
+      addNotification(booking.customerEmail, `Vehicle Ready for Pickup: All inspections and repairs have been completed successfully.`);
       addNotification('admin@gmail.com', `Service Ready: Booking ${id} is complete and awaiting collection.`);
-    } else if (status === 'Delivered') {
+    } else if (status === 'Completed' || status === 'Delivered') {
       addNotification(booking.customerEmail, `Vehicle Delivered: Service completed. We hope you liked our premium workflow!`);
       addNotification('admin@gmail.com', `Service Completed: Booking ${id} has been delivered.`);
     }
@@ -444,13 +490,138 @@ export const updateHealthReportItem = (bookingId, itemIndex, approved) => {
   return null;
 };
 
+// ─── Coupons ───
+export const getCoupons = () => {
+  return getMockDb().coupons || [];
+};
+export const addCoupon = (coupon) => {
+  const db = getMockDb();
+  db.coupons = db.coupons || [];
+  db.coupons.push(coupon);
+  saveMockDb(db);
+  return db.coupons;
+};
+export const deleteCoupon = (code) => {
+  const db = getMockDb();
+  db.coupons = (db.coupons || []).filter(c => c.code !== code);
+  saveMockDb(db);
+  return db.coupons;
+};
+
+// ─── Reviews ───
+export const getReviews = () => {
+  return getMockDb().reviews || [];
+};
+export const addReview = (review) => {
+  const db = getMockDb();
+  db.reviews = db.reviews || [];
+  const newReview = {
+    id: `rev-${Date.now()}`,
+    ...review,
+    verified: true,
+    date: new Date().toISOString().split('T')[0]
+  };
+  db.reviews.unshift(newReview);
+  saveMockDb(db);
+  return newReview;
+};
+
+// ─── Emergency Requests ───
+export const getEmergencyRequests = () => {
+  return getMockDb().emergencyRequests || [];
+};
+export const addEmergencyRequest = (req) => {
+  const db = getMockDb();
+  db.emergencyRequests = db.emergencyRequests || [];
+  const newReq = {
+    id: `em-${Math.floor(100 + Math.random() * 900)}`,
+    status: 'Pending',
+    timestamp: new Date().toISOString(),
+    ...req
+  };
+  db.emergencyRequests.unshift(newReq);
+  saveMockDb(db);
+  
+  addNotification('admin@gmail.com', `🚨 EMERGENCY HELP REQUESTED: ${req.name} at ${req.location} (${req.phone}).`);
+  return newReq;
+};
+export const updateEmergencyStatus = (id, status) => {
+  const db = getMockDb();
+  db.emergencyRequests = db.emergencyRequests || [];
+  const idx = db.emergencyRequests.findIndex(r => r.id === id);
+  if (idx !== -1) {
+    db.emergencyRequests[idx].status = status;
+    saveMockDb(db);
+    return db.emergencyRequests[idx];
+  }
+  return null;
+};
+
+// ─── Saved Vehicles ───
+export const getSavedVehicles = (email) => {
+  const db = getMockDb();
+  if (!db.savedVehicles) return [];
+  return db.savedVehicles[email.toLowerCase()] || [];
+};
+export const addSavedVehicle = (email, vehicle) => {
+  const db = getMockDb();
+  db.savedVehicles = db.savedVehicles || {};
+  const emailKey = email.toLowerCase();
+  if (!db.savedVehicles[emailKey]) db.savedVehicles[emailKey] = [];
+  
+  // Prevent duplicate plate numbers
+  db.savedVehicles[emailKey] = db.savedVehicles[emailKey].filter(v => v.plateNumber !== vehicle.plateNumber);
+  db.savedVehicles[emailKey].push(vehicle);
+  saveMockDb(db);
+  return db.savedVehicles[emailKey];
+};
+export const deleteSavedVehicle = (email, plateNumber) => {
+  const db = getMockDb();
+  db.savedVehicles = db.savedVehicles || {};
+  const emailKey = email.toLowerCase();
+  if (db.savedVehicles[emailKey]) {
+    db.savedVehicles[emailKey] = db.savedVehicles[emailKey].filter(v => v.plateNumber !== plateNumber);
+    saveMockDb(db);
+  }
+  return db.savedVehicles[emailKey] || [];
+};
+
+// ─── Slots Settings ───
+export const getSlotsSettings = () => {
+  const db = getMockDb();
+  if (!db.slotsSettings) {
+    return { defaultLimit: 5, blockedDates: [], blockedSlots: {} };
+  }
+  return db.slotsSettings;
+};
+export const updateSlotsSettings = (settings) => {
+  const db = getMockDb();
+  db.slotsSettings = { ...getSlotsSettings(), ...settings };
+  saveMockDb(db);
+  return db.slotsSettings;
+};
+
 export const resetDb = () => {
   if (isClient()) {
     const initialDb = {
       services: DEFAULT_SERVICES,
       packages: DEFAULT_PACKAGES,
       bookings: INITIAL_BOOKINGS,
-      notifications: INITIAL_NOTIFICATIONS
+      notifications: INITIAL_NOTIFICATIONS,
+      coupons: [
+        { code: 'SLAY10', discount: 10, description: '10% off on all services' },
+        { code: 'WELCOME15', discount: 15, description: '15% off for new customers' }
+      ],
+      reviews: [
+        { id: 'rev-1', customerName: 'John D.', rating: 5, comment: 'Bug Slayers solved my engine stalling issue within 2 hours. Transparent pricing at its best.', vehicle: 'Hyundai Creta', verified: true, date: '2026-07-10' },
+        { id: 'rev-2', customerName: 'Sarah J.', rating: 5, comment: 'Love the repair approval feature. I only authorized what was critical.', vehicle: 'BMW M3', verified: true, date: '2026-07-15' },
+      ],
+      emergencyRequests: [
+        { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'Pending', timestamp: new Date().toISOString() }
+      ],
+      savedVehicles: {},
+      slotsSettings: { defaultLimit: 5, blockedDates: [], blockedSlots: {} },
+      version: 3
     };
     localStorage.setItem('autocare_db', JSON.stringify(initialDb));
     return initialDb;

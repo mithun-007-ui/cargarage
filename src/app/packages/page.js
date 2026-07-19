@@ -9,7 +9,7 @@ import VehicleBanner from 'src/components/VehicleBanner';
 import BillSummary from 'src/components/BillSummary';
 import PackageCard from 'src/components/PackageCard';
 import { getMockDb } from 'src/lib/mockDb';
-import { ChevronLeft, ChevronRight, Check, X, Shield } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, X, Shield, Star, AlertCircle } from 'lucide-react';
 
 const COMPARISON_ITEMS = [
   { name: 'Diagnostic Health Inspection', silver: '24-Point', gold: 'Full Digital Scan', platinum: 'Priority 120-Point' },
@@ -32,13 +32,10 @@ export default function ChoosePackagePage() {
   useEffect(() => {
     const db = getMockDb();
     setPackages(db.packages);
-
     const storedServices = localStorage.getItem('booking_flow_services');
     if (storedServices) { try { setSelectedServices(JSON.parse(storedServices)); } catch (e) {} }
-
     const storedVehicle = localStorage.getItem('booking_flow_vehicle');
     if (storedVehicle) { try { setVehicle(JSON.parse(storedVehicle)); } catch (e) {} }
-
     const storedPackage = localStorage.getItem('booking_flow_package');
     if (storedPackage) {
       try {
@@ -51,40 +48,52 @@ export default function ChoosePackagePage() {
   const handleContinue = () => {
     const toStore = (!selectedPackage || selectedPackage === 'none') ? 'none' : selectedPackage;
     localStorage.setItem('booking_flow_package', JSON.stringify(toStore));
-    router.push('/comparison');
+    if (!vehicle) router.push('/vehicle-selection');
+    else router.push('/comparison');
   };
 
   const renderCell = (val) => {
     if (typeof val === 'boolean') {
       return val
-        ? <Check size={14} className="text-emerald-500 mx-auto" />
-        : <X size={14} className="text-slate-300 mx-auto" />;
+        ? <Check size={15} className="text-emerald-400 mx-auto" strokeWidth={3} />
+        : <X size={15} className="text-slate-600 mx-auto" />;
     }
-    return <span className="text-[10px] text-slate-600">{val}</span>;
+    return <span className="text-xs text-slate-300 font-semibold">{val}</span>;
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
+    <div className="flex flex-col min-h-screen" style={{ background: 'linear-gradient(180deg, #0d1220 0%, #060912 100%)' }}>
       <Navbar />
-      <main className="flex-grow py-6">
-        <div className="max-w-6xl mx-auto px-4">
-          <ProgressBar currentStep={3} />
+      <main className="flex-grow py-6 md:py-10">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
+
+          {vehicle && <ProgressBar currentStep={3} />}
+
+          {/* Page Header */}
+          <div className="mb-8 mt-2">
+            <span className="section-label">Step 3 of 6 · Package Selection</span>
+            <h1 className="text-2xl md:text-3xl font-black text-white mt-1 tracking-tight flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl icon-violet flex items-center justify-center shrink-0">
+                <Shield size={18} />
+              </div>
+              Compare Care Packages
+            </h1>
+            <p className="text-sm text-slate-400 mt-1.5 max-w-lg">
+              Select a bundled care package to save up to 25% on combined service fees. Or continue with individual services only.
+            </p>
+          </div>
 
           {vehicle && (
-            <div className="mb-5">
+            <div className="mb-6">
               <VehicleBanner vehicle={vehicle} compact />
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-5">
-              <div>
-                <h1 className="text-xl font-extrabold text-slate-800 tracking-tight">Choose a Service Package</h1>
-                <p className="text-xs text-slate-400 mt-1">Add a care bundle for extra savings. You can skip this step.</p>
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 space-y-6">
 
-              {/* Package Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Package Cards grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {packages.map(pkg => (
                   <PackageCard
                     key={pkg.id}
@@ -95,41 +104,41 @@ export default function ChoosePackagePage() {
                 ))}
               </div>
 
-              {/* No Package */}
+              {/* No Package option */}
               <button
                 onClick={() => setSelectedPackage('none')}
-                className={`w-full py-3 rounded-2xl font-bold text-sm border-2 transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                className={`w-full py-4 rounded-2xl font-bold text-sm border-2 transition-all cursor-pointer flex items-center justify-center gap-2 ${
                   selectedPackage === 'none'
-                    ? 'border-primary-500 bg-primary-50/30 text-primary-800'
-                    : 'bg-white border-slate-200 hover:border-slate-300 text-slate-600'
+                    ? 'border-primary-600 bg-primary-600/10 text-primary-300'
+                    : 'bg-[#111827] border-[#1e2d45] text-slate-400 hover:border-[#253558] hover:text-slate-200'
                 }`}
               >
-                {selectedPackage === 'none' ? '✓ ' : ''}Continue with No Package (Primary Services Only)
+                {selectedPackage === 'none' ? '✓ ' : ''}Continue with No Package (Services Only)
               </button>
 
-              {/* Comparison Table */}
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-                  <Shield size={15} className="text-primary-600" />
-                  <h2 className="text-sm font-bold text-slate-800">Package Comparison</h2>
+              {/* Comparison table */}
+              <div className="bg-[#111827] rounded-3xl border border-[#1e2d45] overflow-hidden">
+                <div className="px-5 py-4 border-b border-[#1e2d45] flex items-center gap-2.5" style={{ background: 'linear-gradient(90deg, #141f33, #111827)' }}>
+                  <Star size={14} className="text-amber-400" fill="currentColor" />
+                  <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider">Features Comparison Matrix</h2>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-xs">
+                  <table className="w-full text-left border-collapse text-sm">
                     <thead>
-                      <tr className="border-b border-slate-100 bg-slate-50/70">
-                        <th className="py-3 px-4 font-bold text-slate-600">Feature</th>
-                        <th className="py-3 px-4 font-extrabold text-slate-700 text-center">Silver<br /><span className="text-primary-700 font-black">₹1,499</span></th>
-                        <th className="py-3 px-4 font-extrabold text-slate-700 text-center">Gold<br /><span className="text-primary-700 font-black">₹2,499</span></th>
-                        <th className="py-3 px-4 font-extrabold text-slate-700 text-center">Platinum<br /><span className="text-primary-700 font-black">₹3,999</span></th>
+                      <tr className="border-b border-[#1e2d45]" style={{ background: 'linear-gradient(90deg, #141f33, #111827)' }}>
+                        <th className="py-3.5 px-5 font-bold text-slate-500 uppercase tracking-wider text-xs">Feature</th>
+                        <th className="py-3.5 px-5 font-black text-slate-300 text-center">Silver<br /><span className="text-slate-500 text-xs font-normal">₹1,499</span></th>
+                        <th className="py-3.5 px-5 font-black text-amber-300 text-center">Gold<br /><span className="text-amber-500/70 text-xs font-normal">₹2,499</span></th>
+                        <th className="py-3.5 px-5 font-black text-violet-300 text-center">Platinum<br /><span className="text-violet-500/70 text-xs font-normal">₹3,999</span></th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-[#1e2d45]">
                       {COMPARISON_ITEMS.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/30">
-                          <td className="py-2.5 px-4 text-slate-700 font-medium">{item.name}</td>
-                          <td className="py-2.5 px-4 text-center">{renderCell(item.silver)}</td>
-                          <td className="py-2.5 px-4 text-center">{renderCell(item.gold)}</td>
-                          <td className="py-2.5 px-4 text-center">{renderCell(item.platinum)}</td>
+                        <tr key={idx} className="hover:bg-white/2 transition-colors">
+                          <td className="py-3.5 px-5 text-slate-300 font-semibold">{item.name}</td>
+                          <td className="py-3.5 px-5 text-center">{renderCell(item.silver)}</td>
+                          <td className="py-3.5 px-5 text-center">{renderCell(item.gold)}</td>
+                          <td className="py-3.5 px-5 text-center">{renderCell(item.platinum)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -139,30 +148,33 @@ export default function ChoosePackagePage() {
             </div>
 
             {/* Bill Summary */}
-            <div className="lg:col-span-1">
-              <BillSummary
-                vehicle={vehicle}
-                selectedServices={selectedServices}
-                selectedPackage={selectedPackage}
-              />
+            <div className="lg:col-span-4">
+              <div className="sticky top-20">
+                <BillSummary
+                  vehicle={vehicle}
+                  selectedServices={selectedServices}
+                  selectedPackage={selectedPackage}
+                  isPublic={!vehicle}
+                  onActionClick={handleContinue}
+                />
+              </div>
             </div>
           </div>
 
           {/* Navigation */}
-          <div className="border-t border-slate-200 pt-5 mt-5 flex justify-between">
-            <button
-              onClick={() => router.push('/services')}
-              className="border border-slate-200 text-slate-600 hover:bg-slate-50 px-5 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 cursor-pointer bg-white"
-            >
-              <ChevronLeft size={15} /> Back
-            </button>
-            <button
-              onClick={handleContinue}
-              className="bg-primary-600 hover:bg-primary-700 active:scale-[0.98] text-white px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 shadow-md shadow-primary-600/10 cursor-pointer"
-            >
-              Continue to Comparison <ChevronRight size={15} />
-            </button>
-          </div>
+          {vehicle && (
+            <div className="divider-dark mt-8 pt-6 flex justify-between">
+              <button
+                onClick={() => router.push('/services')}
+                className="border border-[#1e2d45] text-slate-400 hover:bg-[#111827] hover:text-white px-5 py-3 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 cursor-pointer min-h-[48px]"
+              >
+                <ChevronLeft size={16} /> Back
+              </button>
+              <button onClick={handleContinue} className="btn-primary text-sm">
+                Continue to Comparison <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
         </div>
       </main>
       <Footer />

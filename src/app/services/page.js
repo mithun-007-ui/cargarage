@@ -9,36 +9,145 @@ import VehicleBanner from 'src/components/VehicleBanner';
 import BillSummary from 'src/components/BillSummary';
 import { getMockDb } from 'src/lib/mockDb';
 import {
-  ChevronLeft, ChevronRight, AlertCircle, Car,
-  Wrench, Droplet, Wind, ShieldAlert, BatteryCharging,
-  Circle, SquareCheck, Square, Cpu, Sparkles, Star,
-  ArrowUpDown, Thermometer, Fan, Zap, Disc
+  ChevronLeft, ChevronRight, AlertCircle, Wrench, Search,
+  Check, Clock, Droplet, Wind, ShieldAlert, BatteryCharging,
+  Circle, Cpu, Sparkles, Star, ArrowUpDown, Thermometer, Fan, Zap, Disc,
+  ArrowRight, SquareCheck, Square
 } from 'lucide-react';
 
 const ICON_MAP = {
   Wrench, Droplet, Wind, ShieldAlert, BatteryCharging,
   Circle, Cpu, Sparkles, Star, ArrowUpDown, Thermometer,
-  Fan, Zap, Disc,
-  Sofa: Wrench, // fallback for Sofa
+  Fan, Zap, Disc, Sofa: Wrench
 };
 
-const SERVICE_COLORS = [
-  'bg-blue-50 text-blue-600 border-blue-100',
-  'bg-orange-50 text-orange-600 border-orange-100',
-  'bg-red-50 text-red-600 border-red-100',
-  'bg-cyan-50 text-cyan-600 border-cyan-100',
-  'bg-amber-50 text-amber-600 border-amber-100',
-  'bg-emerald-50 text-emerald-600 border-emerald-100',
-  'bg-purple-50 text-purple-600 border-purple-100',
-  'bg-indigo-50 text-indigo-600 border-indigo-100',
-  'bg-teal-50 text-teal-600 border-teal-100',
-  'bg-rose-50 text-rose-600 border-rose-100',
-  'bg-sky-50 text-sky-600 border-sky-100',
-  'bg-lime-50 text-lime-600 border-lime-100',
-  'bg-violet-50 text-violet-600 border-violet-100',
-  'bg-pink-50 text-pink-600 border-pink-100',
-  'bg-yellow-50 text-yellow-600 border-yellow-100',
+// Category accent colour sets — each category gets a unique visual identity
+const CATEGORY_COLORS = {
+  engine:     { icon: 'icon-amber',  tag: 'badge-yellow', dot: 'bg-amber-400',   ring: 'border-amber-500/30',  headerBg: 'from-amber-900/20 to-transparent'  },
+  brakes:     { icon: 'icon-rose',   tag: 'badge-orange', dot: 'bg-rose-400',    ring: 'border-rose-500/30',   headerBg: 'from-rose-900/20 to-transparent'    },
+  ac:         { icon: 'icon-cyan',   tag: 'badge-blue',   dot: 'bg-cyan-400',    ring: 'border-cyan-500/30',   headerBg: 'from-cyan-900/20 to-transparent'    },
+  electrical: { icon: 'icon-violet', tag: 'badge-blue',   dot: 'bg-violet-400',  ring: 'border-violet-500/30', headerBg: 'from-violet-900/20 to-transparent'  },
+  detailing:  { icon: 'icon-emerald',tag: 'badge-green',  dot: 'bg-emerald-400', ring: 'border-emerald-500/30',headerBg: 'from-emerald-900/20 to-transparent' },
+};
+
+const CATEGORIES = [
+  { id: 'all',       label: 'All Services',       icon: '🔧' },
+  { id: 'engine',    label: 'Engine & Fluids',    icon: '🛢️' },
+  { id: 'brakes',    label: 'Brakes & Suspension',icon: '🛞' },
+  { id: 'ac',        label: 'AC & Cooling',       icon: '❄️' },
+  { id: 'electrical',label: 'Electricals',        icon: '⚡' },
+  { id: 'detailing', label: 'Cleaning & Detailing',icon: '✨' },
 ];
+
+const getServiceCategory = (id) => {
+  if (['oil-change', 'engine-diagnosis', 'spark-plug-replacement', 'air-filter-replacement', 'general-maintenance'].includes(id)) return 'engine';
+  if (['brake-service', 'wheel-alignment', 'tyre-replacement', 'suspension-check'].includes(id)) return 'brakes';
+  if (['ac-service', 'coolant-replacement'].includes(id)) return 'ac';
+  if (['battery-replacement'].includes(id)) return 'electrical';
+  if (['car-wash', 'interior-cleaning', 'exterior-polishing'].includes(id)) return 'detailing';
+  return 'engine';
+};
+
+// Rich "what we do" data — step-by-step process per service
+const SERVICE_PROCESS = {
+  'general-maintenance': {
+    steps: ['50-point vehicle health inspection', 'Engine bay fluid check & top-up', 'Brake, tyre & suspension visual audit', 'Battery voltage test & terminal clean', 'Wiper, light & horn functional test'],
+    duration: '~2 hrs',
+    warranty: '3 months',
+    savings: 'Save ₹400 vs individual',
+  },
+  'oil-change': {
+    steps: ['Drain old engine oil completely', 'Replace with fully synthetic Mobil1 / Castrol (up to 4L)', 'Fit new OES oil filter', 'Top-up engine oil to correct level', 'Dispose of waste oil responsibly'],
+    duration: '~45 min',
+    warranty: '6 months',
+    savings: null,
+  },
+  'brake-service': {
+    steps: ['Remove all four wheels for full access', 'Inspect front & rear brake pad thickness', 'Measure disc/rotor runout & thickness', 'Grease caliper slider pins', 'Top-up brake fluid to correct level'],
+    duration: '~90 min',
+    warranty: '6 months',
+    savings: null,
+  },
+  'ac-service': {
+    steps: ['Pressure-test AC system for leaks', 'Evacuate residual refrigerant safely', 'Recharge with eco-friendly refrigerant (correct spec)', 'Clean cabin air filter & evaporator coil', 'Test cabin cooling temperature output'],
+    duration: '~60 min',
+    warranty: '3 months',
+    savings: null,
+  },
+  'battery-replacement': {
+    steps: ['Load-test existing battery capacity', 'Select correct Amaron / Exide spec for vehicle', 'Safely disconnect old battery & dispose', 'Install new battery with terminal guard', 'Test alternator charging voltage'],
+    duration: '~45 min',
+    warranty: '12 months (mfg)',
+    savings: null,
+  },
+  'wheel-alignment': {
+    steps: ['Lift vehicle and mount on 3D alignment rack', 'Measure all four-wheel camber, caster & toe', 'Adjust steering geometry to OEM spec', 'Balance all four wheels (counterweights added)', 'Road-test and re-check steering pull'],
+    duration: '~60 min',
+    warranty: '3 months',
+    savings: null,
+  },
+  'tyre-replacement': {
+    steps: ['Recommend correct tyre size & load rating', 'Remove old tyre from rim using tyre machine', 'Mount new premium tyre & inflate to spec', 'Dynamic wheel balancing (counterweights)', 'Re-fit wheel with correct torque settings'],
+    duration: '~90 min',
+    warranty: 'As per brand',
+    savings: null,
+  },
+  'engine-diagnosis': {
+    steps: ['Connect OBD-II scanner to diagnostic port', 'Read all fault & pending DTC codes', 'Live data stream of RPM, temp, O2 sensors', 'Generate itemized fault report', 'Advise corrective repair actions with costs'],
+    duration: '~60 min',
+    warranty: 'Report valid 30 days',
+    savings: null,
+  },
+  'car-wash': {
+    steps: ['Pre-rinse to remove loose dirt & dust', 'High-foam shampoo applied to all surfaces', 'Pressure wash with soft mitt (no scratches)', 'Wheel & tyre cleaning with dedicated brush', 'Final rinse, dry & tyre shine application'],
+    duration: '~30 min',
+    warranty: null,
+    savings: null,
+  },
+  'interior-cleaning': {
+    steps: ['Deep vacuum of seats, carpet & boot', 'Dashboard & trim wipe-down with UV protectant', 'Leather/fabric seat spot cleaning', 'Door sill & footwell shampooing', 'Premium long-lasting fragrance treatment'],
+    duration: '~60 min',
+    warranty: null,
+    savings: null,
+  },
+  'exterior-polishing': {
+    steps: ['Clay bar decontamination of paint surface', 'Machine compound cut to remove swirl marks', 'Machine polish for gloss restoration', 'Liquid carnauba wax or sealant applied', 'Final buff & inspection under LED light'],
+    duration: '~90 min',
+    warranty: '3 months',
+    savings: 'Shine lasts 90 days',
+  },
+  'suspension-check': {
+    steps: ['Visual inspection of all shock absorbers', 'Check coil springs for cracks or sag', 'Inspect ball joints & tie-rod ends for play', 'Test steering rack for excessive movement', 'Report and quote on any required replacements'],
+    duration: '~45 min',
+    warranty: 'Report valid 30 days',
+    savings: null,
+  },
+  'coolant-replacement': {
+    steps: ['Drain old coolant from radiator & reservoir', 'Flush system with distilled water rinse', 'Refill with OEM-spec antifreeze mix (50:50)', 'Bleed air from cooling circuit', 'Test thermostat operation under temperature'],
+    duration: '~40 min',
+    warranty: '6 months',
+    savings: null,
+  },
+  'air-filter-replacement': {
+    steps: ['Remove & inspect engine air filter element', 'Inspect air intake box & duct for blockages', 'Fit new OEM or K&N performance filter', 'Check & replace cabin air filter if needed', 'Test airflow post-replacement'],
+    duration: '~20 min',
+    warranty: '6 months',
+    savings: null,
+  },
+  'spark-plug-replacement': {
+    steps: ['Remove ignition coils & plug access cover', 'Extract old plugs & measure electrode gap', 'Inspect for oil fouling or carbon build-up', 'Fit correct-spec NGK / Denso plugs to torque spec', 'Test cold-start and idle smoothness'],
+    duration: '~30 min',
+    warranty: '6 months',
+    savings: null,
+  },
+};
+
+const DEFAULT_PROCESS = {
+  steps: ['Full diagnostic inspection', 'Genuine OEM parts fitted', 'Technician multi-point check', 'Post-service road test', '6-month service warranty'],
+  duration: '~60 min',
+  warranty: '6 months',
+  savings: null,
+};
 
 export default function ChooseServicePage() {
   const router = useRouter();
@@ -47,20 +156,17 @@ export default function ChooseServicePage() {
   const [vehicle, setVehicle] = useState(null);
   const [error, setError] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [expandedCard, setExpandedCard] = useState(null);
 
   useEffect(() => {
     const db = getMockDb();
     setServices(db.services);
-
     const storedVehicle = localStorage.getItem('booking_flow_vehicle');
-    if (storedVehicle) {
-      try { setVehicle(JSON.parse(storedVehicle)); } catch (e) { console.error(e); }
-    }
-
+    if (storedVehicle) { try { setVehicle(JSON.parse(storedVehicle)); } catch (e) { console.error(e); } }
     const storedServices = localStorage.getItem('booking_flow_services');
-    if (storedServices) {
-      try { setSelectedServices(JSON.parse(storedServices)); } catch (e) { console.error(e); }
-    }
+    if (storedServices) { try { setSelectedServices(JSON.parse(storedServices)); } catch (e) { console.error(e); } }
     setIsLoaded(true);
   }, []);
 
@@ -68,158 +174,270 @@ export default function ChooseServicePage() {
     setError('');
     setSelectedServices(prev => {
       const exists = prev.find(s => s.id === service.id);
-      return exists
+      const next = exists
         ? prev.filter(s => s.id !== service.id)
         : [...prev, { id: service.id, name: service.name, price: service.price, duration: service.duration }];
+      localStorage.setItem('booking_flow_services', JSON.stringify(next));
+      if (next.length > 0) localStorage.setItem('booking_flow_service', JSON.stringify(next[0]));
+      else localStorage.removeItem('booking_flow_service');
+      return next;
     });
   };
 
   const isSelected = (service) => selectedServices.some(s => s.id === service.id);
 
   const handleContinue = () => {
-    if (selectedServices.length === 0) {
-      setError('Please select at least one service before continuing.');
-      return;
-    }
-    localStorage.setItem('booking_flow_services', JSON.stringify(selectedServices));
-    localStorage.setItem('booking_flow_service', JSON.stringify(selectedServices[0]));
-    router.push('/packages');
+    if (selectedServices.length === 0) { setError('Please select at least one service before continuing.'); return; }
+    if (!vehicle) router.push('/vehicle-selection');
+    else router.push('/packages');
   };
 
+  const filteredServices = services.filter(service => {
+    const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          service.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const serviceCategory = getServiceCategory(service.id);
+    const matchesCategory = selectedCategory === 'all' || serviceCategory === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
+    <div className="flex flex-col min-h-screen" style={{ background: 'linear-gradient(180deg, #0d1220 0%, #060912 100%)' }}>
       <Navbar />
 
-      <main className="flex-grow py-6">
-        <div className="max-w-6xl mx-auto px-4">
-          <ProgressBar currentStep={2} />
+      <main className="flex-grow py-6 md:py-10">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
 
-          {/* Vehicle Banner or Prompt */}
-          {!isLoaded ? (
-            <div className="mb-5 flex justify-center py-4">
-              <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          ) : !vehicle ? (
-            <div className="mb-5 bg-white border border-slate-200 rounded-2xl p-8 text-center shadow-sm">
-              <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Car size={32} />
+          {vehicle && <ProgressBar currentStep={2} />}
+
+          {/* ── Page Header ── */}
+          <div className="mb-8 mt-2">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <span className="section-label">Step 2 of 6 · Service Selection</span>
+                <h1 className="text-2xl md:text-3xl font-black text-white mt-1 tracking-tight flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl icon-blue flex items-center justify-center shrink-0">
+                    <Wrench size={18} />
+                  </div>
+                  {vehicle ? `Services for ${vehicle.make} ${vehicle.model}` : 'Service Directory'}
+                </h1>
+                <p className="text-slate-400 text-sm mt-1.5 max-w-lg">
+                  {vehicle
+                    ? 'Select one or more repair services. Prices shown are base estimates — final cost approved after inspection.'
+                    : 'Browse transparent pricing, step-by-step service breakdowns, and certified inclusions.'}
+                </p>
               </div>
-              <h2 className="text-xl font-extrabold text-slate-800 mb-2">No Vehicle Selected</h2>
-              <p className="text-sm text-slate-500 mb-6 max-w-md mx-auto">Please select your vehicle details before proceeding with services so we can provide accurate pricing and packages.</p>
-              <button
-                onClick={() => router.push('/vehicle-selection')}
-                className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-xl font-bold transition-all text-sm shadow-md cursor-pointer inline-flex items-center gap-2"
-              >
-                Select Your Vehicle <ChevronRight size={16} />
-              </button>
+              {selectedServices.length > 0 && (
+                <div className="badge-blue shrink-0 text-sm font-bold px-4 py-2">
+                  🛠 {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''} selected
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="mb-5">
+          </div>
+
+          {vehicle && (
+            <div className="mb-6">
               <VehicleBanner vehicle={vehicle} compact />
             </div>
           )}
 
-          {/* Services Content - Only show if vehicle is selected */}
-          {isLoaded && vehicle && (
-            <>
-              {error && (
-                <div className="mb-4 bg-red-50 border border-red-100 rounded-xl p-3 flex items-center gap-2 text-sm text-red-700">
-                  <AlertCircle size={15} className="text-red-500 shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
+          {error && (
+            <div className="mb-5 bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-2.5 text-sm text-red-300 animate-shake">
+              <AlertCircle size={16} className="text-red-400 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Services Grid */}
-                <div className="lg:col-span-2">
-                  <div className="mb-4 flex items-center justify-between">
-                    <div>
-                      <h1 className="text-xl font-extrabold text-slate-800 tracking-tight">Select Services</h1>
-                      <p className="text-xs text-slate-400 mt-0.5">Choose one or more. Price updates instantly.</p>
-                    </div>
-                    {selectedServices.length > 0 && (
-                      <span className="bg-primary-100 text-primary-700 text-xs font-bold px-2.5 py-1 rounded-full border border-primary-200">
-                        {selectedServices.length} selected
-                      </span>
-                    )}
-                  </div>
+          {/* ── Search & Category Filters ── */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-8">
+            <div className="relative sm:w-72">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={15} />
+              <input
+                type="text"
+                placeholder="Search services…"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 rounded-xl text-sm font-medium input-dark"
+              />
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all border cursor-pointer min-h-[44px] ${
+                    selectedCategory === cat.id
+                      ? 'bg-primary-600 border-primary-500 text-white shadow-md shadow-primary-600/20'
+                      : 'bg-[#111827] border-[#1e2d45] text-slate-400 hover:text-white hover:border-primary-600/30'
+                  }`}
+                >
+                  {cat.icon} {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {services.map((service, idx) => {
-                      const selected = isSelected(service);
-                      const IconComp = ICON_MAP[service.icon] || Wrench;
-                      const colorClass = SERVICE_COLORS[idx % SERVICE_COLORS.length];
-                      return (
-                        <button
-                          key={service.id}
-                          type="button"
-                          onClick={() => handleToggleService(service)}
-                          className={`w-full text-left rounded-2xl p-4 border-2 transition-all duration-200 cursor-pointer group relative ${
-                            selected
-                              ? 'border-primary-500 bg-primary-50/30 shadow-md shadow-primary-500/10'
-                              : 'bg-white border-slate-100 hover:border-primary-200 hover:shadow-sm'
-                          }`}
-                        >
-                          {/* Checkbox */}
-                          <div className="absolute top-3 right-3">
-                            {selected
-                              ? <SquareCheck size={18} className="text-primary-600" />
-                              : <Square size={18} className="text-slate-300 group-hover:text-slate-400" />}
-                          </div>
+          {/* ── Main Layout ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                          <div className="flex items-start gap-3 pr-7">
-                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${colorClass}`}>
-                              <IconComp size={17} />
+            {/* ── Services Grid ── */}
+            <div className="lg:col-span-8 space-y-4">
+              {filteredServices.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {filteredServices.map((service, idx) => {
+                    const selected = isSelected(service);
+                    const IconComp = ICON_MAP[service.icon] || Wrench;
+                    const category = getServiceCategory(service.id);
+                    const colors = CATEGORY_COLORS[category] || CATEGORY_COLORS.engine;
+                    const process = SERVICE_PROCESS[service.id] || DEFAULT_PROCESS;
+                    const isExpanded = expandedCard === service.id;
+
+                    return (
+                      <div
+                        key={service.id}
+                        className={`rounded-2xl border-2 transition-all duration-250 flex flex-col group relative overflow-hidden ${
+                          selected
+                            ? 'border-primary-600 bg-[#0d1731] shadow-xl shadow-primary-900/30'
+                            : 'bg-[#111827] border-[#1e2d45] hover:border-[#253558]'
+                        }`}
+                      >
+                        {/* Card colour accent header strip */}
+                        <div className={`h-1 w-full bg-gradient-to-r ${
+                          category === 'engine'     ? 'from-amber-500 to-orange-400' :
+                          category === 'brakes'     ? 'from-rose-500 to-red-400' :
+                          category === 'ac'         ? 'from-cyan-500 to-blue-400' :
+                          category === 'electrical' ? 'from-violet-500 to-purple-400' :
+                          'from-emerald-500 to-teal-400'
+                        } ${selected ? 'opacity-100' : 'opacity-40 group-hover:opacity-70'} transition-opacity`} />
+
+                        <div className="p-5 flex flex-col flex-1 cursor-pointer" onClick={() => handleToggleService(service)}>
+                          {/* Header row */}
+                          <div className="flex items-start gap-3 mb-3">
+                            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${colors.icon}`}>
+                              <IconComp size={20} />
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className={`font-bold text-sm mb-0.5 ${selected ? 'text-primary-800' : 'text-slate-800'}`}>
+                            <div className="flex-1 min-w-0 pr-8">
+                              <h3 className={`font-extrabold text-base leading-tight ${selected ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
                                 {service.name}
                               </h3>
-                              <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">{service.description}</p>
-                              <div className="flex items-center gap-3 mt-2">
-                                <span className={`text-sm font-extrabold ${selected ? 'text-primary-700' : 'text-slate-700'}`}>
-                                  ₹{service.price.toLocaleString('en-IN')}
+                              <div className="flex items-center gap-2.5 mt-1.5 flex-wrap">
+                                <span className="text-lg font-black text-white">₹{service.price.toLocaleString('en-IN')}</span>
+                                <span className="flex items-center gap-1 text-slate-500 text-xs font-medium">
+                                  <Clock size={11} /> ~{service.duration} min
                                 </span>
-                                {service.duration && (
-                                  <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-md font-medium">
-                                    ~{service.duration} min
+                                {process.warranty && (
+                                  <span className={`${colors.tag} text-[10px] font-bold px-2 py-0.5 rounded-full`}>
+                                    {process.warranty} warranty
                                   </span>
                                 )}
                               </div>
                             </div>
+
+                            {/* Checkbox */}
+                            <div className="absolute top-4 right-4">
+                              {selected
+                                ? <SquareCheck className="text-primary-400" size={22} />
+                                : <Square className="text-slate-600 group-hover:text-slate-400" size={22} />
+                              }
+                            </div>
                           </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
 
-                {/* Bill Summary Sidebar */}
-                <div className="lg:col-span-1">
-                  <BillSummary
-                    vehicle={vehicle}
-                    selectedServices={selectedServices}
-                    selectedPackage={null}
-                  />
-                </div>
-              </div>
+                          {/* Description */}
+                          <p className="text-sm text-slate-400 leading-relaxed mb-4">{service.description}</p>
 
-              {/* Nav Buttons */}
-              <div className="border-t border-slate-200 pt-5 mt-6 flex justify-between">
-                <button
-                  onClick={() => router.push('/vehicle-selection')}
-                  className="border border-slate-200 text-slate-600 hover:bg-slate-50 px-5 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 cursor-pointer bg-white"
-                >
-                  <ChevronLeft size={15} /> Back
-                </button>
-                <button
-                  onClick={handleContinue}
-                  className="bg-primary-600 hover:bg-primary-700 active:scale-[0.98] text-white px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 shadow-md shadow-primary-600/10 cursor-pointer"
-                >
-                  Continue to Packages <ChevronRight size={15} />
-                </button>
+                          {/* ── WHAT WE DO — Step-by-step process ── */}
+                          <div className="border-t border-[#1e2d45] pt-4 mt-auto">
+                            <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                              <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
+                              What We Do — Service Process
+                            </p>
+                            <div className="space-y-2">
+                              {(isExpanded ? process.steps : process.steps.slice(0, 3)).map((step, i) => (
+                                <div key={i} className="step-bullet">
+                                  <div className="step-bullet-icon">
+                                    <Check size={9} className="text-emerald-400" strokeWidth={3} />
+                                  </div>
+                                  <span>{step}</span>
+                                </div>
+                              ))}
+                              {process.steps.length > 3 && (
+                                <button
+                                  onClick={e => { e.stopPropagation(); setExpandedCard(isExpanded ? null : service.id); }}
+                                  className="text-xs text-primary-400 hover:text-primary-300 font-bold flex items-center gap-1 mt-1 cursor-pointer transition-colors"
+                                >
+                                  {isExpanded
+                                    ? '↑ Show less'
+                                    : `+ ${process.steps.length - 3} more steps`
+                                  }
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Savings badge if applicable */}
+                            {process.savings && (
+                              <div className="mt-3 text-[11px] font-bold text-amber-400 flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-1.5">
+                                <Star size={11} fill="currentColor" /> {process.savings}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Selected CTA footer */}
+                        {selected && (
+                          <div className="px-5 py-3 bg-primary-600/10 border-t border-primary-600/20 flex items-center justify-between">
+                            <span className="text-xs font-bold text-primary-300 flex items-center gap-1.5">
+                              <Check size={12} strokeWidth={3} /> Added to your booking
+                            </span>
+                            <button
+                              onClick={e => { e.stopPropagation(); handleToggleService(service); }}
+                              className="text-xs text-slate-500 hover:text-red-400 transition-colors font-medium cursor-pointer"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="bg-[#111827] border border-[#1e2d45] rounded-3xl p-16 text-center">
+                  <AlertCircle size={32} className="text-slate-600 mx-auto mb-4" />
+                  <p className="text-slate-300 font-bold text-base">No services match your search</p>
+                  <p className="text-sm text-slate-500 mt-1">Try resetting the search or select &quot;All Services&quot;.</p>
+                </div>
+              )}
+            </div>
+
+            {/* ── Bill Summary ── */}
+            <div className="lg:col-span-4">
+              <div className="sticky top-20">
+                <BillSummary
+                  vehicle={vehicle}
+                  selectedServices={selectedServices}
+                  selectedPackage={null}
+                  isPublic={!vehicle}
+                  onActionClick={handleContinue}
+                />
               </div>
-            </>
+            </div>
+          </div>
+
+          {/* ── Bottom nav (booking flow only) ── */}
+          {vehicle && (
+            <div className="divider-dark mt-8 pt-6 flex justify-between">
+              <button
+                onClick={() => router.push('/vehicle-selection')}
+                className="border border-[#1e2d45] text-slate-400 hover:bg-[#111827] hover:text-white px-5 py-3 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 cursor-pointer min-h-[48px]"
+              >
+                <ChevronLeft size={16} /> Back
+              </button>
+              <button
+                onClick={handleContinue}
+                className="btn-primary text-sm"
+              >
+                Continue to Packages <ChevronRight size={16} />
+              </button>
+            </div>
           )}
         </div>
       </main>

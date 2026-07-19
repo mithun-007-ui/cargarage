@@ -8,15 +8,15 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "AutoCare Pro | Premium Vehicle Service & Management",
+  title: "Bug Slayers | Premium Car Service Garage",
   description: "Experience transparent, high-quality, and hassle-free automotive servicing. Get real-time health reports, instant approvals, and expert maintenance for your vehicle.",
-  keywords: "car repair, vehicle service, auto maintenance, oil change, brake repair, car health report",
+  keywords: "car repair, vehicle service, auto maintenance, oil change, brake repair, car health report, Bug Slayers",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans">
+      <body className="min-h-full flex flex-col bg-[#0d1220] text-slate-100 font-sans">
         <AuthProvider>
           {children}
         </AuthProvider>

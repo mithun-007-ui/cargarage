@@ -85,47 +85,112 @@ function MyVehiclesTab({ bookings }) {
 }
 
 function TrackServiceTab({ bookings }) {
+  // Generates a mock timestamp offset from now (hours back or forward)
+  function mockTime(hoursOffset) {
+    const d = new Date();
+    d.setHours(d.getHours() + hoursOffset);
+    return d.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true });
+  }
+
+  // Step metadata: done steps get a past time, current = 'In Progress', future = expected
+  function getStepMeta(idx, currentStep) {
+    const hoursBack = (currentStep - idx) * 4; // each step ~4h apart
+    const hoursFwd = (idx - currentStep) * 6;
+    if (idx < currentStep) return { state: 'done', time: mockTime(-hoursBack) };
+    if (idx === currentStep) return { state: 'active' };
+    return { state: 'pending', time: mockTime(hoursFwd) };
+  }
+
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-extrabold text-slate-800">Track Service</h2>
       {bookings.length === 0 ? (
-        <div className="text-center py-16 text-slate-400 border border-dashed rounded-2xl">No active bookings.</div>
+        <div className="text-center py-16 text-slate-400 border border-dashed border-slate-200 rounded-2xl">
+          <Clock size={36} className="mx-auto mb-3 text-slate-300" />
+          No active bookings to track.
+        </div>
       ) : (
         bookings.map(b => {
-          const currentStep = PIPELINE_STEPS.findIndex(s => s.key === b.status);
+          const currentStep = Math.max(PIPELINE_STEPS.findIndex(s => s.key === b.status), 0);
           return (
-            <div key={b.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500 font-bold">{b.id}</span>
-                <span className="font-bold text-slate-800">{b.vehicle.make} {b.vehicle.model}</span>
-                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${STATUS_BADGE[b.status] || 'bg-slate-50 text-slate-600 border-slate-100'}`}>{b.status}</span>
+            <div key={b.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              {/* Booking Header */}
+              <div className="bg-slate-900 text-white p-5 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="font-mono text-xs text-slate-400">{b.id}</p>
+                  <h3 className="font-extrabold text-base mt-0.5">{b.vehicle.make} {b.vehicle.model}</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">{b.vehicle.plateNumber} &bull; {b.date} {b.time ? `at ${b.time}` : ''}</p>
+                </div>
+                <span className={`px-3 py-1.5 rounded-full text-xs font-bold border ${STATUS_BADGE[b.status] || 'bg-slate-700 text-slate-200 border-slate-600'}`}>
+                  {b.status}
+                </span>
               </div>
-              {/* Progress Steps */}
-              <div className="flex items-start overflow-x-auto pb-2 gap-0 scrollbar-none">
-                {PIPELINE_STEPS.map((step, idx) => {
-                  const done = idx < Math.max(currentStep, 0);
-                  const active = idx === Math.max(currentStep, 0);
-                  return (
-                    <React.Fragment key={step.key}>
-                      <div className="flex flex-col items-center min-w-[72px]">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black border-2 transition-all ${
-                          done ? 'bg-emerald-500 border-emerald-500 text-white'
-                          : active ? 'bg-primary-600 border-primary-600 text-white ring-2 ring-primary-100'
-                          : 'bg-white border-slate-200 text-slate-400'
-                        }`}>{done ? '✓' : idx + 1}</div>
-                        <p className={`text-[8px] font-bold mt-1 text-center leading-tight ${active ? 'text-primary-700' : done ? 'text-emerald-600' : 'text-slate-400'}`}>{step.label}</p>
+
+              {/* ── Amazon-style vertical timeline ── */}
+              <div className="p-5 md:p-7">
+                <div className="space-y-0">
+                  {PIPELINE_STEPS.map((step, idx) => {
+                    const { state, time } = getStepMeta(idx, currentStep);
+                    const isLast = idx === PIPELINE_STEPS.length - 1;
+                    return (
+                      <div key={step.key} className="flex items-start gap-4">
+                        {/* Icon + connector */}
+                        <div className="flex flex-col items-center">
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                            state === 'done' ? 'bg-emerald-500 shadow-sm shadow-emerald-500/30'
+                            : state === 'active' ? 'bg-primary-600 shadow-md shadow-primary-600/40 ring-4 ring-primary-100'
+                            : 'bg-slate-100 border border-slate-200'
+                          }`}>
+                            {state === 'done' && <Check size={16} strokeWidth={3} className="text-white" />}
+                            {state === 'active' && (
+                              <span className="w-3 h-3 bg-white rounded-full block animate-pulse" />
+                            )}
+                            {state === 'pending' && <span className="w-2.5 h-2.5 rounded-full bg-slate-300 block" />}
+                          </div>
+                          {!isLast && (
+                            <div className={`w-0.5 flex-1 my-1 min-h-[24px] ${
+                              state === 'done' ? 'bg-emerald-400' : 'bg-slate-200'
+                            }`} />
+                          )}
+                        </div>
+
+                        {/* Step content */}
+                        <div className={`pb-5 ${isLast ? '' : ''} flex-1 min-w-0`}>
+                          <div className="flex flex-wrap items-baseline gap-2">
+                            <p className={`text-base font-bold leading-snug ${
+                              state === 'done' ? 'text-emerald-700'
+                              : state === 'active' ? 'text-primary-700'
+                              : 'text-slate-400'
+                            }`}>
+                              {step.label}
+                            </p>
+                            {state === 'active' && (
+                              <span className="text-xs bg-primary-50 text-primary-700 border border-primary-100 rounded-full px-2 py-0.5 font-bold animate-pulse">
+                                In Progress
+                              </span>
+                            )}
+                          </div>
+                          {state === 'done' && time && (
+                            <p className="text-xs text-emerald-600 font-semibold mt-0.5 flex items-center gap-1">
+                              <CheckCircle2 size={11} /> Completed &bull; {time}
+                            </p>
+                          )}
+                          {state === 'pending' && time && (
+                            <p className="text-xs text-slate-400 font-medium mt-0.5 flex items-center gap-1">
+                              <Clock size={11} /> Expected &bull; {time}
+                            </p>
+                          )}
+                          {state === 'active' && b.technicianAssigned && (
+                            <p className="text-xs text-primary-600 font-semibold mt-0.5">
+                              Technician: {b.technicianAssigned}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      {idx < PIPELINE_STEPS.length - 1 && (
-                        <div className={`flex-1 h-[2px] mt-3 ${done ? 'bg-emerald-400' : 'bg-slate-200'}`} style={{ minWidth: '12px' }} />
-                      )}
-                    </React.Fragment>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-              {/* Technician assigned */}
-              {b.technicianAssigned && (
-                <p className="text-xs text-slate-500">👨‍🔧 Assigned Technician: <span className="font-bold text-primary-700">{b.technicianAssigned}</span></p>
-              )}
             </div>
           );
         })
@@ -441,14 +506,14 @@ export default function CustomerDashboardPage() {
   }, [user]);
 
   if (loading) return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+    <div className="min-h-screen bg-[#0d1220] flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
   if (!user) return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-400">
-      <Lock size={32} className="mb-2 text-slate-300" />
+    <div className="min-h-screen bg-[#0d1220] flex flex-col items-center justify-center text-slate-400">
+      <Lock size={32} className="mb-2 text-slate-600" />
       <p>Please log in to access your dashboard.</p>
     </div>
   );
@@ -456,25 +521,25 @@ export default function CustomerDashboardPage() {
   const approvalCount = bookings.filter(b => b.healthReport?.reportSent && b.status === 'Waiting for Approval').length;
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
+    <div className="flex flex-col min-h-screen bg-[#0d1220]">
       <Navbar />
       <main className="flex-grow">
-        <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-16 py-8">
           {/* Header */}
-          <div className="bg-gradient-to-r from-slate-900 to-primary-900 text-white rounded-3xl p-6 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="bg-gradient-to-r from-[#111827] to-[#0d1a30] text-white rounded-3xl p-6 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-[#1e2d45]">
             <div>
               <h1 className="text-xl font-extrabold">Welcome back, {user.name}!</h1>
-              <p className="text-xs text-slate-400 mt-1">Track your vehicles, manage bookings, and approve repairs.</p>
+              <p className="text-sm text-slate-400 mt-1">Track your vehicles, manage bookings, and approve repairs.</p>
             </div>
-            <Link href="/vehicle-selection" className="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer flex items-center gap-1 shrink-0">
+            <Link href="/vehicle-selection" className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md cursor-pointer flex items-center gap-1.5 shrink-0 border border-primary-500">
               + Book New Service
             </Link>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Sidebar Tabs */}
-            <aside className="lg:w-52 shrink-0">
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <aside className="lg:w-56 shrink-0">
+              <div className="bg-[#111827] rounded-2xl border border-[#1e2d45] overflow-hidden">
                 {TABS.map(tab => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -483,14 +548,14 @@ export default function CustomerDashboardPage() {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-left text-xs font-semibold transition-all border-b border-slate-50 last:border-0 cursor-pointer ${
-                        isActive ? 'bg-primary-50 text-primary-700 font-extrabold border-l-2 border-l-primary-600' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                      className={`w-full flex items-center gap-3 px-4 py-3.5 text-left text-sm font-semibold transition-all border-b border-[#1e2d45] last:border-0 cursor-pointer min-h-[48px] ${
+                        isActive ? 'bg-primary-600/15 text-primary-400 font-extrabold border-l-2 border-l-primary-600' : 'text-slate-400 hover:bg-white/3 hover:text-slate-200'
                       }`}
                     >
-                      <Icon size={14} className={isActive ? 'text-primary-600' : 'text-slate-400'} />
+                      <Icon size={16} className={isActive ? 'text-primary-400' : 'text-slate-500'} />
                       <span className="flex-1">{tab.label}</span>
                       {badge > 0 && (
-                        <span className="w-4 h-4 rounded-full bg-accent-500 text-white text-[9px] font-black flex items-center justify-center">{badge}</span>
+                        <span className="w-5 h-5 rounded-full bg-accent-500 text-white text-[9px] font-black flex items-center justify-center">{badge}</span>
                       )}
                     </button>
                   );
