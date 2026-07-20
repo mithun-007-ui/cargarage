@@ -316,8 +316,8 @@ export default function Navbar() {
           width: 100%;
           background: #211F1D;
           color: #9CA3AF;
-          font-size: 0.875rem;
-          padding: 0.4rem 1.25rem;
+          font-size: 0.95rem;
+          padding: 0.5rem 1rem;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -378,9 +378,9 @@ export default function Navbar() {
           justify-content: center;
           box-shadow: 0 2px 8px rgba(230,83,19,0.35);
         }
-        .navbar-logo-text {
+        
           font-weight: 900;
-          font-size: 1.5rem;
+          font-size: 1.125rem;
           letter-spacing: -0.03em;
           color: #202020;
         }
@@ -391,8 +391,10 @@ export default function Navbar() {
           list-style: none;
           display: flex;
           align-items: center;
-          gap: 0.15rem;
+          gap: 0.75rem;
           margin: 0; padding: 0;
+          /* Hide on small screens */
+          @media (max-width: 767px) { display: none; }
         }
         .navbar-link {
           position: relative;
@@ -629,13 +631,17 @@ export default function Navbar() {
         .navbar-bottom-cta {
           position: fixed; bottom: 0; left: 0; right: 0;
           z-index: 40;
-          display: flex; align-items: center; justify-content: space-between;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           padding: 0.75rem 1rem;
           background: rgba(255,255,255,0.95);
           backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
           border-top: 1px solid #E2D8CE;
           box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+          /* Hide on larger screens */
+          @media (min-width: 768px) { display: none; }
+          @media (max-width: 767px) { padding: 0.75rem 0.875rem; }
         }
       `}</style>
     </>
