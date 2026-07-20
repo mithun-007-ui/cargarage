@@ -230,21 +230,22 @@ export const getMockDb = () => {
         { id: 'rev-1', customerName: 'John D.', rating: 5, comment: 'Bug Slayers solved my engine stalling issue within 2 hours. Extremely transparent prices!', vehicle: 'Hyundai Creta', verified: true, date: '2026-07-10' },
         { id: 'rev-2', customerName: 'Sarah J.', rating: 5, comment: 'Love the repair approval feature. I only authorized what was critical.', vehicle: 'BMW M3', verified: true, date: '2026-07-15' },
         { id: 'rev-3', customerName: 'Rajesh K.', rating: 5, comment: 'Super convenient pickup and drop-off service. The digital health report was very detailed.', vehicle: 'Honda City', verified: true, date: '2026-07-18' },
+        { id: 'rev-4', customerName: 'Priya M.', rating: 5, comment: 'Amazing service! My car looks and runs like brand new. Highly recommended.', vehicle: 'Maruti Baleno', verified: true, date: '2026-07-19' },
       ],
       emergencyRequests: [
         { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'New', timestamp: new Date().toISOString() }
       ],
       savedVehicles: {},
       slotsSettings: { defaultLimit: 5, blockedDates: [], blockedSlots: {} },
-      version: 3
+      version: 4
     };
     localStorage.setItem('autocare_db', JSON.stringify(initialDb));
     return initialDb;
   }
   try {
     const parsed = JSON.parse(db);
-    // Version bump: ensure we have version 3 tables
-    if (!parsed.version || parsed.version < 3) {
+    // Version bump: ensure we have version 4 tables
+    if (!parsed.version || parsed.version < 4) {
       parsed.notifications = parsed.notifications || INITIAL_NOTIFICATIONS;
       parsed.services = DEFAULT_SERVICES;
       parsed.packages = DEFAULT_PACKAGES;
@@ -256,13 +257,14 @@ export const getMockDb = () => {
         { id: 'rev-1', customerName: 'John D.', rating: 5, comment: 'Bug Slayers solved my engine stalling issue within 2 hours. Extremely transparent prices!', vehicle: 'Hyundai Creta', verified: true, date: '2026-07-10' },
         { id: 'rev-2', customerName: 'Sarah J.', rating: 5, comment: 'Love the repair approval feature. I only authorized what was critical.', vehicle: 'BMW M3', verified: true, date: '2026-07-15' },
         { id: 'rev-3', customerName: 'Rajesh K.', rating: 5, comment: 'Super convenient pickup and drop-off service. The digital health report was very detailed.', vehicle: 'Honda City', verified: true, date: '2026-07-18' },
+        { id: 'rev-4', customerName: 'Priya M.', rating: 5, comment: 'Amazing service! My car looks and runs like brand new. Highly recommended.', vehicle: 'Maruti Baleno', verified: true, date: '2026-07-19' },
       ];
       parsed.emergencyRequests = [
         { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'New', timestamp: new Date().toISOString() }
       ];
       parsed.savedVehicles = parsed.savedVehicles || {};
       parsed.slotsSettings = parsed.slotsSettings || { defaultLimit: 5, blockedDates: [], blockedSlots: {} };
-      parsed.version = 3;
+      parsed.version = 4;
       localStorage.setItem('autocare_db', JSON.stringify(parsed));
     }
     return parsed;
@@ -281,13 +283,15 @@ export const getMockDb = () => {
       reviews: [
         { id: 'rev-1', customerName: 'John D.', rating: 5, comment: 'Bug Slayers solved my engine stalling issue within 2 hours. Extremely transparent prices!', vehicle: 'Hyundai Creta', verified: true, date: '2026-07-10' },
         { id: 'rev-2', customerName: 'Sarah J.', rating: 5, comment: 'Love the repair approval feature. I only authorized what was critical.', vehicle: 'BMW M3', verified: true, date: '2026-07-15' },
+        { id: 'rev-3', customerName: 'Rajesh K.', rating: 5, comment: 'Super convenient pickup and drop-off service. The digital health report was very detailed.', vehicle: 'Honda City', verified: true, date: '2026-07-18' },
+        { id: 'rev-4', customerName: 'Priya M.', rating: 5, comment: 'Amazing service! My car looks and runs like brand new. Highly recommended.', vehicle: 'Maruti Baleno', verified: true, date: '2026-07-19' },
       ],
       emergencyRequests: [
         { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'New', timestamp: new Date().toISOString() }
       ],
       savedVehicles: {},
       slotsSettings: { defaultLimit: 5, blockedDates: [], blockedSlots: {} },
-      version: 3
+      version: 4
     };
     localStorage.setItem('autocare_db', JSON.stringify(initialDb));
     return initialDb;
@@ -642,13 +646,14 @@ export const resetDb = () => {
         { id: 'rev-1', customerName: 'John D.', rating: 5, comment: 'Bug Slayers solved my engine stalling issue within 2 hours. Transparent pricing at its best.', vehicle: 'Hyundai Creta', verified: true, date: '2026-07-10' },
         { id: 'rev-2', customerName: 'Sarah J.', rating: 5, comment: 'Love the repair approval feature. I only authorized what was critical.', vehicle: 'BMW M3', verified: true, date: '2026-07-15' },
         { id: 'rev-3', customerName: 'Rajesh K.', rating: 5, comment: 'Super convenient pickup and drop-off service. The digital health report was very detailed.', vehicle: 'Honda City', verified: true, date: '2026-07-18' },
+        { id: 'rev-4', customerName: 'Priya M.', rating: 5, comment: 'Amazing service! My car looks and runs like brand new. Highly recommended.', vehicle: 'Maruti Baleno', verified: true, date: '2026-07-19' },
       ],
       emergencyRequests: [
         { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'New', timestamp: new Date().toISOString() }
       ],
       savedVehicles: {},
       slotsSettings: { defaultLimit: 5, blockedDates: [], blockedSlots: {} },
-      version: 3
+      version: 4
     };
     localStorage.setItem('autocare_db', JSON.stringify(initialDb));
     return initialDb;
