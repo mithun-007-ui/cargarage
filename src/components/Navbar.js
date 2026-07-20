@@ -220,7 +220,9 @@ export default function Navbar() {
                       {user.role === 'Admin' ? 'A' : 'U'}
                     </div>
                     <div>
-                      <div className="text-xs font-bold" style={{ color: '#202020' }}>{user.role} Dashboard</div>
+                      <div className="text-xs font-bold" style={{ color: '#202020' }}>
+                        {user.role === 'Admin' ? 'Admin Dashboard' : 'Profile'}
+                      </div>
                       <div className="text-[10px] truncate max-w-[160px]" style={{ color: '#667085' }}>{user.email}</div>
                     </div>
                   </div>

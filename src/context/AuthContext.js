@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
     if (loading) return;
 
     const isAdminRoute = pathname.startsWith('/admin');
+    const isLoginRoute = pathname.startsWith('/login');
     
     if (isAdminRoute) {
       if (!user) {
@@ -43,6 +44,8 @@ export const AuthProvider = ({ children }) => {
         // Redirect non-admins to home page
         router.push('/');
       }
+    } else if (user && user.role === 'Admin' && !isLoginRoute) {
+      router.push('/admin/dashboard');
     }
   }, [user, loading, pathname, router]);
 
