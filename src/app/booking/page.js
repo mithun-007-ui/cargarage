@@ -260,55 +260,59 @@ export default function SlotBookingPage() {
 
             {/* Right — Contact & Confirm */}
             <div className="lg:col-span-4 space-y-4">
-              <div className="bg-white rounded-2xl border shadow-md p-5" style={{ borderColor: '#E2D8CE' }}>
-                <h2 className="font-bold text-gray-800 text-sm mb-4 pb-3 border-b" style={{ borderColor: '#E2D8CE' }}>Contact Details</h2>
+              <div className="sticky top-20">
+                <div className="bg-white rounded-2xl border shadow-md p-5" style={{ borderColor: '#E2D8CE' }}>
+                  <h2 className="font-bold text-gray-800 text-sm mb-4 pb-3 border-b" style={{ borderColor: '#E2D8CE' }}>Contact Details</h2>
 
-                <div className="space-y-3 mb-4">
-                  <div>
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Your Name</label>
-                    <div className="relative">
-                      <User size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="text" required value={name}
-                        onChange={e => setName(e.target.value)}
-                        className="input-field pl-8 font-medium"
-                        placeholder="Full Name"
-                      />
+                  <div className="space-y-3 mb-4">
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Your Name</label>
+                      <div className="relative">
+                        <User size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="text" required value={name}
+                          onChange={e => setName(e.target.value)}
+                          className="input-field font-medium"
+                          style={{ paddingLeft: '2.25rem' }}
+                          placeholder="Full Name"
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Email Address</label>
-                    <div className="relative">
-                      <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="email" required value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        className="input-field pl-8 font-medium"
-                        placeholder="email@example.com"
-                      />
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Email Address</label>
+                      <div className="relative">
+                        <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                          type="email" required value={email}
+                          onChange={e => setEmail(e.target.value)}
+                          className="input-field font-medium"
+                          style={{ paddingLeft: '2.25rem' }}
+                          placeholder="email@example.com"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Order Summary */}
+                    <div className="rounded-xl p-3 border text-xs space-y-1.5 text-gray-600 bg-gray-50 border-gray-150" style={{ borderColor: '#E2D8CE' }}>
+                      {vehicle && <div className="flex justify-between"><span>Vehicle:</span><span className="font-semibold text-gray-800">{vehicle.make} {vehicle.model}</span></div>}
+                      {selectedServices.length > 0 && <div className="flex justify-between"><span>Services:</span><span className="font-semibold text-gray-800">{selectedServices.length} selected</span></div>}
+                      <div className="flex justify-between"><span>Package:</span><span className="font-semibold text-gray-800">{pkg?.name || 'None'}</span></div>
+                      {pickupOption === 'pickup' && <div className="flex justify-between"><span>Pickup:</span><span className="font-semibold text-gray-800">+₹499</span></div>}
+                      <div className="flex justify-between border-t pt-1.5 mt-1" style={{ borderColor: '#E2D8CE' }}>
+                        <span className="font-bold text-gray-850">Total:</span>
+                        <span className="font-black text-[#E65313]">₹{total.toLocaleString('en-IN')}</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Order Summary */}
-                  <div className="rounded-xl p-3 border text-xs space-y-1.5 text-gray-600 bg-gray-50 border-gray-150" style={{ borderColor: '#E2D8CE' }}>
-                    {vehicle && <div className="flex justify-between"><span>Vehicle:</span><span className="font-semibold text-gray-800">{vehicle.make} {vehicle.model}</span></div>}
-                    {selectedServices.length > 0 && <div className="flex justify-between"><span>Services:</span><span className="font-semibold text-gray-800">{selectedServices.length} selected</span></div>}
-                    <div className="flex justify-between"><span>Package:</span><span className="font-semibold text-gray-800">{pkg?.name || 'None'}</span></div>
-                    {pickupOption === 'pickup' && <div className="flex justify-between"><span>Pickup:</span><span className="font-semibold text-gray-800">+₹499</span></div>}
-                    <div className="flex justify-between border-t pt-1.5 mt-1" style={{ borderColor: '#E2D8CE' }}>
-                      <span className="font-bold text-gray-850">Total:</span>
-                      <span className="font-black text-[#E65313]">₹{total.toLocaleString('en-IN')}</span>
-                    </div>
-                  </div>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full btn-primary py-3 text-sm justify-center disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Booking...' : 'Confirm Service Booking'}
+                  </button>
                 </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full btn-primary py-3 text-sm justify-center disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Booking...' : 'Confirm Service Booking'}
-                </button>
               </div>
             </div>
           </form>

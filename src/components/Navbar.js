@@ -79,9 +79,11 @@ export default function Navbar() {
       <nav
         className="sticky top-0 z-40 transition-all duration-200"
         style={{
-          background: '#FFFFFF',
+          background: scrolled ? 'rgba(255,255,255,0.92)' : '#FFFFFF',
           borderBottom: '1px solid #E2D8CE',
-          boxShadow: scrolled ? '0 2px 12px rgba(0,0,0,0.06)' : 'none',
+          boxShadow: scrolled ? '0 2px 16px rgba(0,0,0,0.08)' : 'none',
+          backdropFilter: scrolled ? 'blur(8px)' : 'none',
+          WebkitBackdropFilter: scrolled ? 'blur(8px)' : 'none',
         }}
       >
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
