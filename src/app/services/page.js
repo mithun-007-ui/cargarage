@@ -250,8 +250,8 @@ export default function ChooseServicePage() {
 
           {/* ── Search & Category Filters ── */}
           <div className="flex flex-col sm:flex-row gap-3 mb-8">
-            <div className="relative sm:w-72">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2" size={15} style={{ color: '#9CA3AF' }} />
+            <div className="relative sm:w-72 flex items-center">
+              <Search className="absolute left-3.5" size={15} style={{ color: '#9CA3AF', transform: 'translateY(-50%)', top: '50%' }} />
               <input
                 type="text"
                 placeholder="Search services…"

@@ -98,72 +98,18 @@ export default function Navbar() {
       <nav className={`navbar-root${scrolled ? ' navbar-scrolled' : ''}`}>
         <div className="navbar-inner">
 
-<<<<<<< HEAD
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-              <div
-                className="text-white p-2 rounded-lg transition-transform duration-200 group-hover:scale-105"
-                style={{ background: '#E65313' }}
-              >
-                <Wrench size={18} />
-              </div>
-              <span className="font-black text-xl tracking-tight" style={{ color: '#202020' }}>
-                Bug&nbsp;<span style={{ color: '#E65313' }}>Slayers</span>
-              </span>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-6">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="px-3.5 py-2 rounded-lg text-sm font-semibold transition-all duration-150"
-                  style={
-                    isActive(item.href)
-                      ? { background: '#FFF3EE', color: '#E65313' }
-                      : { color: '#667085' }
-                  }
-                  onMouseEnter={e => {
-                    if (!isActive(item.href)) e.currentTarget.style.color = '#202020';
-                  }}
-                  onMouseLeave={e => {
-                    if (!isActive(item.href)) e.currentTarget.style.color = '#667085';
-                  }}
-                >
-                  {item.name}
-                </Link>
-              ))}
-=======
           {/* ── Logo ── */}
           <Link href="/" className="navbar-logo group">
             <div className="navbar-logo-icon group-hover:scale-110 group-hover:rotate-[-8deg] transition-transform duration-300">
               <Wrench size={17} strokeWidth={2.5} />
->>>>>>> dcd882d937ed2b462bfd72f8c3d64e34725b32e2
             </div>
             <span className="navbar-logo-text">
               Bug&nbsp;<span className="navbar-logo-accent">Slayers</span>
             </span>
           </Link>
 
-<<<<<<< HEAD
-            {/* Right Side */}
-            <div className="hidden md:flex items-center gap-6">
-              {user && unreadCount > 0 && (
-                <Link
-                  href="/my-bookings?tab=notifications"
-                  className="relative p-2 rounded-lg transition-colors"
-                  style={{ color: '#667085' }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#202020'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#667085'}
-                >
-                  <Bell size={18} />
-                  <span
-                    className="absolute -top-0.5 -right-0.5 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center"
-                    style={{ background: '#E65313' }}
-=======
           {/* ── Desktop Nav Links ── */}
-          <ul className="navbar-links hidden md:flex">
+          <ul className="navbar-links hidden md:flex" style={{ gap: '2.25rem' }}>
             {NAV_ITEMS.map(({ name, href, icon: Icon }) => {
               const active = isActive(href);
               return (
@@ -171,7 +117,6 @@ export default function Navbar() {
                   <Link
                     href={href}
                     className={`navbar-link${active ? ' navbar-link-active' : ''}`}
->>>>>>> dcd882d937ed2b462bfd72f8c3d64e34725b32e2
                   >
                     <Icon
                       size={13}
@@ -446,7 +391,7 @@ export default function Navbar() {
           list-style: none;
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 2.25rem;
           margin: 0; padding: 0;
           /* Hide on small screens */
           @media (max-width: 767px) { display: none; }
@@ -484,7 +429,7 @@ export default function Navbar() {
         }
 
         /* ─── Right side ─── */
-        .navbar-right { display: flex; align-items: center; gap: 0.75rem; }
+        .navbar-right { display: flex; align-items: center; gap: 2rem; }
 
         /* ─── Bell ─── */
         .navbar-bell {
