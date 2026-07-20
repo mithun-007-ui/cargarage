@@ -29,7 +29,7 @@ export default function HomePage() {
     const db = getMockDb();
     setTimeout(() => {
       setServices(db.services.slice(0, 6));
-      setReviews(getReviews().slice(0, 3));
+      setReviews(getReviews().slice(0, 4));
     }, 0);
   }, []);
 
@@ -467,7 +467,7 @@ export default function HomePage() {
             <h2 className="section-title mt-2">What Our Customers Say</h2>
             <p className="section-sub mt-3">Verified reviews submitted post-service by real car owners.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {reviews.length > 0 ? reviews.map((rev, idx) => (
               <div key={rev.id || idx} className="card p-6 flex flex-col justify-between hover:border-[#E65313] transition-colors">
                 <div className="space-y-3">

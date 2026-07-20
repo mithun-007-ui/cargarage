@@ -48,8 +48,17 @@ export default function ChoosePackagePage() {
   const handleContinue = () => {
     const toStore = (!selectedPackage || selectedPackage === 'none') ? 'none' : selectedPackage;
     localStorage.setItem('booking_flow_package', JSON.stringify(toStore));
+
+    // Calculate total price to save as fallback
+    const servicesSubtotal = selectedServices.reduce((acc, s) => acc + s.price, 0);
+    const packagePrice = (toStore && toStore !== 'none') ? (toStore.price || 0) : 0;
+    const subtotal = servicesSubtotal + packagePrice;
+    const gst = Math.round(subtotal * 0.18);
+    const total = subtotal + gst;
+    localStorage.setItem('booking_flow_estimated_price', total.toString());
+
     if (!vehicle) router.push('/vehicle-selection');
-    else router.push('/comparison');
+    else router.push('/booking');
   };
 
   const renderCell = (val) => {
@@ -71,7 +80,7 @@ export default function ChoosePackagePage() {
 
           {/* Page Header */}
           <div className="mb-8 mt-2">
-            <span className="section-label">Step 3 of 6 · Package Selection</span>
+            <span className="section-label">Step 3 of 4 · Package Selection</span>
             <h1 className="text-2xl md:text-3xl font-black mt-1 tracking-tight flex items-center gap-2.5" style={{ color: '#202020' }}>
               <div className="w-9 h-9 rounded-xl icon-orange flex items-center justify-center shrink-0">
                 <Shield size={18} />
@@ -170,7 +179,7 @@ export default function ChoosePackagePage() {
                 <ChevronLeft size={16} /> Back
               </button>
               <button onClick={handleContinue} className="btn-primary text-sm">
-                Continue to Comparison <ChevronRight size={16} />
+                Continue to Book Slot <ChevronRight size={16} />
               </button>
             </div>
           )}
