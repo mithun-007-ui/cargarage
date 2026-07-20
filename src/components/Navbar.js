@@ -37,6 +37,7 @@ export default function Navbar() {
     { name: 'Home', href: '/' },
     { name: 'Services', href: '/services' },
     { name: 'Packages', href: '/packages' },
+    { name: 'AI Diagnostic', href: '/diagnostic' },
     { name: 'Book Service', href: '/vehicle-selection' },
     { name: 'My Bookings', href: '/my-bookings' },
   ];
