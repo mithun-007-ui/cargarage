@@ -87,25 +87,19 @@ export default function SlotBookingPage() {
 
     try {
       const center = SERVICE_CENTERS.find(c => c.id === serviceCenter);
-      const newBooking = addBooking({
+      const slotDetails = {
         customerName: name,
         customerEmail: email,
-        vehicle: vehicle || { make: 'Unknown', model: 'Unknown', year: '2022', plateNumber: 'XX-00-XX-0000' },
-        serviceType: selectedServices[0]?.name || 'General Service',
-        selectedServices,
-        packageSelected: pkg?.name || 'None',
-        packagePrice: pkg?.price || 0,
-        estimatedPrice: total,
         serviceCenter: center?.name || serviceCenter,
         pickupOption: pickupOption === 'pickup' ? 'Pickup & Delivery' : 'Drop-off',
-        date, time,
-      });
-      localStorage.setItem('booking_flow_confirmed_id', newBooking.id);
-      ['booking_flow_vehicle', 'booking_flow_services', 'booking_flow_service',
-       'booking_flow_estimated_price', 'booking_flow_package'].forEach(k => localStorage.removeItem(k));
-      router.push('/booking-confirmation');
+        date,
+        time,
+        totalPrice: total
+      };
+      localStorage.setItem('booking_flow_slot_details', JSON.stringify(slotDetails));
+      router.push('/booking/payment');
     } catch (err) {
-      setError('Failed to record booking. Please try again.');
+      setError('Failed to save slot details. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -125,7 +119,7 @@ export default function SlotBookingPage() {
           )}
 
           <div className="mb-5 mt-2">
-            <span className="section-label">Step 4 of 4 · Schedule Slot</span>
+            <span className="section-label">Step 4 of 5 · Schedule Slot</span>
             <h1 className="text-xl font-extrabold tracking-tight" style={{ color: '#202020' }}>Schedule Your Service</h1>
             <p className="text-xs text-gray-500 mt-1">Pick a date, time slot, and service center to confirm your booking.</p>
           </div>
@@ -359,7 +353,7 @@ export default function SlotBookingPage() {
                     disabled={isSubmitting}
                     className="w-full btn-primary py-3 text-sm justify-center disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Booking...' : 'Confirm Service Booking'}
+                    {isSubmitting ? 'Redirecting...' : 'Proceed to Payment'}
                   </button>
                 </div>
               </div>

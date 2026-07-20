@@ -104,7 +104,7 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-6">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -128,7 +128,7 @@ export default function Navbar() {
             </div>
 
             {/* Right Side */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-6">
               {user && unreadCount > 0 && (
                 <Link
                   href="/my-bookings?tab=notifications"
