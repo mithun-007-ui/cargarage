@@ -245,7 +245,7 @@ export default function Navbar() {
       </nav>
 
       {/* Mobile bottom CTA bar */}
-      {pathname !== '/booking' && pathname !== '/vehicle-selection' && !pathname.startsWith('/admin') && pathname !== '/login' && pathname !== '/estimator' && pathname !== '/booking-confirmation' && (
+      {pathname !== '/booking' && pathname !== '/vehicle-selection' && !pathname.startsWith('/admin') && pathname !== '/login' && pathname !== '/booking-confirmation' && (
         <div
           className="md:hidden fixed bottom-0 left-0 right-0 p-3 z-40 flex items-center justify-between"
           style={{ background: '#FFFFFF', borderTop: '1px solid #E2D8CE', boxShadow: '0 -2px 12px rgba(0,0,0,0.06)' }}
