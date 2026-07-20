@@ -120,70 +120,120 @@ export default function HomePage() {
       <Navbar />
 
       {/* ════ HERO ════ */}
-      <section className="relative flex flex-col lg:block overflow-hidden bg-white" style={{ borderBottom: '1px solid #E2D8CE' }}>
-        {/* Right side background image (Full bleed on desktop, stacked on mobile) */}
-        <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-[58%] w-full h-[280px] sm:h-[380px] lg:h-full z-0 order-last lg:order-none animate-slide-in">
-          <div className="relative w-full h-full hero-mask-lg">
+      <section
+        className="relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(105deg, #FDF6EE 0%, #FAF0E4 45%, #F5E8D5 100%)',
+          borderBottom: '1px solid #E2D8CE',
+          minHeight: '520px',
+        }}
+      >
+        {/* ── Car image: right half, masked on left to blend into cream bg ── */}
+        <div
+          className="hidden lg:block absolute top-0 right-0 bottom-0"
+          style={{ width: '58%', zIndex: 0 }}
+        >
+          <div
+            className="relative w-full h-full"
+            style={{
+              WebkitMaskImage: 'radial-gradient(ellipse 100% 140% at 100% 50%, black 75%, transparent 100%)',
+              maskImage: 'radial-gradient(ellipse 100% 140% at 100% 50%, black 75%, transparent 100%)',
+            }}
+          >
             <Image
               src="/images/hero_car.png"
-              alt="Premium car — Bug Slayers professional car service"
+              alt="Luxury sedan driving — Bug Slayers professional car service"
               fill
               className="object-cover object-center lg:object-left"
               priority
             />
-            {/* Mobile top/bottom fades */}
-            <div className="lg:hidden absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white to-transparent" />
-            <div className="lg:hidden absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white to-transparent" />
           </div>
         </div>
 
-        {/* Content Container */}
-        <div className="content-wrapper relative z-20 py-12 lg:py-20 flex flex-col justify-center min-h-[460px] lg:min-h-[580px]">
-          <div className="max-w-xl lg:max-w-[540px] space-y-6">
+        {/* Mobile-only car image (stacked above text) */}
+        <div
+          className="lg:hidden w-full h-[240px] sm:h-[300px] relative"
+          style={{ zIndex: 0 }}
+        >
+          <div
+            className="relative w-full h-full"
+            style={{
+              WebkitMaskImage: 'linear-gradient(to bottom, black 70%, transparent 100%)',
+              maskImage: 'linear-gradient(to bottom, black 70%, transparent 100%)',
+            }}
+          >
+            <Image
+              src="/images/hero_car.png"
+              alt="Luxury sedan driving — Bug Slayers professional car service"
+              fill
+              className="object-cover object-center"
+              priority
+            />
+          </div>
+        </div>
+
+        {/* ── Left content ── */}
+        <div
+          className="relative content-wrapper py-14 lg:py-24 flex flex-col justify-center"
+          style={{ zIndex: 10 }}
+        >
+          <div className="lg:max-w-[500px] space-y-5">
+
             {/* Label */}
-            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: '#E65313' }}>
-              Professional Car Care
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.18em]" style={{ color: '#E65313' }}>
+              ● Professional Car Care
             </p>
 
             {/* Heading */}
-            <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-black tracking-tight leading-[1.08]" style={{ color: '#202020' }}>
+            <h1
+              className="text-4xl sm:text-5xl lg:text-[3.4rem] font-black tracking-tight"
+              style={{ color: '#1A1A1A', lineHeight: 1.1 }}
+            >
               Your Car Deserves<br />
               <span style={{ color: '#E65313' }}>The Best Care</span>
             </h1>
 
-            {/* Subtext */}
-            <p className="text-base sm:text-lg leading-relaxed text-gray-600">
+            {/* Sub-copy */}
+            <p className="text-base sm:text-lg leading-relaxed" style={{ color: '#5A5A5A', maxWidth: '420px' }}>
               From routine maintenance to advanced repair, we keep your car running smooth, safe and new.
             </p>
 
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <LinkNext href="/vehicle-selection" className="btn-primary text-base flex items-center justify-center gap-2">
-                <Calendar size={18} /> Book Service
+            {/* CTA buttons */}
+            <div className="flex flex-wrap gap-3 pt-1">
+              <LinkNext
+                href="/vehicle-selection"
+                className="flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold text-white shadow-md transition-all hover:opacity-90 active:scale-[0.98]"
+                style={{ background: '#E65313' }}
+              >
+                <Calendar size={16} /> Book Service
               </LinkNext>
-              <LinkNext href="/packages" className="btn-outline text-base bg-white flex items-center justify-center gap-2">
-                View Pricing <ChevronRight size={18} />
+              <LinkNext
+                href="/packages"
+                className="flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold border-2 transition-all hover:bg-orange-50"
+                style={{ color: '#E65313', borderColor: '#E65313', background: 'transparent' }}
+              >
+                View Pricing <ChevronRight size={16} />
               </LinkNext>
             </div>
 
-            {/* Bottom features bar */}
-            <div className="grid grid-cols-2 gap-y-4 gap-x-4 pt-6 border-t border-gray-200">
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-700">
-                <ShieldCheck size={16} className="text-gray-400 shrink-0" />
-                <span>Certified Experts</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-700">
-                <Wrench size={16} className="text-gray-400 shrink-0" />
-                <span>Genuine Parts</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-700">
-                <Phone size={16} className="text-gray-400 shrink-0" />
-                <span>24/7 Support</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-700">
-                <CircleDollarSign size={16} className="text-gray-400 shrink-0" />
-                <span>Transparent Pricing</span>
-              </div>
+            {/* Trust badges — 4-column strip */}
+            <div
+              className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-3 pt-6 mt-2"
+              style={{ borderTop: '1px solid rgba(0,0,0,0.10)' }}
+            >
+              {[
+                { icon: ShieldCheck,       label: 'Certified Experts'    },
+                { icon: Wrench,            label: 'Genuine Parts'        },
+                { icon: Phone,             label: '24/7 Support'         },
+                { icon: CircleDollarSign,  label: 'Transparent Pricing'  },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <Icon size={15} style={{ color: '#E65313', flexShrink: 0 }} />
+                  <span className="text-[12px] font-bold whitespace-nowrap" style={{ color: '#3A3A3A' }}>
+                    {label}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
