@@ -35,12 +35,12 @@
 ────────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
+  overflow-x: clip; /* clip ≠ hidden: doesn't create a scroll container, so position:sticky works */
 }
 body {
   background-color: #F8F5F0;
   color: #202020;
-  overflow-x: hidden;
+  overflow-x: clip; /* same — prevents horizontal scroll without breaking sticky */
   font-size: 16px;
 }
 
@@ -180,6 +180,23 @@ body {
   box-shadow: 0 0 0 3px rgba(230, 83, 19, 0.1);
 }
 .input-field:disabled { opacity: 0.55; cursor: not-allowed; background: #F8F5F0; }
+
+/* Adjust padding for inputs that have absolute positioned icons to prevent overlap */
+.relative svg ~ .input-field,
+.relative svg ~ .input-dark,
+.relative svg ~ .input-light,
+.relative svg ~ input.input-field,
+.relative svg ~ input.input-dark,
+.relative svg ~ input.input-light {
+  padding-left: 2.5rem !important;
+}
+
+@media (min-width: 1024px) {
+  .hero-mask-lg {
+    mask-image: radial-gradient(ellipse 95% 120% at 90% 50%, black 35%, transparent 85%);
+    -webkit-mask-image: radial-gradient(ellipse 95% 120% at 90% 50%, black 35%, transparent 85%);
+  }
+}
 
 /* Aliases kept for backward compat */
 .input-dark {

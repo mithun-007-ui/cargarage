@@ -145,11 +145,13 @@ export default function PackageComparisonPage() {
 
             {/* Bill Summary */}
             <div className="lg:col-span-4">
-              <BillSummary
-                vehicle={vehicle}
-                selectedServices={selectedServices}
-                selectedPackage={selectedPackage}
-              />
+              <div className="sticky top-20">
+                <BillSummary
+                  vehicle={vehicle}
+                  selectedServices={selectedServices}
+                  selectedPackage={selectedPackage}
+                />
+              </div>
             </div>
           </div>
 

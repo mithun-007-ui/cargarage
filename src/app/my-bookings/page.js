@@ -513,7 +513,7 @@ export default function CustomerDashboardPage() {
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Sidebar Tabs */}
             <aside className="lg:w-56 shrink-0">
-              <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm">
+              <div className="sticky top-20 rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm">
                 {TABS.map(tab => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -553,71 +553,76 @@ export default function CustomerDashboardPage() {
                       <p>No bookings yet. <Link href="/vehicle-selection" className="font-bold hover:underline" style={{ color: '#E65313' }}>Book your first service</Link></p>
                     </div>
                   ) : (
-                    bookings.map(b => (
-                      <div key={b.id} className="rounded-2xl p-5 transition-all bg-white border border-gray-200 shadow-sm">
-                        {/* Header row */}
-                        <div className="flex flex-wrap items-center gap-2 mb-4">
-                          <span className="font-mono text-xs px-2 py-0.5 rounded font-bold bg-gray-100 text-gray-500 border border-gray-200">{b.id}</span>
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${STATUS_BADGE[b.status] || 'bg-slate-50 text-slate-600 border-slate-100'}`}>{b.status}</span>
-                        </div>
-                        {/* Details grid */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-4">
-                          <div>
-                            <p className="font-bold uppercase text-[10px] mb-1 text-gray-400">Vehicle</p>
-                            <p className="font-bold text-gray-800">{b.vehicle.make} {b.vehicle.model}</p>
-                            <p className="font-mono text-gray-500">{b.vehicle.plateNumber}</p>
+                    /* Only this inner container scrolls horizontally on small screens */
+                    <div style={{ overflowX: 'auto' }}>
+                      <div style={{ minWidth: '640px' }}>
+                        {bookings.map(b => (
+                          <div key={b.id} className="rounded-2xl p-5 transition-all bg-white border border-gray-200 shadow-sm mb-4">
+                            {/* Header row */}
+                            <div className="flex flex-wrap items-center gap-2 mb-4">
+                              <span className="font-mono text-xs px-2 py-0.5 rounded font-bold bg-gray-100 text-gray-500 border border-gray-200">{b.id}</span>
+                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${STATUS_BADGE[b.status] || 'bg-slate-50 text-slate-600 border-slate-100'}`}>{b.status}</span>
+                            </div>
+                            {/* Details grid */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-4">
+                              <div>
+                                <p className="font-bold uppercase text-[10px] mb-1 text-gray-400">Vehicle</p>
+                                <p className="font-bold text-gray-800">{b.vehicle.make} {b.vehicle.model}</p>
+                                <p className="font-mono text-gray-500">{b.vehicle.plateNumber}</p>
+                              </div>
+                              <div>
+                                <p className="font-bold uppercase text-[10px] mb-1 text-gray-400">Date &amp; Time</p>
+                                <p className="font-bold text-gray-800">{b.date}</p>
+                                <p className="text-gray-500">{b.time || '—'}</p>
+                              </div>
+                              <div>
+                                <p className="font-bold uppercase text-[10px] mb-1 text-gray-400">Services</p>
+                                <p className="font-bold text-gray-800">{b.services?.length || 0} service{b.services?.length !== 1 ? 's' : ''}</p>
+                              </div>
+                              <div>
+                                <p className="font-bold uppercase text-[10px] mb-1 text-gray-400">Est. Cost</p>
+                                <p className="font-extrabold text-base text-[#E65313]">₹{parseFloat(b.estimatedPrice || 0).toLocaleString('en-IN')}</p>
+                              </div>
+                            </div>
+                            {/* Action buttons */}
+                            <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-150" style={{ borderColor: '#E2D8CE' }}>
+                              {b.status === 'Waiting for Approval' && (
+                                <button onClick={() => setActiveTab('approvals')}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                                  style={{ background: '#FFF3EE', color: '#E65313', border: '1px solid #FFD9C8' }}>
+                                  <AlertTriangle size={12} /> Approve Repairs
+                                </button>
+                              )}
+                              {['Booked'].includes(b.status) && (
+                                <button onClick={() => setActiveTab('track')}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                                  style={{ background: '#FFF3EE', color: '#E65313', border: '1px solid #FFD9C8' }}>
+                                  Reschedule
+                                </button>
+                              )}
+                              {['Booked'].includes(b.status) && (
+                                <button
+                                  className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                                  style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
+                                  Cancel
+                                </button>
+                              )}
+                              <button onClick={() => setActiveTab('track')}
+                                className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-white border border-gray-300 text-gray-700 hover:bg-gray-50">
+                                View Details
+                              </button>
+                              {['Completed', 'Ready for Delivery', 'Delivered'].includes(b.status) && (
+                                <button
+                                  className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                                  style={{ background: '#FFFBEB', color: '#D97706', border: '1px solid #FDE68A' }}>
+                                  🧾 Invoice
+                                </button>
+                              )}
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-bold uppercase text-[10px] mb-1 text-gray-400">Date &amp; Time</p>
-                            <p className="font-bold text-gray-800">{b.date}</p>
-                            <p className="text-gray-500">{b.time || '—'}</p>
-                          </div>
-                          <div>
-                            <p className="font-bold uppercase text-[10px] mb-1 text-gray-400">Services</p>
-                            <p className="font-bold text-gray-800">{b.services?.length || 0} service{b.services?.length !== 1 ? 's' : ''}</p>
-                          </div>
-                          <div>
-                            <p className="font-bold uppercase text-[10px] mb-1 text-gray-400">Est. Cost</p>
-                            <p className="font-extrabold text-base text-[#E65313]">₹{parseFloat(b.estimatedPrice || 0).toLocaleString('en-IN')}</p>
-                          </div>
-                        </div>
-                        {/* Action buttons */}
-                        <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-150" style={{ borderColor: '#E2D8CE' }}>
-                          {b.status === 'Waiting for Approval' && (
-                            <button onClick={() => setActiveTab('approvals')}
-                              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
-                              style={{ background: '#FFF3EE', color: '#E65313', border: '1px solid #FFD9C8' }}>
-                              <AlertTriangle size={12} /> Approve Repairs
-                            </button>
-                          )}
-                          {['Booked'].includes(b.status) && (
-                            <button onClick={() => setActiveTab('track')}
-                              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                              style={{ background: '#FFF3EE', color: '#E65313', border: '1px solid #FFD9C8' }}>
-                              Reschedule
-                            </button>
-                          )}
-                          {['Booked'].includes(b.status) && (
-                            <button
-                              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                              style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA' }}>
-                              Cancel
-                            </button>
-                          )}
-                          <button onClick={() => setActiveTab('track')}
-                            className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-white border border-gray-300 text-gray-700 hover:bg-gray-50">
-                            View Details
-                          </button>
-                          {['Completed', 'Ready for Delivery', 'Delivered'].includes(b.status) && (
-                            <button
-                              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                              style={{ background: '#FFFBEB', color: '#D97706', border: '1px solid #FDE68A' }}>
-                              🧾 Invoice
-                            </button>
-                          )}
-                        </div>
+                        ))}
                       </div>
-                    ))
+                    </div>
                   )}
                 </div>
               )}

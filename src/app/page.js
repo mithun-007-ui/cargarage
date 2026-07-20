@@ -122,8 +122,8 @@ export default function HomePage() {
       {/* ════ HERO ════ */}
       <section className="relative flex flex-col lg:block overflow-hidden bg-white" style={{ borderBottom: '1px solid #E2D8CE' }}>
         {/* Right side background image (Full bleed on desktop, stacked on mobile) */}
-        <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 w-full h-[280px] sm:h-[380px] lg:h-full z-0 order-last lg:order-none animate-slide-in">
-          <div className="relative w-full h-full">
+        <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-[58%] w-full h-[280px] sm:h-[380px] lg:h-full z-0 order-last lg:order-none animate-slide-in">
+          <div className="relative w-full h-full hero-mask-lg">
             <Image
               src="/images/hero_car.png"
               alt="Premium car — Bug Slayers professional car service"
@@ -131,15 +131,11 @@ export default function HomePage() {
               className="object-cover object-center lg:object-left"
               priority
             />
-            {/* Smooth transition gradient overlays */}
-            <div className="hidden lg:block absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white to-transparent" />
+            {/* Mobile top/bottom fades */}
             <div className="lg:hidden absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white to-transparent" />
             <div className="lg:hidden absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white to-transparent" />
           </div>
         </div>
-
-        {/* Content blend background overlay */}
-        <div className="hidden lg:block absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-white via-white to-transparent z-10" />
 
         {/* Content Container */}
         <div className="content-wrapper relative z-20 py-12 lg:py-20 flex flex-col justify-center min-h-[460px] lg:min-h-[580px]">
