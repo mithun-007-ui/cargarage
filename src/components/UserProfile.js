@@ -50,14 +50,16 @@ export default function UserProfile() {
             <p className="text-sm font-semibold text-slate-800 truncate">{user.email}</p>
           </div>
           
-          <Link
-            href={dashboardUrl}
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors w-full cursor-pointer"
-          >
-            <LayoutDashboard size={16} className="text-primary-600" />
-            <span>Dashboard</span>
-          </Link>
+          {user.role === 'Admin' && (
+            <Link
+              href={dashboardUrl}
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors w-full cursor-pointer"
+            >
+              <LayoutDashboard size={16} className="text-primary-600" />
+              <span>Dashboard</span>
+            </Link>
+          )}
           
           <button
             onClick={() => {
