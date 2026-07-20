@@ -15,15 +15,17 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedUser = localStorage.getItem('autocare_user');
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (e) {
-          console.error('Error parsing stored user:', e);
-          localStorage.removeItem('autocare_user');
+      setTimeout(() => {
+        if (storedUser) {
+          try {
+            setUser(JSON.parse(storedUser));
+          } catch (e) {
+            console.error('Error parsing stored user:', e);
+            localStorage.removeItem('autocare_user');
+          }
         }
-      }
-      setLoading(false);
+        setLoading(false);
+      }, 0);
     }
   }, []);
 

@@ -23,11 +23,11 @@ const ICON_MAP = {
 
 // Category accent colour sets — each category gets a unique visual identity
 const CATEGORY_COLORS = {
-  engine:     { icon: 'icon-amber',  tag: 'badge-yellow', dot: 'bg-amber-400',   ring: 'border-amber-500/30',  headerBg: 'from-amber-900/20 to-transparent'  },
-  brakes:     { icon: 'icon-rose',   tag: 'badge-orange', dot: 'bg-rose-400',    ring: 'border-rose-500/30',   headerBg: 'from-rose-900/20 to-transparent'    },
-  ac:         { icon: 'icon-cyan',   tag: 'badge-blue',   dot: 'bg-cyan-400',    ring: 'border-cyan-500/30',   headerBg: 'from-cyan-900/20 to-transparent'    },
-  electrical: { icon: 'icon-violet', tag: 'badge-blue',   dot: 'bg-violet-400',  ring: 'border-violet-500/30', headerBg: 'from-violet-900/20 to-transparent'  },
-  detailing:  { icon: 'icon-emerald',tag: 'badge-green',  dot: 'bg-emerald-400', ring: 'border-emerald-500/30',headerBg: 'from-emerald-900/20 to-transparent' },
+  engine:     { icon: 'icon-amber',   tag: 'badge-yellow', dot: 'bg-amber-400',   ring: 'border-amber-200',  headerBg: '' },
+  brakes:     { icon: 'icon-rose',    tag: 'badge-orange', dot: 'bg-rose-400',    ring: 'border-rose-200',   headerBg: '' },
+  ac:         { icon: 'icon-cyan',    tag: 'badge-blue',   dot: 'bg-cyan-400',    ring: 'border-cyan-200',   headerBg: '' },
+  electrical: { icon: 'icon-violet',  tag: 'badge-blue',   dot: 'bg-violet-400',  ring: 'border-violet-200', headerBg: '' },
+  detailing:  { icon: 'icon-emerald', tag: 'badge-green',  dot: 'bg-emerald-400', ring: 'border-emerald-200',headerBg: '' },
 };
 
 const CATEGORIES = [
@@ -162,12 +162,14 @@ export default function ChooseServicePage() {
 
   useEffect(() => {
     const db = getMockDb();
-    setServices(db.services);
     const storedVehicle = localStorage.getItem('booking_flow_vehicle');
-    if (storedVehicle) { try { setVehicle(JSON.parse(storedVehicle)); } catch (e) { console.error(e); } }
     const storedServices = localStorage.getItem('booking_flow_services');
-    if (storedServices) { try { setSelectedServices(JSON.parse(storedServices)); } catch (e) { console.error(e); } }
-    setIsLoaded(true);
+    setTimeout(() => {
+      setServices(db.services);
+      if (storedVehicle) { try { setVehicle(JSON.parse(storedVehicle)); } catch (e) { console.error(e); } }
+      if (storedServices) { try { setSelectedServices(JSON.parse(storedServices)); } catch (e) { console.error(e); } }
+      setIsLoaded(true);
+    }, 0);
   }, []);
 
   const handleToggleService = (service) => {
@@ -199,9 +201,8 @@ export default function ChooseServicePage() {
     const matchesCategory = selectedCategory === 'all' || serviceCategory === selectedCategory;
     return matchesSearch && matchesCategory;
   });
-
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: 'linear-gradient(180deg, #0d1220 0%, #060912 100%)' }}>
+    <div className="flex flex-col min-h-screen" style={{ background: '#F8F5F0' }}>
       <Navbar />
 
       <main className="flex-grow py-6 md:py-10">
@@ -214,20 +215,20 @@ export default function ChooseServicePage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <span className="section-label">Step 2 of 6 · Service Selection</span>
-                <h1 className="text-2xl md:text-3xl font-black text-white mt-1 tracking-tight flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl icon-blue flex items-center justify-center shrink-0">
+                <h1 className="text-2xl md:text-3xl font-black mt-1 tracking-tight flex items-center gap-2.5" style={{ color: '#202020' }}>
+                  <div className="w-9 h-9 rounded-xl icon-orange flex items-center justify-center shrink-0">
                     <Wrench size={18} />
                   </div>
                   {vehicle ? `Services for ${vehicle.make} ${vehicle.model}` : 'Service Directory'}
                 </h1>
-                <p className="text-slate-400 text-sm mt-1.5 max-w-lg">
+                <p className="text-sm mt-1.5 max-w-lg" style={{ color: '#667085' }}>
                   {vehicle
                     ? 'Select one or more repair services. Prices shown are base estimates — final cost approved after inspection.'
                     : 'Browse transparent pricing, step-by-step service breakdowns, and certified inclusions.'}
                 </p>
               </div>
               {selectedServices.length > 0 && (
-                <div className="badge-blue shrink-0 text-sm font-bold px-4 py-2">
+                <div className="badge badge-orange shrink-0 text-sm font-bold px-4 py-2">
                   🛠 {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''} selected
                 </div>
               )}
@@ -241,8 +242,8 @@ export default function ChooseServicePage() {
           )}
 
           {error && (
-            <div className="mb-5 bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-2.5 text-sm text-red-300 animate-shake">
-              <AlertCircle size={16} className="text-red-400 shrink-0" />
+            <div className="mb-5 rounded-xl p-4 flex items-center gap-2.5 text-sm animate-shake" style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}>
+              <AlertCircle size={16} className="shrink-0" style={{ color: '#DC2626' }} />
               <span>{error}</span>
             </div>
           )}
@@ -250,14 +251,14 @@ export default function ChooseServicePage() {
           {/* ── Search & Category Filters ── */}
           <div className="flex flex-col sm:flex-row gap-3 mb-8">
             <div className="relative sm:w-72">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={15} />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2" size={15} style={{ color: '#9CA3AF' }} />
               <input
                 type="text"
                 placeholder="Search services…"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pr-4 py-3 rounded-xl text-sm font-medium input-dark"
-                style={{ paddingLeft: '2.75rem' }}
+                className="w-full input-field"
+                style={{ paddingLeft: '2.75rem', background: '#FFFFFF', border: '1px solid #E2D8CE' }}
               />
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -265,11 +266,10 @@ export default function ChooseServicePage() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all border cursor-pointer min-h-[44px] ${
-                    selectedCategory === cat.id
-                      ? 'bg-primary-600 border-primary-500 text-white shadow-md shadow-primary-600/20'
-                      : 'bg-[#111827] border-[#1e2d45] text-slate-400 hover:text-white hover:border-primary-600/30'
-                  }`}
+                  className="px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all border cursor-pointer min-h-[40px]"
+                  style={selectedCategory === cat.id
+                    ? { background: '#E65313', borderColor: '#E65313', color: '#FFFFFF' }
+                    : { background: '#FFFFFF', borderColor: '#E2D8CE', color: '#667085' }}
                 >
                   {cat.icon} {cat.label}
                 </button>
@@ -295,11 +295,10 @@ export default function ChooseServicePage() {
                     return (
                       <div
                         key={service.id}
-                        className={`rounded-2xl border-2 transition-all duration-250 flex flex-col group relative overflow-hidden ${
-                          selected
-                            ? 'border-primary-600 bg-[#0d1731] shadow-xl shadow-primary-900/30'
-                            : 'bg-[#111827] border-[#1e2d45] hover:border-[#253558]'
-                        }`}
+                        className="rounded-2xl border-2 transition-all duration-200 flex flex-col group relative overflow-hidden"
+                        style={selected
+                          ? { borderColor: '#E65313', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(230,83,19,0.10)' }
+                          : { background: '#FFFFFF', borderColor: '#E2D8CE' }}
                       >
                         {/* Card colour accent header strip */}
                         <div className={`h-1 w-full bg-gradient-to-r ${
@@ -317,12 +316,12 @@ export default function ChooseServicePage() {
                               <IconComp size={20} />
                             </div>
                             <div className="flex-1 min-w-0 pr-8">
-                              <h3 className={`font-extrabold text-base leading-tight ${selected ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                              <h3 className="font-extrabold text-base leading-tight" style={{ color: '#202020' }}>
                                 {service.name}
                               </h3>
                               <div className="flex items-center gap-2.5 mt-1.5 flex-wrap">
-                                <span className="text-lg font-black text-white">₹{service.price.toLocaleString('en-IN')}</span>
-                                <span className="flex items-center gap-1 text-slate-500 text-xs font-medium">
+                                <span className="text-lg font-black" style={{ color: '#E65313' }}>₹{service.price.toLocaleString('en-IN')}</span>
+                                <span className="flex items-center gap-1 text-xs font-medium" style={{ color: '#9CA3AF' }}>
                                   <Clock size={11} /> ~{service.duration} min
                                 </span>
                                 {process.warranty && (
@@ -336,18 +335,18 @@ export default function ChooseServicePage() {
                             {/* Checkbox */}
                             <div className="absolute top-4 right-4">
                               {selected
-                                ? <SquareCheck className="text-primary-400" size={22} />
-                                : <Square className="text-slate-600 group-hover:text-slate-400" size={22} />
+                                ? <SquareCheck style={{ color: '#E65313' }} size={22} />
+                                : <Square style={{ color: '#E2D8CE' }} size={22} />
                               }
                             </div>
                           </div>
 
                           {/* Description */}
-                          <p className="text-sm text-slate-400 leading-relaxed mb-4">{service.description}</p>
+                          <p className="text-sm leading-relaxed mb-4" style={{ color: '#667085' }}>{service.description}</p>
 
                           {/* ── WHAT WE DO — Step-by-step process ── */}
-                          <div className="border-t border-[#1e2d45] pt-4 mt-auto">
-                            <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                          <div className="pt-4 mt-auto" style={{ borderTop: '1px solid #E2D8CE' }}>
+                            <p className="text-[10px] font-extrabold uppercase tracking-widest mb-3 flex items-center gap-1.5" style={{ color: '#9CA3AF' }}>
                               <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
                               What We Do — Service Process
                             </p>
@@ -355,15 +354,16 @@ export default function ChooseServicePage() {
                               {(isExpanded ? process.steps : process.steps.slice(0, 3)).map((step, i) => (
                                 <div key={i} className="step-bullet">
                                   <div className="step-bullet-icon">
-                                    <Check size={9} className="text-emerald-400" strokeWidth={3} />
+                                    <Check size={9} style={{ color: '#16A34A' }} strokeWidth={3} />
                                   </div>
-                                  <span>{step}</span>
+                                  <span style={{ color: '#374151' }}>{step}</span>
                                 </div>
                               ))}
                               {process.steps.length > 3 && (
                                 <button
                                   onClick={e => { e.stopPropagation(); setExpandedCard(isExpanded ? null : service.id); }}
-                                  className="text-xs text-primary-400 hover:text-primary-300 font-bold flex items-center gap-1 mt-1 cursor-pointer transition-colors"
+                                  className="text-xs hover:text-primary-300 font-bold flex items-center gap-1 mt-1 cursor-pointer transition-colors"
+                                  style={{ color: '#F28C45' }}
                                 >
                                   {isExpanded
                                     ? '↑ Show less'
@@ -375,7 +375,8 @@ export default function ChooseServicePage() {
 
                             {/* Savings badge if applicable */}
                             {process.savings && (
-                              <div className="mt-3 text-[11px] font-bold text-amber-400 flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-1.5">
+                              <div className="mt-3 text-[11px] font-bold flex items-center gap-1.5 rounded-lg px-3 py-1.5"
+                                style={{ color: '#D97706', background: '#FFFBEB', border: '1px solid #FDE68A' }}>
                                 <Star size={11} fill="currentColor" /> {process.savings}
                               </div>
                             )}
@@ -384,13 +385,15 @@ export default function ChooseServicePage() {
 
                         {/* Selected CTA footer */}
                         {selected && (
-                          <div className="px-5 py-3 bg-primary-600/10 border-t border-primary-600/20 flex items-center justify-between">
-                            <span className="text-xs font-bold text-primary-300 flex items-center gap-1.5">
+                          <div className="px-5 py-3 flex items-center justify-between"
+                            style={{ background: '#FFF3EE', borderTop: '1px solid #FFD9C8' }}>
+                            <span className="text-xs font-bold flex items-center gap-1.5" style={{ color: '#E65313' }}>
                               <Check size={12} strokeWidth={3} /> Added to your booking
                             </span>
                             <button
                               onClick={e => { e.stopPropagation(); handleToggleService(service); }}
-                              className="text-xs text-slate-500 hover:text-red-400 transition-colors font-medium cursor-pointer"
+                              className="text-xs transition-colors font-medium cursor-pointer hover:text-red-500"
+                              style={{ color: '#9CA3AF' }}
                             >
                               Remove
                             </button>
@@ -401,10 +404,10 @@ export default function ChooseServicePage() {
                   })}
                 </div>
               ) : (
-                <div className="bg-[#111827] border border-[#1e2d45] rounded-3xl p-16 text-center">
-                  <AlertCircle size={32} className="text-slate-600 mx-auto mb-4" />
-                  <p className="text-slate-300 font-bold text-base">No services match your search</p>
-                  <p className="text-sm text-slate-500 mt-1">Try resetting the search or select &quot;All Services&quot;.</p>
+                <div className="card p-16 text-center">
+                  <AlertCircle size={32} className="mx-auto mb-4" style={{ color: '#9CA3AF' }} />
+                  <p className="font-bold text-base" style={{ color: '#202020' }}>No services match your search</p>
+                  <p className="text-sm mt-1" style={{ color: '#667085' }}>Try resetting the search or select &quot;All Services&quot;.</p>
                 </div>
               )}
             </div>
@@ -425,10 +428,10 @@ export default function ChooseServicePage() {
 
           {/* ── Bottom nav (booking flow only) ── */}
           {vehicle && (
-            <div className="divider-dark mt-8 pt-6 flex justify-between">
+            <div className="divider mt-8 pt-6 flex justify-between">
               <button
                 onClick={() => router.push('/vehicle-selection')}
-                className="border border-[#1e2d45] text-slate-400 hover:bg-[#111827] hover:text-white px-5 py-3 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 cursor-pointer min-h-[48px]"
+                className="btn-outline text-sm"
               >
                 <ChevronLeft size={16} /> Back
               </button>

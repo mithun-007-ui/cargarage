@@ -9,7 +9,7 @@ import VehicleBanner from 'src/components/VehicleBanner';
 import BillSummary from 'src/components/BillSummary';
 import PackageCard from 'src/components/PackageCard';
 import { getMockDb } from 'src/lib/mockDb';
-import { ChevronLeft, ChevronRight, Check, X, Shield, Star, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, X, Shield, Star } from 'lucide-react';
 
 const COMPARISON_ITEMS = [
   { name: 'Diagnostic Health Inspection', silver: '24-Point', gold: 'Full Digital Scan', platinum: 'Priority 120-Point' },
@@ -55,14 +55,14 @@ export default function ChoosePackagePage() {
   const renderCell = (val) => {
     if (typeof val === 'boolean') {
       return val
-        ? <Check size={15} className="text-emerald-400 mx-auto" strokeWidth={3} />
-        : <X size={15} className="text-slate-600 mx-auto" />;
+        ? <Check size={15} className="text-green-600 mx-auto" strokeWidth={3} />
+        : <X size={15} className="text-gray-300 mx-auto" />;
     }
-    return <span className="text-xs text-slate-300 font-semibold">{val}</span>;
+    return <span className="text-xs text-gray-700 font-semibold">{val}</span>;
   };
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: 'linear-gradient(180deg, #0d1220 0%, #060912 100%)' }}>
+    <div className="flex flex-col min-h-screen" style={{ background: '#F8F5F0' }}>
       <Navbar />
       <main className="flex-grow py-6 md:py-10">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
@@ -72,13 +72,13 @@ export default function ChoosePackagePage() {
           {/* Page Header */}
           <div className="mb-8 mt-2">
             <span className="section-label">Step 3 of 6 · Package Selection</span>
-            <h1 className="text-2xl md:text-3xl font-black text-white mt-1 tracking-tight flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl icon-violet flex items-center justify-center shrink-0">
+            <h1 className="text-2xl md:text-3xl font-black mt-1 tracking-tight flex items-center gap-2.5" style={{ color: '#202020' }}>
+              <div className="w-9 h-9 rounded-xl icon-orange flex items-center justify-center shrink-0">
                 <Shield size={18} />
               </div>
               Compare Care Packages
             </h1>
-            <p className="text-sm text-slate-400 mt-1.5 max-w-lg">
+            <p className="text-[#667085] text-sm mt-1.5 max-w-lg">
               Select a bundled care package to save up to 25% on combined service fees. Or continue with individual services only.
             </p>
           </div>
@@ -107,35 +107,34 @@ export default function ChoosePackagePage() {
               {/* No Package option */}
               <button
                 onClick={() => setSelectedPackage('none')}
-                className={`w-full py-4 rounded-2xl font-bold text-sm border-2 transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                  selectedPackage === 'none'
-                    ? 'border-primary-600 bg-primary-600/10 text-primary-300'
-                    : 'bg-[#111827] border-[#1e2d45] text-slate-400 hover:border-[#253558] hover:text-slate-200'
-                }`}
+                className="w-full py-4 rounded-xl font-bold text-sm border-2 transition-all cursor-pointer flex items-center justify-center gap-2 min-h-[48px]"
+                style={selectedPackage === 'none'
+                  ? { borderColor: '#E65313', background: '#FFF3EE', color: '#E65313' }
+                  : { background: '#FFFFFF', borderColor: '#E2D8CE', color: '#667085' }}
               >
                 {selectedPackage === 'none' ? '✓ ' : ''}Continue with No Package (Services Only)
               </button>
 
               {/* Comparison table */}
-              <div className="bg-[#111827] rounded-3xl border border-[#1e2d45] overflow-hidden">
-                <div className="px-5 py-4 border-b border-[#1e2d45] flex items-center gap-2.5" style={{ background: 'linear-gradient(90deg, #141f33, #111827)' }}>
-                  <Star size={14} className="text-amber-400" fill="currentColor" />
-                  <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider">Features Comparison Matrix</h2>
+              <div className="rounded-2xl overflow-hidden shadow-sm" style={{ background: '#FFFFFF', border: '1px solid #E2D8CE' }}>
+                <div className="px-5 py-4 flex items-center gap-2.5" style={{ background: '#F8F5F0', borderBottom: '1px solid #E2D8CE' }}>
+                  <Star size={14} style={{ color: '#E65313' }} fill="currentColor" />
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-[#202020]">Features Comparison Matrix</h2>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse text-sm">
                     <thead>
-                      <tr className="border-b border-[#1e2d45]" style={{ background: 'linear-gradient(90deg, #141f33, #111827)' }}>
-                        <th className="py-3.5 px-5 font-bold text-slate-500 uppercase tracking-wider text-xs">Feature</th>
-                        <th className="py-3.5 px-5 font-black text-slate-300 text-center">Silver<br /><span className="text-slate-500 text-xs font-normal">₹1,499</span></th>
-                        <th className="py-3.5 px-5 font-black text-amber-300 text-center">Gold<br /><span className="text-amber-500/70 text-xs font-normal">₹2,499</span></th>
-                        <th className="py-3.5 px-5 font-black text-violet-300 text-center">Platinum<br /><span className="text-violet-500/70 text-xs font-normal">₹3,999</span></th>
+                      <tr style={{ background: '#FFFFFF', borderBottom: '1px solid #E2D8CE' }}>
+                        <th className="py-3.5 px-5 font-bold uppercase tracking-wider text-xs" style={{ color: '#667085' }}>Feature</th>
+                        <th className="py-3.5 px-5 font-black text-center" style={{ color: '#64748B' }}>Silver<br /><span className="text-xs font-normal" style={{ color: '#94A3B8' }}>₹1,499</span></th>
+                        <th className="py-3.5 px-5 font-black text-center" style={{ color: '#D97706' }}>Gold<br /><span className="text-xs font-normal" style={{ color: '#F59E0B' }}>₹2,499</span></th>
+                        <th className="py-3.5 px-5 font-black text-center" style={{ color: '#7C3AED' }}>Platinum<br /><span className="text-xs font-normal" style={{ color: '#A78BFA' }}>₹3,999</span></th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#1e2d45]">
+                    <tbody className="divide-y divide-[#E2D8CE]">
                       {COMPARISON_ITEMS.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-white/2 transition-colors">
-                          <td className="py-3.5 px-5 text-slate-300 font-semibold">{item.name}</td>
+                        <tr key={idx} className="hover:bg-[#F8F5F0]/50 transition-colors">
+                          <td className="py-3.5 px-5 font-semibold" style={{ color: '#202020' }}>{item.name}</td>
                           <td className="py-3.5 px-5 text-center">{renderCell(item.silver)}</td>
                           <td className="py-3.5 px-5 text-center">{renderCell(item.gold)}</td>
                           <td className="py-3.5 px-5 text-center">{renderCell(item.platinum)}</td>
@@ -163,10 +162,10 @@ export default function ChoosePackagePage() {
 
           {/* Navigation */}
           {vehicle && (
-            <div className="divider-dark mt-8 pt-6 flex justify-between">
+            <div className="divider mt-8 pt-6 flex justify-between">
               <button
                 onClick={() => router.push('/services')}
-                className="border border-[#1e2d45] text-slate-400 hover:bg-[#111827] hover:text-white px-5 py-3 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 cursor-pointer min-h-[48px]"
+                className="btn-outline text-sm"
               >
                 <ChevronLeft size={16} /> Back
               </button>

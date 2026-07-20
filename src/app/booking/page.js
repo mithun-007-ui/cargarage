@@ -97,7 +97,7 @@ export default function SlotBookingPage() {
       });
       localStorage.setItem('booking_flow_confirmed_id', newBooking.id);
       ['booking_flow_vehicle', 'booking_flow_services', 'booking_flow_service',
-       'booking_flow_package', 'booking_flow_estimated_price'].forEach(k => localStorage.removeItem(k));
+       'booking_flow_estimated_price', 'booking_flow_package'].forEach(k => localStorage.removeItem(k));
       router.push('/booking-confirmation');
     } catch (err) {
       setError('Failed to record booking. Please try again.');
@@ -107,10 +107,10 @@ export default function SlotBookingPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
+    <div className="flex flex-col min-h-screen" style={{ background: '#F8F5F0' }}>
       <Navbar />
       <main className="flex-grow py-6">
-        <div className="max-w-5xl mx-auto px-4">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
           <ProgressBar currentStep={6} />
 
           {vehicle && (
@@ -120,13 +120,13 @@ export default function SlotBookingPage() {
           )}
 
           <div className="mb-5">
-            <h1 className="text-xl font-extrabold text-slate-800 tracking-tight">Schedule Your Service</h1>
-            <p className="text-xs text-slate-400 mt-1">Pick a date, time slot, and service center to confirm your booking.</p>
+            <h1 className="text-xl font-extrabold tracking-tight" style={{ color: '#202020' }}>Schedule Your Service</h1>
+            <p className="text-xs text-gray-500 mt-1">Pick a date, time slot, and service center to confirm your booking.</p>
           </div>
 
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-100 rounded-xl p-3 flex items-center gap-2 text-sm text-red-700">
-              <AlertCircle size={15} className="text-red-500 shrink-0" /><span>{error}</span>
+            <div className="mb-4 rounded-xl p-3 flex items-center gap-2 text-sm" style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}>
+              <AlertCircle size={15} className="shrink-0" style={{ color: '#DC2626' }} /><span>{error}</span>
             </div>
           )}
 
@@ -135,9 +135,9 @@ export default function SlotBookingPage() {
             <div className="lg:col-span-8 space-y-4">
 
               {/* Date */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-                <h2 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
-                  <Calendar size={15} className="text-primary-600" /> Select Date
+              <div className="bg-white rounded-2xl p-5 border shadow-sm" style={{ borderColor: '#E2D8CE' }}>
+                <h2 className="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
+                  <Calendar size={15} style={{ color: '#E65313' }} /> Select Date
                 </h2>
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                   {getNextDays().map(day => (
@@ -145,13 +145,14 @@ export default function SlotBookingPage() {
                       key={day.value}
                       type="button"
                       onClick={() => setDate(day.value)}
-                      className={`p-2.5 border rounded-xl text-center transition-all cursor-pointer flex flex-col items-center gap-0.5 ${
+                      className="p-2.5 border rounded-xl text-center transition-all cursor-pointer flex flex-col items-center gap-0.5"
+                      style={
                         date === day.value
-                          ? 'border-primary-600 bg-primary-50 text-primary-800 font-bold ring-2 ring-primary-500/10'
-                          : 'bg-slate-50 border-slate-100 hover:border-slate-300 text-slate-700'
-                      }`}
+                          ? { borderColor: '#E65313', background: '#FFF3EE', color: '#E65313', fontWeight: 'bold' }
+                          : { background: '#FFFFFF', borderColor: '#E2D8CE', color: '#667085' }
+                      }
                     >
-                      <span className="text-[9px] uppercase text-slate-400 font-semibold">{day.label.split(',')[0]}</span>
+                      <span className="text-[9px] uppercase font-semibold text-gray-400">{day.label.split(',')[0]}</span>
                       <span className="text-xs font-semibold">{day.label.split(',')[1]?.trim()}</span>
                     </button>
                   ))}
@@ -159,9 +160,9 @@ export default function SlotBookingPage() {
               </div>
 
               {/* Time */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-                <h2 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
-                  <Clock size={15} className="text-primary-600" /> Select Time
+              <div className="bg-white rounded-2xl p-5 border shadow-sm" style={{ borderColor: '#E2D8CE' }}>
+                <h2 className="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
+                  <Clock size={15} style={{ color: '#E65313' }} /> Select Time
                 </h2>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                   {TIME_SLOTS.map(slot => (
@@ -169,11 +170,12 @@ export default function SlotBookingPage() {
                       key={slot}
                       type="button"
                       onClick={() => setTime(slot)}
-                      className={`py-2.5 border rounded-xl text-center text-xs font-semibold transition-all cursor-pointer ${
+                      className="py-2.5 border rounded-xl text-center text-xs font-semibold transition-all cursor-pointer"
+                      style={
                         time === slot
-                          ? 'border-primary-600 bg-primary-50 text-primary-800 font-bold ring-2 ring-primary-500/10'
-                          : 'bg-slate-50 border-slate-100 hover:border-slate-300 text-slate-700'
-                      }`}
+                          ? { borderColor: '#E65313', background: '#FFF3EE', color: '#E65313', fontWeight: 'bold' }
+                          : { background: '#FFFFFF', borderColor: '#E2D8CE', color: '#667085' }
+                      }
                     >
                       {slot}
                     </button>
@@ -182,9 +184,9 @@ export default function SlotBookingPage() {
               </div>
 
               {/* Service Center */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-                <h2 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
-                  <MapPin size={15} className="text-primary-600" /> Service Center
+              <div className="bg-white rounded-2xl p-5 border shadow-sm" style={{ borderColor: '#E2D8CE' }}>
+                <h2 className="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
+                  <MapPin size={15} style={{ color: '#E65313' }} /> Service Center
                 </h2>
                 <div className="space-y-2">
                   {SERVICE_CENTERS.map(center => (
@@ -192,20 +194,33 @@ export default function SlotBookingPage() {
                       key={center.id}
                       type="button"
                       onClick={() => setServiceCenter(center.id)}
-                      className={`w-full text-left p-4 border-2 rounded-xl transition-all cursor-pointer ${
+                      className="w-full text-left p-4 border rounded-xl transition-all cursor-pointer"
+                      style={
                         serviceCenter === center.id
-                          ? 'border-primary-500 bg-primary-50/30'
-                          : 'border-slate-100 bg-slate-50 hover:border-slate-200 hover:bg-white'
-                      }`}
+                          ? { borderColor: '#E65313', background: '#FFF3EE' }
+                          : { borderColor: '#E2D8CE', background: '#FFFFFF' }
+                      }
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${serviceCenter === center.id ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                          style={
+                            serviceCenter === center.id
+                              ? { background: '#E65313', color: '#FFFFFF' }
+                              : { background: '#F8F5F0', color: '#667085', border: '1px solid #E2D8CE' }
+                          }
+                        >
                           <Building2 size={14} />
                         </div>
                         <div>
-                          <p className={`text-sm font-bold ${serviceCenter === center.id ? 'text-primary-800' : 'text-slate-700'}`}>{center.name}</p>
-                          <p className="text-xs text-slate-400 mt-0.5">{center.address}</p>
-                          <p className="text-[10px] text-slate-400">{center.timing}</p>
+                          <p
+                            className="text-sm font-bold animate-colors"
+                            style={{ color: serviceCenter === center.id ? '#E65313' : '#202020' }}
+                          >
+                            {center.name}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-0.5">{center.address}</p>
+                          <p className="text-[10px] text-gray-400">{center.timing}</p>
                         </div>
                       </div>
                     </button>
@@ -214,9 +229,9 @@ export default function SlotBookingPage() {
               </div>
 
               {/* Pickup Option */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-                <h2 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
-                  <Truck size={15} className="text-primary-600" /> Pickup Option
+              <div className="bg-white rounded-2xl p-5 border shadow-sm" style={{ borderColor: '#E2D8CE' }}>
+                <h2 className="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
+                  <Truck size={15} style={{ color: '#E65313' }} /> Pickup Option
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {PICKUP_OPTIONS.map(opt => {
@@ -226,15 +241,16 @@ export default function SlotBookingPage() {
                         key={opt.id}
                         type="button"
                         onClick={() => setPickupOption(opt.id)}
-                        className={`text-left p-4 border-2 rounded-xl transition-all cursor-pointer ${
+                        className="text-left p-4 border rounded-xl transition-all cursor-pointer"
+                        style={
                           pickupOption === opt.id
-                            ? 'border-primary-500 bg-primary-50/30'
-                            : 'border-slate-100 bg-slate-50 hover:border-slate-200'
-                        }`}
+                            ? { borderColor: '#E65313', background: '#FFF3EE' }
+                            : { borderColor: '#E2D8CE', background: '#FFFFFF' }
+                        }
                       >
-                        <Icon size={18} className={`mb-2 ${pickupOption === opt.id ? 'text-primary-600' : 'text-slate-400'}`} />
-                        <p className={`text-xs font-bold ${pickupOption === opt.id ? 'text-primary-800' : 'text-slate-700'}`}>{opt.label}</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">{opt.description}</p>
+                        <Icon size={18} className="mb-2" style={{ color: pickupOption === opt.id ? '#E65313' : '#9CA3AF' }} />
+                        <p className="text-xs font-bold" style={{ color: pickupOption === opt.id ? '#E65313' : '#202020' }}>{opt.label}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">{opt.description}</p>
                       </button>
                     );
                   })}
@@ -244,44 +260,44 @@ export default function SlotBookingPage() {
 
             {/* Right — Contact & Confirm */}
             <div className="lg:col-span-4 space-y-4">
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-5">
-                <h2 className="font-bold text-slate-800 text-sm mb-4 pb-3 border-b border-slate-100">Contact Details</h2>
+              <div className="bg-white rounded-2xl border shadow-md p-5" style={{ borderColor: '#E2D8CE' }}>
+                <h2 className="font-bold text-gray-800 text-sm mb-4 pb-3 border-b" style={{ borderColor: '#E2D8CE' }}>Contact Details</h2>
 
                 <div className="space-y-3 mb-4">
                   <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Your Name</label>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Your Name</label>
                     <div className="relative">
-                      <User size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <User size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input
                         type="text" required value={name}
                         onChange={e => setName(e.target.value)}
-                        className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 transition-all font-medium text-slate-700"
+                        className="input-field pl-8 font-medium"
                         placeholder="Full Name"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Email Address</label>
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Email Address</label>
                     <div className="relative">
-                      <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <Mail size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input
                         type="email" required value={email}
                         onChange={e => setEmail(e.target.value)}
-                        className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 transition-all font-medium text-slate-700"
+                        className="input-field pl-8 font-medium"
                         placeholder="email@example.com"
                       />
                     </div>
                   </div>
 
                   {/* Order Summary */}
-                  <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 text-xs space-y-1.5 text-slate-600">
-                    {vehicle && <div className="flex justify-between"><span>Vehicle:</span><span className="font-semibold text-slate-800">{vehicle.make} {vehicle.model}</span></div>}
-                    {selectedServices.length > 0 && <div className="flex justify-between"><span>Services:</span><span className="font-semibold text-slate-800">{selectedServices.length} selected</span></div>}
-                    <div className="flex justify-between"><span>Package:</span><span className="font-semibold text-slate-800">{pkg?.name || 'None'}</span></div>
-                    {pickupOption === 'pickup' && <div className="flex justify-between"><span>Pickup:</span><span className="font-semibold text-slate-800">+₹499</span></div>}
-                    <div className="flex justify-between border-t border-slate-200/60 pt-1.5 mt-1">
-                      <span className="font-bold text-slate-800">Total:</span>
-                      <span className="font-black text-primary-800">₹{total.toLocaleString('en-IN')}</span>
+                  <div className="rounded-xl p-3 border text-xs space-y-1.5 text-gray-600 bg-gray-50 border-gray-150" style={{ borderColor: '#E2D8CE' }}>
+                    {vehicle && <div className="flex justify-between"><span>Vehicle:</span><span className="font-semibold text-gray-800">{vehicle.make} {vehicle.model}</span></div>}
+                    {selectedServices.length > 0 && <div className="flex justify-between"><span>Services:</span><span className="font-semibold text-gray-800">{selectedServices.length} selected</span></div>}
+                    <div className="flex justify-between"><span>Package:</span><span className="font-semibold text-gray-800">{pkg?.name || 'None'}</span></div>
+                    {pickupOption === 'pickup' && <div className="flex justify-between"><span>Pickup:</span><span className="font-semibold text-gray-800">+₹499</span></div>}
+                    <div className="flex justify-between border-t pt-1.5 mt-1" style={{ borderColor: '#E2D8CE' }}>
+                      <span className="font-bold text-gray-850">Total:</span>
+                      <span className="font-black text-[#E65313]">₹{total.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                 </div>
@@ -289,7 +305,7 @@ export default function SlotBookingPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-accent-500 hover:bg-accent-600 active:scale-[0.98] text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-accent-500/20 border border-accent-600 flex items-center justify-center gap-1.5 cursor-pointer text-sm disabled:opacity-50"
+                  className="w-full btn-primary py-3 text-sm justify-center disabled:opacity-50"
                 >
                   {isSubmitting ? 'Booking...' : 'Confirm Service Booking'}
                 </button>
@@ -301,7 +317,7 @@ export default function SlotBookingPage() {
             <button
               type="button"
               onClick={() => router.push('/estimator')}
-              className="border border-slate-200 text-slate-600 hover:bg-slate-50 px-5 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 cursor-pointer bg-white"
+              className="btn-outline text-sm"
             >
               <ChevronLeft size={15} /> Back
             </button>

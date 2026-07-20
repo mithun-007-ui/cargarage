@@ -229,9 +229,10 @@ export const getMockDb = () => {
       reviews: [
         { id: 'rev-1', customerName: 'John D.', rating: 5, comment: 'Bug Slayers solved my engine stalling issue within 2 hours. Extremely transparent prices!', vehicle: 'Hyundai Creta', verified: true, date: '2026-07-10' },
         { id: 'rev-2', customerName: 'Sarah J.', rating: 5, comment: 'Love the repair approval feature. I only authorized what was critical.', vehicle: 'BMW M3', verified: true, date: '2026-07-15' },
+        { id: 'rev-3', customerName: 'Rajesh K.', rating: 5, comment: 'Super convenient pickup and drop-off service. The digital health report was very detailed.', vehicle: 'Honda City', verified: true, date: '2026-07-18' },
       ],
       emergencyRequests: [
-        { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'Pending', timestamp: new Date().toISOString() }
+        { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'New', timestamp: new Date().toISOString() }
       ],
       savedVehicles: {},
       slotsSettings: { defaultLimit: 5, blockedDates: [], blockedSlots: {} },
@@ -254,9 +255,10 @@ export const getMockDb = () => {
       parsed.reviews = [
         { id: 'rev-1', customerName: 'John D.', rating: 5, comment: 'Bug Slayers solved my engine stalling issue within 2 hours. Extremely transparent prices!', vehicle: 'Hyundai Creta', verified: true, date: '2026-07-10' },
         { id: 'rev-2', customerName: 'Sarah J.', rating: 5, comment: 'Love the repair approval feature. I only authorized what was critical.', vehicle: 'BMW M3', verified: true, date: '2026-07-15' },
+        { id: 'rev-3', customerName: 'Rajesh K.', rating: 5, comment: 'Super convenient pickup and drop-off service. The digital health report was very detailed.', vehicle: 'Honda City', verified: true, date: '2026-07-18' },
       ];
       parsed.emergencyRequests = [
-        { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'Pending', timestamp: new Date().toISOString() }
+        { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'New', timestamp: new Date().toISOString() }
       ];
       parsed.savedVehicles = parsed.savedVehicles || {};
       parsed.slotsSettings = parsed.slotsSettings || { defaultLimit: 5, blockedDates: [], blockedSlots: {} };
@@ -281,7 +283,7 @@ export const getMockDb = () => {
         { id: 'rev-2', customerName: 'Sarah J.', rating: 5, comment: 'Love the repair approval feature. I only authorized what was critical.', vehicle: 'BMW M3', verified: true, date: '2026-07-15' },
       ],
       emergencyRequests: [
-        { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'Pending', timestamp: new Date().toISOString() }
+        { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'New', timestamp: new Date().toISOString() }
       ],
       savedVehicles: {},
       slotsSettings: { defaultLimit: 5, blockedDates: [], blockedSlots: {} },
@@ -535,7 +537,7 @@ export const addEmergencyRequest = (req) => {
   db.emergencyRequests = db.emergencyRequests || [];
   const newReq = {
     id: `em-${Math.floor(100 + Math.random() * 900)}`,
-    status: 'Pending',
+    status: 'New',
     timestamp: new Date().toISOString(),
     ...req
   };
@@ -586,6 +588,18 @@ export const deleteSavedVehicle = (email, plateNumber) => {
   return db.savedVehicles[emailKey] || [];
 };
 
+export const updateBookingDateTime = (id, date, time) => {
+  const db = getMockDb();
+  const idx = db.bookings.findIndex(b => b.id === id);
+  if (idx !== -1) {
+    db.bookings[idx].date = date;
+    db.bookings[idx].time = time;
+    saveMockDb(db);
+    return db.bookings[idx];
+  }
+  return null;
+};
+
 // ─── Slots Settings ───
 export const getSlotsSettings = () => {
   const db = getMockDb();
@@ -615,9 +629,10 @@ export const resetDb = () => {
       reviews: [
         { id: 'rev-1', customerName: 'John D.', rating: 5, comment: 'Bug Slayers solved my engine stalling issue within 2 hours. Transparent pricing at its best.', vehicle: 'Hyundai Creta', verified: true, date: '2026-07-10' },
         { id: 'rev-2', customerName: 'Sarah J.', rating: 5, comment: 'Love the repair approval feature. I only authorized what was critical.', vehicle: 'BMW M3', verified: true, date: '2026-07-15' },
+        { id: 'rev-3', customerName: 'Rajesh K.', rating: 5, comment: 'Super convenient pickup and drop-off service. The digital health report was very detailed.', vehicle: 'Honda City', verified: true, date: '2026-07-18' },
       ],
       emergencyRequests: [
-        { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'Pending', timestamp: new Date().toISOString() }
+        { id: 'em-101', name: 'Alok Mishra', phone: '9876543211', issue: 'Engine Overheating', location: 'Avinashi Road, Coimbatore', status: 'New', timestamp: new Date().toISOString() }
       ],
       savedVehicles: {},
       slotsSettings: { defaultLimit: 5, blockedDates: [], blockedSlots: {} },

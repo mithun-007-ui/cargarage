@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from 'src/context/AuthContext';
 import UserProfile from './UserProfile';
-import { Wrench, Menu, X, Bell } from 'lucide-react';
+import { Wrench, Menu, X, Bell, Phone, MessageCircle } from 'lucide-react';
 import { getUnreadNotificationsCount } from 'src/lib/mockDb';
 
 export default function Navbar() {
@@ -13,11 +13,19 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     if (user) {
-      setUnreadCount(getUnreadNotificationsCount(user.email));
-      // Refresh count every 15s
+      setTimeout(() => {
+        setUnreadCount(getUnreadNotificationsCount(user.email));
+      }, 0);
       const interval = setInterval(() => {
         setUnreadCount(getUnreadNotificationsCount(user.email));
       }, 15000);
@@ -37,44 +45,100 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="bg-primary-800 text-white shadow-md border-b border-slate-800 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Left Side: Logo & Brand */}
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center gap-2.5 group cursor-pointer">
-                <div className="bg-primary-600 text-white p-2 rounded-xl transition-all duration-300 group-hover:rotate-12 shadow-md shadow-primary-600/30">
-                  <Wrench size={18} />
-                </div>
-                <span className="font-black text-xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent flex items-center">
-                  Bug&nbsp;<span className="text-primary-500 font-extrabold bg-none text-transparent bg-clip-border">Slayers</span>
-                </span>
-              </Link>
-            </div>
+      {/* ── Slim support bar ── */}
+      <div
+        className="w-full text-xs py-2 px-4 flex items-center justify-between gap-4"
+        style={{ background: '#211F1D', color: '#9CA3AF' }}
+      >
+        <span className="hidden sm:block" style={{ color: '#9CA3AF' }}>
+          🏆 Premium Car Service Garage — Coimbatore, Tamil Nadu
+        </span>
+        <div className="flex items-center gap-4 ml-auto">
+          <a
+            href="tel:+919626757303"
+            className="flex items-center gap-1.5 hover:text-white transition-colors"
+            style={{ color: '#9CA3AF' }}
+          >
+            <Phone size={11} />
+            +91 9626757303
+          </a>
+          <a
+            href="https://wa.me/919626757303?text=Hi%20Bug%20Slayers%2C%20I%20need%20help%20with%20my%20car."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 hover:text-green-400 transition-colors"
+            style={{ color: '#9CA3AF' }}
+          >
+            <MessageCircle size={11} />
+            WhatsApp
+          </a>
+        </div>
+      </div>
 
-            {/* Center: Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1 lg:space-x-4">
+      {/* ── Main Navbar ── */}
+      <nav
+        className="sticky top-0 z-40 transition-all duration-200"
+        style={{
+          background: '#FFFFFF',
+          borderBottom: '1px solid #E2D8CE',
+          boxShadow: scrolled ? '0 2px 12px rgba(0,0,0,0.06)' : 'none',
+        }}
+      >
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
+          <div className="flex items-center justify-between h-16">
+
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+              <div
+                className="text-white p-2 rounded-lg transition-transform duration-200 group-hover:scale-105"
+                style={{ background: '#E65313' }}
+              >
+                <Wrench size={18} />
+              </div>
+              <span className="font-black text-xl tracking-tight" style={{ color: '#202020' }}>
+                Bug&nbsp;<span style={{ color: '#E65313' }}>Slayers</span>
+              </span>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-1">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 hover:bg-slate-800/80 ${
+                  className="px-3.5 py-2 rounded-lg text-sm font-semibold transition-all duration-150"
+                  style={
                     isActive(item.href)
-                      ? 'text-white bg-primary-600 shadow-sm border border-primary-500/35'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
+                      ? { background: '#FFF3EE', color: '#E65313' }
+                      : { color: '#667085' }
+                  }
+                  onMouseEnter={e => {
+                    if (!isActive(item.href)) e.currentTarget.style.color = '#202020';
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive(item.href)) e.currentTarget.style.color = '#667085';
+                  }}
                 >
                   {item.name}
                 </Link>
               ))}
             </div>
 
-            {/* Right Side: Profile / Auth button */}
-            <div className="hidden md:flex items-center gap-4">
+            {/* Right Side */}
+            <div className="hidden md:flex items-center gap-3">
               {user && unreadCount > 0 && (
-                <Link href="/my-bookings?tab=notifications" className="relative p-1 text-slate-300 hover:text-white transition-colors">
+                <Link
+                  href="/my-bookings?tab=notifications"
+                  className="relative p-2 rounded-lg transition-colors"
+                  style={{ color: '#667085' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#202020'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#667085'}
+                >
                   <Bell size={18} />
-                  <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                  <span
+                    className="absolute -top-0.5 -right-0.5 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center"
+                    style={{ background: '#E65313' }}
+                  >
                     {unreadCount}
                   </span>
                 </Link>
@@ -84,7 +148,8 @@ export default function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="bg-primary-600 hover:bg-primary-700 active:scale-[0.98] text-white px-5 py-2 rounded-xl text-xs font-bold transition-all duration-200 shadow-md shadow-primary-600/20 border border-primary-500 flex items-center gap-1.5 cursor-pointer"
+                  className="text-white px-5 py-2 rounded-lg text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98]"
+                  style={{ background: '#E65313' }}
                   id="navbar-login-button"
                 >
                   Login
@@ -93,22 +158,30 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="flex md:hidden items-center">
+            <div className="flex md:hidden items-center gap-2">
               {user && unreadCount > 0 && (
-                <Link href="/my-bookings?tab=notifications" className="relative p-1 mr-3 text-slate-300 hover:text-white transition-colors">
+                <Link
+                  href="/my-bookings?tab=notifications"
+                  className="relative p-1.5 rounded-lg"
+                  style={{ color: '#667085' }}
+                >
                   <Bell size={18} />
-                  <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">
+                  <span
+                    className="absolute -top-0.5 -right-0.5 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center"
+                    style={{ background: '#E65313' }}
+                  >
                     {unreadCount}
                   </span>
                 </Link>
               )}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 focus:outline-none transition-colors"
-                aria-expanded="false"
+                className="p-2 rounded-lg transition-colors"
+                style={{ color: '#202020' }}
+                aria-expanded={isMobileMenuOpen}
               >
                 <span className="sr-only">Open main menu</span>
-                {isMobileMenuOpen ? <X size={22} fill="none" /> : <Menu size={22} fill="none" />}
+                {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
             </div>
           </div>
@@ -116,33 +189,37 @@ export default function Navbar() {
 
         {/* Mobile Menu Panel */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-slate-900 border-t border-slate-850 animate-in slide-in-from-top-4 duration-200">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <div style={{ background: '#FFFFFF', borderTop: '1px solid #E2D8CE' }} className="md:hidden">
+            <div className="px-3 pt-2 pb-2 space-y-0.5">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-3 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 ${
+                  className="block px-4 py-3 rounded-lg text-sm font-semibold transition-all"
+                  style={
                     isActive(item.href)
-                      ? 'bg-primary-600 text-white'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                  }`}
+                      ? { background: '#FFF3EE', color: '#E65313' }
+                      : { color: '#667085' }
+                  }
                 >
                   {item.name}
                 </Link>
               ))}
             </div>
-            <div className="pt-4 pb-4 border-t border-slate-850 px-4">
+            <div className="px-4 pt-3 pb-4" style={{ borderTop: '1px solid #E2D8CE' }}>
               {user ? (
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-sm">
+                    <div
+                      className="w-8 h-8 text-white rounded-full flex items-center justify-center font-bold text-xs"
+                      style={{ background: '#E65313' }}
+                    >
                       {user.role === 'Admin' ? 'A' : 'U'}
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-white">{user.role} Dashboard</div>
-                      <div className="text-[10px] text-slate-400 truncate max-w-[180px]">{user.email}</div>
+                      <div className="text-xs font-bold" style={{ color: '#202020' }}>{user.role} Dashboard</div>
+                      <div className="text-[10px] truncate max-w-[160px]" style={{ color: '#667085' }}>{user.email}</div>
                     </div>
                   </div>
                   <UserProfile />
@@ -151,7 +228,8 @@ export default function Navbar() {
                 <Link
                   href="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full bg-primary-600 hover:bg-primary-700 text-center block text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-md transition-all cursor-pointer border border-primary-500"
+                  className="w-full text-center block text-white px-4 py-2.5 rounded-lg text-sm font-bold transition-all"
+                  style={{ background: '#E65313' }}
                 >
                   Login
                 </Link>
@@ -161,14 +239,21 @@ export default function Navbar() {
         )}
       </nav>
 
-      {/* Sticky Mobile "Book Service" CTA bar at the bottom (except on booking/login/admin/estimator pages to prevent overlapping forms) */}
+      {/* Mobile bottom CTA bar */}
       {pathname !== '/booking' && pathname !== '/vehicle-selection' && !pathname.startsWith('/admin') && pathname !== '/login' && pathname !== '/estimator' && pathname !== '/booking-confirmation' && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 p-3 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 z-40 shadow-lg flex items-center justify-between animate-in">
+        <div
+          className="md:hidden fixed bottom-0 left-0 right-0 p-3 z-40 flex items-center justify-between"
+          style={{ background: '#FFFFFF', borderTop: '1px solid #E2D8CE', boxShadow: '0 -2px 12px rgba(0,0,0,0.06)' }}
+        >
           <div className="text-left">
-            <p className="text-[9px] uppercase tracking-wider text-slate-400 font-extrabold">Bug Slayers Garage</p>
-            <p className="text-xs font-bold text-white">Need Premium Service?</p>
+            <p className="text-[10px] uppercase tracking-wider font-extrabold" style={{ color: '#9CA3AF' }}>Bug Slayers Garage</p>
+            <p className="text-sm font-bold" style={{ color: '#202020' }}>Need Premium Service?</p>
           </div>
-          <Link href="/vehicle-selection" className="bg-primary-600 hover:bg-primary-700 active:scale-[0.97] text-white px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-primary-600/25 border border-primary-500">
+          <Link
+            href="/vehicle-selection"
+            className="text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98]"
+            style={{ background: '#E65313' }}
+          >
             Book Service
           </Link>
         </div>

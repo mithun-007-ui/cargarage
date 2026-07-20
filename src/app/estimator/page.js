@@ -46,10 +46,10 @@ export default function PriceEstimatorPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
+    <div className="flex flex-col min-h-screen" style={{ background: '#F8F5F0' }}>
       <Navbar />
       <main className="flex-grow py-6">
-        <div className="max-w-5xl mx-auto px-4">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
           <ProgressBar currentStep={5} />
 
           {/* Vehicle Banner */}
@@ -59,36 +59,36 @@ export default function PriceEstimatorPage() {
             </div>
           )}
 
-          <div className="mb-5 text-center">
-            <h1 className="text-xl font-extrabold text-slate-800 tracking-tight flex items-center justify-center gap-2">
-              <Calculator className="text-accent-500" size={20} /> Price Estimator
+          <div className="mb-6 text-center">
+            <h1 className="text-xl font-extrabold tracking-tight flex items-center justify-center gap-2" style={{ color: '#202020' }}>
+              <Calculator className="text-[#E65313]" size={20} /> Price Estimator
             </h1>
-            <p className="text-xs text-slate-400 mt-1">Review your configuration and itemised cost breakdown.</p>
+            <p className="text-xs text-gray-500 mt-1">Review your configuration and itemised cost breakdown.</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
             {/* Config Summary */}
             <div className="lg:col-span-7 space-y-4">
-              <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4">
-                <h2 className="font-bold text-slate-800 text-sm pb-3 border-b border-slate-100">Configuration Summary</h2>
+              <div className="bg-white rounded-2xl p-5 border shadow-sm space-y-4" style={{ borderColor: '#E2D8CE' }}>
+                <h2 className="font-bold text-gray-800 text-sm pb-3 border-b" style={{ borderColor: '#E2D8CE' }}>Configuration Summary</h2>
 
                 {/* Services */}
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#FFF3EE', color: '#E65313' }}>
                     <Wrench size={17} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-slate-700 text-sm">Selected Services</h3>
+                    <h3 className="font-bold text-gray-700 text-sm">Selected Services</h3>
                     {selectedServices.length > 0 ? (
                       <div className="mt-1.5 space-y-1.5">
                         {selectedServices.map(s => (
                           <div key={s.id} className="flex justify-between items-center text-xs">
                             <div className="flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
-                              <span className="text-slate-700 font-medium">{s.name}</span>
-                              {s.duration && <span className="text-slate-400">(~{s.duration}min)</span>}
+                              <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#E65313' }} />
+                              <span className="text-gray-700 font-medium">{s.name}</span>
+                              {s.duration && <span className="text-gray-400 font-normal">(~{s.duration}min)</span>}
                             </div>
-                            <span className="font-bold text-slate-800">₹{s.price.toLocaleString('en-IN')}</span>
+                            <span className="font-bold text-gray-800">₹{s.price.toLocaleString('en-IN')}</span>
                           </div>
                         ))}
                       </div>
@@ -100,16 +100,16 @@ export default function PriceEstimatorPage() {
 
                 {/* Package */}
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#F5F3FF', color: '#7C3AED' }}>
                     <Shield size={17} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-700 text-sm">Service Package</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <h3 className="font-bold text-gray-700 text-sm">Service Package</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">
                       {pkg ? (
-                        <span><strong className="text-indigo-600">{pkg.name}</strong> — {pkg.description}</span>
+                        <span><strong style={{ color: '#7C3AED' }}>{pkg.name}</strong> — {pkg.description}</span>
                       ) : (
-                        <span className="text-slate-400">None (Primary Services only)</span>
+                        <span className="text-gray-400">None (Primary Services only)</span>
                       )}
                     </p>
                   </div>
@@ -117,14 +117,14 @@ export default function PriceEstimatorPage() {
 
                 {/* Duration */}
                 {selectedServices.length > 0 && (
-                  <div className="flex items-center gap-3 bg-emerald-50 rounded-xl p-3.5 border border-emerald-100">
-                    <div className="w-9 h-9 bg-white text-emerald-600 rounded-xl flex items-center justify-center shrink-0 border border-emerald-100">
+                  <div className="flex items-center gap-3 rounded-xl p-3.5 border" style={{ background: '#F0FDF4', borderColor: '#BBF7D0' }}>
+                    <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shrink-0 border" style={{ color: '#16A34A', borderColor: '#BBF7D0' }}>
                       <Clock size={17} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-slate-700 text-sm">Estimated Completion</h3>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        Approximately <strong className="text-emerald-700 text-sm">{durationText}</strong> for {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''}{pkg ? ' + package checks' : ''}
+                      <h3 className="font-bold text-gray-700 text-sm">Estimated Completion</h3>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Approximately <strong className="text-green-700 text-sm">{durationText}</strong> for {selectedServices.length} service{selectedServices.length > 1 ? 's' : ''}{pkg ? ' + package checks' : ''}
                       </p>
                     </div>
                   </div>
@@ -132,9 +132,9 @@ export default function PriceEstimatorPage() {
               </div>
 
               {/* Disclaimer */}
-              <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex gap-3 text-xs text-slate-600">
+              <div className="border rounded-xl p-4 flex gap-3 text-xs text-gray-650" style={{ background: '#FFFBEB', borderColor: '#FDE68A' }}>
                 <HelpCircle size={15} className="text-amber-500 shrink-0 mt-0.5" />
-                <div className="leading-relaxed">
+                <div className="leading-relaxed text-gray-600">
                   <span className="font-bold text-amber-800">Please Note: </span>
                   This is an estimate. During inspection, if additional repairs are found, we'll share a digital Health Report for your approval. No repairs proceed without your consent.
                 </div>
@@ -143,50 +143,50 @@ export default function PriceEstimatorPage() {
 
             {/* Invoice Summary */}
             <div className="lg:col-span-5">
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-md p-5 sticky top-24">
-                <h2 className="font-bold text-slate-800 text-sm pb-3 border-b border-slate-100 flex items-center gap-2 mb-4">
-                  <Receipt size={16} className="text-accent-500" /> Estimated Invoice
+              <div className="bg-white rounded-2xl border shadow-sm p-5 sticky top-24" style={{ borderColor: '#E2D8CE' }}>
+                <h2 className="font-bold text-gray-800 text-sm pb-3 border-b flex items-center gap-2 mb-4" style={{ borderColor: '#E2D8CE' }}>
+                  <Receipt size={16} style={{ color: '#E65313' }} /> Estimated Invoice
                 </h2>
 
                 <div className="space-y-2 mb-4">
                   {selectedServices.map(s => (
                     <div key={s.id} className="flex justify-between text-xs">
-                      <span className="text-slate-500">{s.name}</span>
-                      <span className="font-semibold text-slate-700">₹{s.price.toLocaleString('en-IN')}</span>
+                      <span className="text-gray-500">{s.name}</span>
+                      <span className="font-semibold text-gray-800">₹{s.price.toLocaleString('en-IN')}</span>
                     </div>
                   ))}
                   {pkg && (
                     <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">Package ({pkg.name})</span>
-                      <span className="font-semibold text-slate-700">₹{packagePrice.toLocaleString('en-IN')}</span>
+                      <span className="text-gray-500">Package ({pkg.name})</span>
+                      <span className="font-semibold text-gray-800">₹{packagePrice.toLocaleString('en-IN')}</span>
                     </div>
                   )}
                 </div>
 
-                <div className="border-t border-slate-100 pt-3 space-y-2">
+                <div className="border-t pt-3 space-y-2" style={{ borderColor: '#E2D8CE' }}>
                   <div className="flex justify-between text-xs">
-                    <span className="flex items-center gap-1 text-slate-500"><Tag size={11} />Subtotal</span>
-                    <span className="font-semibold text-slate-700">₹{subtotal.toLocaleString('en-IN')}</span>
+                    <span className="flex items-center gap-1 text-gray-500"><Tag size={11} />Subtotal</span>
+                    <span className="font-semibold text-gray-800">₹{subtotal.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="flex items-center gap-1 text-slate-500"><Percent size={11} />GST (18%)</span>
-                    <span className="font-semibold text-slate-700">₹{gst.toLocaleString('en-IN')}</span>
+                    <span className="flex items-center gap-1 text-gray-500"><Percent size={11} />GST (18%)</span>
+                    <span className="font-semibold text-gray-800">₹{gst.toLocaleString('en-IN')}</span>
                   </div>
-                  <div className="border-t border-slate-100 pt-3 flex justify-between items-baseline">
-                    <span className="font-bold text-slate-800 text-base">Estimated Total</span>
-                    <span className="text-2xl font-black text-primary-800">₹{total.toLocaleString('en-IN')}</span>
+                  <div className="border-t pt-3 flex justify-between items-baseline" style={{ borderColor: '#E2D8CE' }}>
+                    <span className="font-bold text-gray-800 text-base">Estimated Total</span>
+                    <span className="text-2xl font-black text-[#E65313]">₹{total.toLocaleString('en-IN')}</span>
                   </div>
                 </div>
 
                 {selectedServices.length > 0 && (
-                  <div className="mt-3 mb-4 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 text-xs text-emerald-700 flex items-center gap-1.5">
+                  <div className="mt-3 mb-4 border rounded-lg px-3 py-2 text-xs flex items-center gap-1.5" style={{ background: '#F0FDF4', borderColor: '#BBF7D0', color: '#16A34A' }}>
                     <Clock size={12} /> Estimated completion: <strong>{durationText}</strong>
                   </div>
                 )}
 
                 <button
                   onClick={handleBook}
-                  className="w-full bg-accent-500 hover:bg-accent-600 active:scale-[0.98] text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-accent-500/20 border border-accent-600 flex items-center justify-center gap-2 cursor-pointer text-sm"
+                  className="w-full btn-primary py-3 text-sm justify-center"
                 >
                   Proceed to Book Slot <ChevronRight size={15} />
                 </button>
@@ -197,7 +197,7 @@ export default function PriceEstimatorPage() {
           <div className="flex justify-start">
             <button
               onClick={() => router.push('/comparison')}
-              className="border border-slate-200 text-slate-600 hover:bg-slate-50 px-5 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 cursor-pointer bg-white"
+              className="btn-outline text-sm"
             >
               <ChevronLeft size={15} /> Back
             </button>

@@ -30,14 +30,17 @@ export default function UserProfile() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full transition-all duration-200 focus:outline-none border border-white/20 hover:scale-[1.02] cursor-pointer"
+        className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full transition-all duration-200 focus:outline-none border border-slate-200 hover:scale-[1.02] cursor-pointer"
         id="user-profile-menu-button"
       >
-        <div className="w-7 h-7 bg-white text-primary-800 rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
+        <div
+          className="w-7 h-7 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-sm"
+          style={{ background: '#E65313' }}
+        >
           {user.role === 'Admin' ? 'A' : 'U'}
         </div>
-        <span className="text-sm font-medium pr-1">{user.role}</span>
-        <ChevronDown size={14} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="text-sm font-semibold pr-1" style={{ color: '#202020' }}>{user.role}</span>
+        <ChevronDown size={14} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} style={{ color: '#667085' }} />
       </button>
 
       {isOpen && (

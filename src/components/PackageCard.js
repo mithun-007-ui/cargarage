@@ -1,38 +1,47 @@
 'use client';
 
 import React from 'react';
-import { Check, ShieldCheck, Zap, Star, Award } from 'lucide-react';
+import { Check, Zap, Star, Award } from 'lucide-react';
 
 const PACKAGE_STYLES = {
   'silver-care': {
-    strip: 'from-slate-400 to-slate-500',
+    strip: 'from-slate-300 to-gray-400',
+    accentColor: '#64748B',
     badge: null,
-    icon: <Zap size={14} className="text-slate-300" />,
-    iconBg: 'bg-slate-500/20 border-slate-500/30 text-slate-300',
-    priceCls: 'text-slate-100',
-    btnActive: 'bg-[#334155] hover:bg-[#3d5068] text-white border-slate-400',
-    btnIdle: 'bg-[#111827] hover:bg-[#1e2d45] text-slate-300 border-[#1e2d45]',
-    checkIcon: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
+    icon: <Zap size={16} style={{ color: '#64748B' }} />,
+    iconBg: '#F1F5F9',
+    iconBorder: '#CBD5E1',
+    priceCls: '#64748B',
+    selectedBorder: '#64748B',
+    selectedBg: '#F8FAFC',
+    checkBg: '#F1F5F9',
+    checkColor: '#64748B',
   },
   'gold-care': {
-    strip: 'from-amber-400 to-yellow-300',
+    strip: 'from-amber-400 to-yellow-400',
+    accentColor: '#D97706',
     badge: null,
-    icon: <Star size={14} className="text-amber-300" fill="currentColor" />,
-    iconBg: 'bg-amber-500/20 border-amber-500/30 text-amber-300',
-    priceCls: 'text-amber-300',
-    btnActive: 'bg-amber-500 hover:bg-amber-600 text-white border-amber-400',
-    btnIdle: 'bg-[#111827] hover:bg-[#1e2d45] text-amber-300 border-amber-500/30',
-    checkIcon: 'bg-amber-500/15 text-amber-300 border-amber-500/25',
+    icon: <Star size={16} style={{ color: '#D97706' }} fill="currentColor" />,
+    iconBg: '#FFFBEB',
+    iconBorder: '#FDE68A',
+    priceCls: '#D97706',
+    selectedBorder: '#D97706',
+    selectedBg: '#FFFDF0',
+    checkBg: '#FFFBEB',
+    checkColor: '#D97706',
   },
   'platinum-care': {
     strip: 'from-violet-500 to-purple-400',
+    accentColor: '#7C3AED',
     badge: 'BEST VALUE',
-    icon: <Award size={14} className="text-violet-300" />,
-    iconBg: 'bg-violet-500/20 border-violet-500/30 text-violet-300',
-    priceCls: 'text-violet-300',
-    btnActive: 'bg-violet-600 hover:bg-violet-700 text-white border-violet-400',
-    btnIdle: 'bg-[#111827] hover:bg-[#1a1230] text-violet-300 border-violet-500/30',
-    checkIcon: 'bg-violet-500/15 text-violet-300 border-violet-500/25',
+    icon: <Award size={16} style={{ color: '#7C3AED' }} />,
+    iconBg: '#F5F3FF',
+    iconBorder: '#DDD6FE',
+    priceCls: '#7C3AED',
+    selectedBorder: '#7C3AED',
+    selectedBg: '#FAF8FF',
+    checkBg: '#F5F3FF',
+    checkColor: '#7C3AED',
   },
 };
 
@@ -42,48 +51,58 @@ export default function PackageCard({ pkg, onSelect, selected }) {
   return (
     <div
       onClick={() => onSelect && onSelect(pkg)}
-      className={`relative rounded-2xl border-2 transition-all duration-250 flex flex-col overflow-hidden h-full group ${
+      className={`relative rounded-2xl border-2 transition-all duration-200 flex flex-col overflow-hidden h-full ${
         onSelect ? 'cursor-pointer' : ''
-      } ${
-        selected
-          ? 'border-primary-600 bg-[#0d1731] shadow-xl shadow-primary-900/20'
-          : 'bg-[#111827] border-[#1e2d45] hover:border-[#253558] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20'
       }`}
+      style={
+        selected
+          ? { borderColor: style.selectedBorder, background: style.selectedBg, boxShadow: `0 4px 20px ${style.selectedBorder}20` }
+          : { background: '#FFFFFF', borderColor: '#E2D8CE' }
+      }
+      onMouseEnter={e => { if (!selected) { e.currentTarget.style.borderColor = style.accentColor; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 4px 16px ${style.accentColor}15`; } }}
+      onMouseLeave={e => { if (!selected) { e.currentTarget.style.borderColor = '#E2D8CE'; e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; } }}
     >
       {/* Colour strip */}
       <div className={`h-1.5 w-full bg-gradient-to-r ${style.strip}`} />
 
       {/* Best value badge */}
       {style.badge && (
-        <div className={`absolute top-4 right-4 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${
-          pkg.id === 'platinum-care' ? 'bg-violet-600/20 text-violet-300 border border-violet-500/30' : 'bg-accent-500/20 text-accent-400 border border-accent-500/30'
-        }`}>
+        <div
+          className="absolute top-4 right-4 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider"
+          style={{ background: style.iconBg, color: style.accentColor, border: `1px solid ${style.iconBorder}` }}
+        >
           {style.badge}
         </div>
       )}
 
       <div className="p-6 flex flex-col flex-1">
         {/* Title */}
-        <div className="flex items-center gap-2.5 mb-1">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center border ${style.iconBg}`}>
+        <div className="flex items-center gap-2.5 mb-2">
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center border shrink-0"
+            style={{ background: style.iconBg, borderColor: style.iconBorder }}
+          >
             {style.icon}
           </div>
-          <h3 className="text-lg font-extrabold text-white">{pkg.name}</h3>
+          <h3 className="text-lg font-extrabold" style={{ color: '#202020' }}>{pkg.name}</h3>
         </div>
-        <p className="text-sm text-slate-400 mb-5 mt-1">{pkg.description}</p>
+        <p className="text-sm mb-5 mt-1 leading-relaxed" style={{ color: '#667085' }}>{pkg.description}</p>
 
         {/* Price */}
         <div className="mb-5 flex items-baseline gap-1.5">
-          <span className={`text-4xl font-black ${style.priceCls}`}>₹{pkg.price.toLocaleString('en-IN')}</span>
-          <span className="text-slate-500 text-xs font-semibold">/ bundle</span>
+          <span className="text-3xl font-black" style={{ color: style.priceCls }}>₹{pkg.price.toLocaleString('en-IN')}</span>
+          <span className="text-sm font-semibold" style={{ color: '#9CA3AF' }}>/ bundle</span>
         </div>
 
         {/* Features */}
         <ul className="space-y-2.5 mb-6 flex-1">
           {pkg.features.map((feat, idx) => (
-            <li key={idx} className="flex items-start gap-2.5 text-sm text-slate-300">
-              <span className={`p-0.5 rounded-full mt-0.5 shrink-0 border ${style.checkIcon}`}>
-                <Check size={11} strokeWidth={3} />
+            <li key={idx} className="flex items-start gap-2.5 text-sm" style={{ color: '#374151' }}>
+              <span
+                className="p-0.5 rounded-full mt-0.5 shrink-0 border flex items-center justify-center"
+                style={{ background: style.checkBg, borderColor: style.iconBorder, width: '18px', height: '18px' }}
+              >
+                <Check size={11} strokeWidth={3} style={{ color: style.checkColor }} />
               </span>
               <span>{feat}</span>
             </li>
@@ -93,9 +112,12 @@ export default function PackageCard({ pkg, onSelect, selected }) {
         {/* CTA Button */}
         <button
           onClick={e => { if (onSelect) { e.stopPropagation(); onSelect(pkg); } }}
-          className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all border cursor-pointer min-h-[48px] ${
-            selected ? style.btnActive : style.btnIdle
-          }`}
+          className="w-full py-3 rounded-xl font-bold text-sm transition-all cursor-pointer min-h-[44px]"
+          style={
+            selected
+              ? { background: style.accentColor, color: '#FFFFFF', border: 'none' }
+              : { background: 'transparent', color: style.accentColor, border: `1.5px solid ${style.accentColor}` }
+          }
         >
           {selected ? '✓ Package Selected' : 'Choose This Package'}
         </button>

@@ -46,9 +46,9 @@ const benefits = [
   { icon: Star, title: 'Genuine OEM Parts', desc: 'Only certified parts with manufacturer warranty.' },
 ];
 
-const LABEL = "text-sm font-bold text-slate-600 block mb-1.5";
-const INPUT = "w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-600 transition-all min-h-[44px]";
-const SELECT = INPUT + " cursor-pointer";
+const LABEL = "text-xs font-bold uppercase tracking-wider block mb-1.5 text-gray-500";
+const INPUT = "input-field w-full";
+const SELECT = "input-field w-full cursor-pointer";
 
 export default function VehicleSelectionPage() {
   const router = useRouter();
@@ -58,21 +58,45 @@ export default function VehicleSelectionPage() {
   });
   const [savedVehicle, setSavedVehicle] = useState(null);
   const [error, setError] = useState('');
+  const [stepsStatus, setStepsStatus] = useState({
+    vehicle: false,
+    services: false,
+    package: false,
+    slot: false
+  });
 
   useEffect(() => {
     const saved = localStorage.getItem('booking_flow_vehicle');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setForm({
-          make: parsed.make || '', model: parsed.model || '', plateNumber: parsed.plateNumber || '',
-          year: parsed.year || String(CURRENT_YEAR), fuelType: parsed.fuelType || '',
-          transmission: parsed.transmission || '', kmReading: parsed.kmReading || '', color: parsed.color || ''
-        });
-        setSavedVehicle(parsed);
-      } catch (e) { console.error(e); }
-    }
+    setTimeout(() => {
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setForm({
+            make: parsed.make || '', model: parsed.model || '', plateNumber: parsed.plateNumber || '',
+            year: parsed.year || String(CURRENT_YEAR), fuelType: parsed.fuelType || '',
+            transmission: parsed.transmission || '', kmReading: parsed.kmReading || '', color: parsed.color || ''
+          });
+          setSavedVehicle(parsed);
+        } catch (e) { console.error(e); }
+      }
+    }, 0);
   }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const vehicleSaved = localStorage.getItem('booking_flow_vehicle');
+      const servicesSaved = localStorage.getItem('booking_flow_services');
+      const packageSaved = localStorage.getItem('booking_flow_package');
+      const slotSaved = localStorage.getItem('booking_flow_confirmed_id');
+      
+      setStepsStatus({
+        vehicle: !!vehicleSaved,
+        services: !!servicesSaved && JSON.parse(servicesSaved).length > 0,
+        package: !!packageSaved,
+        slot: !!slotSaved
+      });
+    }
+  }, [savedVehicle]);
 
   const handleChange = (field, value) => {
     setForm(prev => {
@@ -96,7 +120,7 @@ export default function VehicleSelectionPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#060912] via-[#0d1220] to-[#060f24]">
+    <div className="flex flex-col min-h-screen" style={{ background: '#F8F5F0' }}>
       <Navbar />
 
       <main className="flex-grow py-8 md:py-12">
@@ -107,20 +131,21 @@ export default function VehicleSelectionPage() {
 
             {/* ── Left: Form Card ── */}
             <div className="lg:col-span-6 xl:col-span-5">
-              <div className="bg-white rounded-3xl shadow-2xl shadow-primary-900/30 p-7 md:p-8">
+              <div className="rounded-3xl shadow-sm p-7 md:p-8" style={{ background: '#FFFFFF', border: '1px solid #E2D8CE' }}>
                 <div className="flex items-center gap-3 mb-7">
-                  <div className="p-3 bg-primary-50 text-primary-600 rounded-xl">
+                  <div className="p-3 rounded-xl" style={{ background: '#FFF3EE', color: '#E65313' }}>
                     <Car size={24} />
                   </div>
                   <div>
-                    <h1 className="text-xl font-extrabold text-slate-800">Enter Your Vehicle Details</h1>
-                    <p className="text-sm text-slate-500 mt-0.5">All required fields are marked with *</p>
+                    <h1 className="text-xl font-extrabold text-gray-800">Enter Your Vehicle Details</h1>
+                    <p className="text-sm text-gray-400 mt-0.5">All required fields are marked *</p>
                   </div>
                 </div>
 
                 {error && (
-                  <div className="mb-5 bg-red-50 border border-red-200 rounded-xl p-3.5 flex items-center gap-2.5 text-sm text-red-700 animate-shake">
-                    <AlertCircle size={16} className="text-red-500 shrink-0" />
+                  <div className="mb-5 rounded-xl p-3.5 flex items-center gap-2.5 text-sm animate-shake"
+                    style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}>
+                    <AlertCircle size={16} className="shrink-0" />
                     <span>{error}</span>
                   </div>
                 )}
@@ -193,13 +218,13 @@ export default function VehicleSelectionPage() {
                           className={INPUT + ' pr-12'}
                           placeholder="e.g. 28000"
                         />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-bold">km</span>
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-bold">km</span>
                       </div>
                     </div>
 
                     {/* Color */}
                     <div>
-                      <label className={LABEL}>Vehicle Colour <span className="font-normal text-slate-400">(optional)</span></label>
+                      <label className={LABEL}>Vehicle Colour <span className="font-normal text-gray-400">(optional)</span></label>
                       <input
                         type="text" value={form.color}
                         onChange={e => handleChange('color', e.target.value)}
@@ -209,10 +234,10 @@ export default function VehicleSelectionPage() {
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-100 flex justify-end mt-2">
+                  <div className="pt-4 flex justify-end mt-2" style={{ borderTop: '1px solid #E2D8CE' }}>
                     <button
                       type="submit"
-                      className="bg-primary-600 hover:bg-primary-700 active:scale-[0.98] text-white px-8 py-3.5 rounded-xl font-bold transition-all text-base flex items-center gap-2 shadow-md shadow-primary-600/15 cursor-pointer min-h-[48px]"
+                      className="btn-primary text-base"
                     >
                       Continue to Services
                       <ChevronRight size={18} />
@@ -223,29 +248,30 @@ export default function VehicleSelectionPage() {
 
               {/* Saved vehicle card */}
               {savedVehicle && (
-                <div className="mt-5">
-                  <h2 className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-3">Saved Vehicle</h2>
-                  <div className="bg-[#111827] rounded-2xl border border-[#1e2d45] overflow-hidden">
-                    <div className="bg-gradient-to-r from-primary-600 to-primary-800 p-4 flex items-center justify-between">
+                <div className="mt-6">
+                  <h2 className="text-xs font-extrabold uppercase tracking-widest mb-3 text-gray-500">Saved Vehicle</h2>
+                  <div className="rounded-2xl overflow-hidden shadow-sm" style={{ background: '#FFFFFF', border: '1px solid #E2D8CE' }}>
+                    <div className="p-4 flex items-center justify-between" style={{ background: '#F8F5F0', borderBottom: '1px solid #E2D8CE' }}>
                       <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-xl bg-primary-500/30 flex items-center justify-center text-sm font-black text-white border border-white/20">
+                        <div className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-black text-white"
+                          style={{ background: '#E65313' }}>
                           {getBrandDisplay(savedVehicle.make).abbr}
                         </div>
                         <div>
-                          <p className="text-white font-extrabold text-base">{savedVehicle.make} {savedVehicle.model}</p>
-                          <p className="text-primary-200 text-xs mt-0.5">{savedVehicle.year} • {savedVehicle.fuelType} • {savedVehicle.transmission}</p>
+                          <p className="font-extrabold text-base text-gray-800">{savedVehicle.make} {savedVehicle.model}</p>
+                          <p className="text-xs mt-0.5 text-gray-500">{savedVehicle.year} • {savedVehicle.fuelType} • {savedVehicle.transmission}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-primary-200 text-[10px] uppercase font-bold">Reg. No.</p>
-                        <p className="text-white font-mono font-bold text-sm">{savedVehicle.plateNumber}</p>
+                        <p className="text-[10px] uppercase font-bold text-gray-400">Reg. No.</p>
+                        <p className="font-mono font-bold text-sm text-gray-800">{savedVehicle.plateNumber}</p>
                       </div>
                     </div>
-                    <div className="px-4 py-3 flex items-center gap-6 text-sm text-slate-400">
-                      <div className="flex items-center gap-1.5"><Gauge size={14} className="text-primary-400" /> {savedVehicle.kmReading ? parseInt(savedVehicle.kmReading).toLocaleString('en-IN') : '—'} km</div>
-                      <div className="flex items-center gap-1.5"><Fuel size={14} className="text-primary-400" /> {savedVehicle.fuelType}</div>
-                      <div className="flex items-center gap-1.5"><Settings size={14} className="text-primary-400" /> {savedVehicle.transmission}</div>
-                      <div className="ml-auto flex items-center gap-1 text-emerald-400 font-bold">
+                    <div className="px-4 py-3 flex items-center gap-6 text-sm text-gray-500">
+                      <div className="flex items-center gap-1.5"><Gauge size={14} style={{ color: '#E65313' }} /> {savedVehicle.kmReading ? parseInt(savedVehicle.kmReading).toLocaleString('en-IN') : '—'} km</div>
+                      <div className="flex items-center gap-1.5"><Fuel size={14} style={{ color: '#E65313' }} /> {savedVehicle.fuelType}</div>
+                      <div className="flex items-center gap-1.5"><Settings size={14} style={{ color: '#E65313' }} /> {savedVehicle.transmission}</div>
+                      <div className="ml-auto flex items-center gap-1 text-green-600 font-bold">
                         <CheckCircle2 size={14} /> Saved
                       </div>
                     </div>
@@ -254,66 +280,84 @@ export default function VehicleSelectionPage() {
               )}
             </div>
 
-            {/* ── Right: Illustration + Benefits ── */}
-            <div className="lg:col-span-6 xl:col-span-7 flex flex-col justify-center space-y-8">
-              {/* Car SVG illustration */}
-              <div className="relative flex justify-center">
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-72 h-72 rounded-full bg-primary-600/8 glow-pulse" />
+            {/* ── Right: Premium Visual Panel ── */}
+            <div className="lg:col-span-6 xl:col-span-7 flex flex-col justify-center space-y-6">
+
+              {/* ── Booking Progress Stepper ── */}
+              <div className="card p-6 md:p-8 space-y-6" style={{ background: '#FFFFFF', borderColor: '#E2D8CE' }}>
+                <div>
+                  <h2 className="text-xl font-black text-gray-800">Booking Progress</h2>
+                  <p className="text-xs text-gray-500 mt-1">Complete each stage to book your premium car service.</p>
                 </div>
-                <svg viewBox="0 0 560 280" className="w-full max-w-lg h-auto relative z-10 drop-shadow-[0_0_50px_rgba(0,82,255,0.2)]" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  {/* Road */}
-                  <rect x="20" y="240" width="520" height="5" rx="2.5" fill="#1e2d45" opacity="0.6"/>
-                  <line x1="30" y1="242" x2="530" y2="242" stroke="#0052ff" strokeWidth="2" strokeDasharray="15, 15" className="animate-road" opacity="0.6"/>
 
-                  {/* Car body group (bounces slightly to simulate running engine) */}
-                  <g className="animate-car-body" style={{ transformOrigin: '280px 200px' }}>
-                    <path d="M 80,200 L 80,170 C 80,165 85,160 90,158 L 150,140 C 165,128 190,110 230,108 L 330,108 C 370,108 395,126 410,140 L 470,158 C 475,160 480,165 480,170 L 480,200 Z" fill="#111827" stroke="#0052ff" strokeWidth="2"/>
-                    <path d="M 175,140 C 185,118 210,102 245,100 L 315,100 C 350,100 375,116 385,140 Z" fill="#0d1a30" stroke="#1e2d45" strokeWidth="1.5"/>
-                    <path d="M 185,140 C 195,120 215,106 248,104 L 295,104 C 310,104 330,118 340,140 Z" fill="#0052ff" opacity="0.15" stroke="#0052ff" strokeWidth="1" strokeOpacity="0.4"/>
-                    <ellipse cx="96" cy="175" rx="12" ry="8" fill="#0052ff" opacity="0.8"/>
-                    <ellipse cx="96" cy="175" rx="8" ry="5" fill="#60a5fa" opacity="0.9"/>
-                    <path d="M 84,172 L 30,160 M 84,175 L 25,175 M 84,178 L 30,190" stroke="#0052ff" strokeWidth="1.5" opacity="0.3" strokeLinecap="round"/>
-                    <rect x="460" y="168" width="16" height="14" rx="3" fill="#ef4444" opacity="0.7"/>
-                    <rect x="260" y="158" width="40" height="5" rx="2.5" fill="#1e2d45" stroke="#0052ff" strokeWidth="0.8" opacity="0.7"/>
-                  </g>
+                {/* Stepper responsive container */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[
+                    { id: 1, label: 'Vehicle Details', desc: 'Enter brand, model and mileage.', active: true, completed: stepsStatus.vehicle },
+                    { id: 2, label: 'Select Services', desc: 'Choose repairs with clear pricing.', active: false, completed: stepsStatus.services },
+                    { id: 3, label: 'Choose Package', desc: 'Compare Silver, Gold & Platinum care.', active: false, completed: stepsStatus.package },
+                    { id: 4, label: 'Book Slot', desc: 'Schedule a convenient time slot.', active: false, completed: stepsStatus.slot },
+                  ].map((step) => {
+                    const isCurrent = step.active;
+                    const isCompleted = step.completed;
 
-                  {/* Left Wheel */}
-                  <g className="animate-wheel-left" style={{ transformOrigin: '160px 215px' }}>
-                    <circle cx="160" cy="215" r="28" fill="#0f172a" stroke="#1e2d45" strokeWidth="3"/>
-                    <circle cx="160" cy="215" r="20" fill="#111827" stroke="#0052ff" strokeWidth="2.5" opacity="0.8"/>
-                    <circle cx="160" cy="215" r="10" fill="#1e2d45"/>
-                    {[0,60,120,180,240,300].map(deg => (
-                      <line key={deg} x1="160" y1="215" x2={160 + 17 * Math.cos(deg * Math.PI / 180)} y2={215 + 17 * Math.sin(deg * Math.PI / 180)} stroke="#0052ff" strokeWidth="1.5" opacity="0.5"/>
-                    ))}
-                  </g>
+                    return (
+                      <div
+                        key={step.id}
+                        className="p-4 rounded-2xl border-2 flex flex-col justify-between transition-all hover:scale-[1.01]"
+                        style={{
+                          background: isCurrent ? '#FFF3EE' : '#FFFFFF',
+                          borderColor: isCurrent ? '#E65313' : isCompleted ? '#16A34A' : '#E2D8CE',
+                        }}
+                      >
+                        <div>
+                          {/* Step Header Indicator */}
+                          <div className="flex items-center justify-between mb-2.5">
+                            <span
+                              className="text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider"
+                              style={{
+                                background: isCurrent ? '#E65313' : isCompleted ? '#F0FDF4' : '#F3F4F6',
+                                color: isCurrent ? '#FFFFFF' : isCompleted ? '#16A34A' : '#667085',
+                              }}
+                            >
+                              Step 0{step.id}
+                            </span>
 
-                  {/* Right Wheel */}
-                  <g className="animate-wheel-right" style={{ transformOrigin: '400px 215px' }}>
-                    <circle cx="400" cy="215" r="28" fill="#0f172a" stroke="#1e2d45" strokeWidth="3"/>
-                    <circle cx="400" cy="215" r="20" fill="#111827" stroke="#0052ff" strokeWidth="2.5" opacity="0.8"/>
-                    <circle cx="400" cy="215" r="10" fill="#1e2d45"/>
-                    {[0,60,120,180,240,300].map(deg => (
-                      <line key={deg} x1="400" y1="215" x2={400 + 17 * Math.cos(deg * Math.PI / 180)} y2={215 + 17 * Math.sin(deg * Math.PI / 180)} stroke="#0052ff" strokeWidth="1.5" opacity="0.5"/>
-                    ))}
-                  </g>
-                </svg>
+                            {isCompleted ? (
+                              <span className="text-green-600 font-extrabold text-[11px] flex items-center gap-0.5">
+                                <CheckCircle2 size={13} /> Done
+                              </span>
+                            ) : isCurrent ? (
+                              <span className="text-orange-600 font-extrabold text-[11px] uppercase tracking-wider">
+                                Active
+                              </span>
+                            ) : null}
+                          </div>
+
+                          <h3 className="font-extrabold text-sm text-gray-800">{step.label}</h3>
+                          <p className="text-[11px] text-gray-500 mt-1 leading-relaxed">{step.desc}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Benefits grid */}
               <div>
-                <h2 className="text-xl font-extrabold text-white mb-5">Why book with Bug Slayers?</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <h2 className="text-lg font-extrabold text-gray-800 mb-4">Why book with Bug Slayers?</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {benefits.map((b) => {
                     const Icon = b.icon;
                     return (
-                      <div key={b.title} className="bg-[#111827] rounded-2xl p-5 border border-[#1e2d45] flex items-start gap-4 hover:border-primary-600/30 transition-colors">
-                        <div className="w-10 h-10 rounded-xl bg-primary-600/15 flex items-center justify-center shrink-0">
-                          <Icon size={18} className="text-primary-400" />
+                      <div key={b.title} className="rounded-2xl p-4 flex items-start gap-3 transition-all hover:-translate-y-0.5"
+                        style={{ background: '#FFFFFF', border: '1px solid #E2D8CE', boxShadow: '0 1px 4px rgba(0,0,0,0.02)' }}>
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#FFF3EE' }}>
+                          <Icon size={17} style={{ color: '#E65313' }} />
                         </div>
                         <div>
-                          <h3 className="font-bold text-white text-sm">{b.title}</h3>
-                          <p className="text-sm text-slate-400 mt-0.5 leading-relaxed">{b.desc}</p>
+                          <h3 className="font-bold text-gray-800 text-sm">{b.title}</h3>
+                          <p className="text-xs mt-0.5 leading-relaxed text-gray-500">{b.desc}</p>
                         </div>
                       </div>
                     );

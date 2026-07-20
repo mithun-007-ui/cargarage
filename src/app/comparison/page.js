@@ -56,10 +56,10 @@ export default function PackageComparisonPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
+    <div className="flex flex-col min-h-screen" style={{ background: '#F8F5F0' }}>
       <Navbar />
       <main className="flex-grow py-6">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
           <ProgressBar currentStep={4} />
 
           {vehicle && (
@@ -68,56 +68,57 @@ export default function PackageComparisonPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Comparison Table */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-8 space-y-4">
               <div>
-                <h1 className="text-xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
-                  <Scale className="text-accent-500" size={20} /> Package Comparison
+                <h1 className="text-xl font-extrabold text-gray-800 tracking-tight flex items-center gap-2">
+                  <Scale className="text-orange-500" size={20} style={{ color: '#E65313' }} /> Package Comparison
                 </h1>
-                <p className="text-xs text-slate-400 mt-1">Compare tiers and confirm your plan below.</p>
+                <p className="text-xs text-gray-500 mt-1">Compare tiers and confirm your plan below.</p>
               </div>
 
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-2xl border shadow-sm overflow-hidden" style={{ borderColor: '#E2D8CE' }}>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
-                      <tr className="border-b border-slate-100 bg-slate-50/70">
-                        <th className="py-3.5 px-4 text-slate-600 font-bold">Plan Benefits</th>
+                      <tr className="border-b" style={{ borderColor: '#E2D8CE', background: '#F8F5F0' }}>
+                        <th className="py-3.5 px-4 font-bold text-gray-600">Plan Benefits</th>
                         {packages.map(pkg => (
-                          <th key={pkg.id} className="py-3.5 px-4 font-extrabold text-slate-700 text-center">
+                          <th key={pkg.id} className="py-3.5 px-4 font-extrabold text-gray-700 text-center">
                             <p>{pkg.name}</p>
-                            <p className="text-primary-700 font-black text-sm mt-0.5">₹{pkg.price.toLocaleString('en-IN')}</p>
+                            <p className="font-black text-sm mt-0.5" style={{ color: '#E65313' }}>₹{pkg.price.toLocaleString('en-IN')}</p>
                           </th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y" style={{ borderColor: '#E2D8CE' }}>
                       {COMPARISON_ITEMS.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/20">
-                          <td className="py-2.5 px-4 font-medium text-slate-700">{item.name}</td>
+                        <tr key={idx} className="hover:bg-gray-50/50">
+                          <td className="py-2.5 px-4 font-medium text-gray-800">{item.name}</td>
                           <td className="py-2.5 px-4 text-center">
-                            {item.silver ? <Check size={14} className="text-emerald-500 mx-auto" /> : <X size={14} className="text-slate-300 mx-auto" />}
+                            {item.silver ? <Check size={14} className="text-green-600 mx-auto" /> : <X size={14} className="text-gray-300 mx-auto" />}
                           </td>
                           <td className="py-2.5 px-4 text-center">
-                            {item.gold ? <Check size={14} className="text-emerald-500 mx-auto" /> : <X size={14} className="text-slate-300 mx-auto" />}
+                            {item.gold ? <Check size={14} className="text-green-600 mx-auto" /> : <X size={14} className="text-gray-300 mx-auto" />}
                           </td>
                           <td className="py-2.5 px-4 text-center">
-                            {item.platinum ? <Check size={14} className="text-emerald-500 mx-auto" /> : <X size={14} className="text-slate-300 mx-auto" />}
+                            {item.platinum ? <Check size={14} className="text-green-600 mx-auto" /> : <X size={14} className="text-gray-300 mx-auto" />}
                           </td>
                         </tr>
                       ))}
-                      <tr className="bg-slate-50/50">
-                        <td className="py-4 px-4 font-bold text-slate-700">Your Choice</td>
+                      <tr className="bg-gray-50/30">
+                        <td className="py-4 px-4 font-bold text-gray-800">Your Choice</td>
                         {packages.map(pkg => (
                           <td key={pkg.id} className="py-4 px-4 text-center">
                             <button
                               onClick={() => handleSelectPackage(pkg)}
-                              className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
+                              className="px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all cursor-pointer"
+                              style={
                                 selectedPackage?.id === pkg.id
-                                  ? 'bg-primary-700 border-primary-700 text-white'
-                                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'
-                              }`}
+                                  ? { background: '#E65313', borderColor: '#E65313', color: '#FFFFFF' }
+                                  : { background: '#FFFFFF', borderColor: '#E2D8CE', color: '#667085' }
+                              }
                             >
                               {selectedPackage?.id === pkg.id ? '✓ Selected' : 'Choose'}
                             </button>
@@ -131,18 +132,19 @@ export default function PackageComparisonPage() {
 
               <button
                 onClick={() => handleSelectPackage('none')}
-                className={`w-full py-3 rounded-2xl font-bold text-sm border-2 transition-all cursor-pointer flex items-center justify-center ${
+                className="w-full py-3 rounded-xl font-bold text-sm border-2 transition-all cursor-pointer flex items-center justify-center"
+                style={
                   selectedPackage === 'none'
-                    ? 'border-primary-500 bg-primary-50/30 text-primary-800'
-                    : 'bg-white border-slate-200 hover:border-slate-300 text-slate-600'
-                }`}
+                    ? { borderColor: '#E65313', background: '#FFF3EE', color: '#E65313' }
+                    : { background: '#FFFFFF', borderColor: '#E2D8CE', color: '#667085' }
+                }
               >
                 {selectedPackage === 'none' ? '✓ ' : ''}No Package — Primary Services Only
               </button>
             </div>
 
             {/* Bill Summary */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-4">
               <BillSummary
                 vehicle={vehicle}
                 selectedServices={selectedServices}
@@ -151,16 +153,16 @@ export default function PackageComparisonPage() {
             </div>
           </div>
 
-          <div className="flex justify-between border-t border-slate-200 pt-5 mt-5">
+          <div className="flex justify-between border-t pt-5 mt-5" style={{ borderColor: '#E2D8CE' }}>
             <button
               onClick={() => router.push('/packages')}
-              className="border border-slate-200 text-slate-600 hover:bg-slate-50 px-5 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 cursor-pointer bg-white"
+              className="btn-outline text-sm"
             >
               <ChevronLeft size={15} /> Back
             </button>
             <button
               onClick={() => router.push('/estimator')}
-              className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-1.5 shadow-md shadow-primary-600/10 cursor-pointer"
+              className="btn-primary text-sm"
             >
               Continue to Estimator <ChevronRight size={15} />
             </button>
