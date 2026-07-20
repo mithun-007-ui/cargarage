@@ -5,14 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from 'src/context/AuthContext';
 import UserProfile from './UserProfile';
-import { Wrench, Menu, X, Bell, Phone, MessageCircle } from 'lucide-react';
-import { getUnreadNotificationsCount } from 'src/lib/mockDb';
+import { Wrench, Menu, X, Phone, MessageCircle } from 'lucide-react';
 
 export default function Navbar() {
   const { user } = useAuth();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -20,18 +18,6 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  useEffect(() => {
-    if (user) {
-      setTimeout(() => {
-        setUnreadCount(getUnreadNotificationsCount(user.email));
-      }, 0);
-      const interval = setInterval(() => {
-        setUnreadCount(getUnreadNotificationsCount(user.email));
-      }, 15000);
-      return () => clearInterval(interval);
-    }
-  }, [user]);
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -129,23 +115,6 @@ export default function Navbar() {
 
             {/* Right Side */}
             <div className="hidden md:flex items-center gap-3">
-              {user && unreadCount > 0 && (
-                <Link
-                  href="/my-bookings?tab=notifications"
-                  className="relative p-2 rounded-lg transition-colors"
-                  style={{ color: '#667085' }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#202020'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#667085'}
-                >
-                  <Bell size={18} />
-                  <span
-                    className="absolute -top-0.5 -right-0.5 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center"
-                    style={{ background: '#E65313' }}
-                  >
-                    {unreadCount}
-                  </span>
-                </Link>
-              )}
               {user ? (
                 <UserProfile />
               ) : (
@@ -162,21 +131,6 @@ export default function Navbar() {
 
             {/* Mobile Menu Button */}
             <div className="flex md:hidden items-center gap-2">
-              {user && unreadCount > 0 && (
-                <Link
-                  href="/my-bookings?tab=notifications"
-                  className="relative p-1.5 rounded-lg"
-                  style={{ color: '#667085' }}
-                >
-                  <Bell size={18} />
-                  <span
-                    className="absolute -top-0.5 -right-0.5 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center"
-                    style={{ background: '#E65313' }}
-                  >
-                    {unreadCount}
-                  </span>
-                </Link>
-              )}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 rounded-lg transition-colors"
