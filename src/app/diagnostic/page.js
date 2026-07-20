@@ -10,7 +10,7 @@ import { Sparkles, Wrench, AlertCircle, CheckCircle2, ChevronRight, Activity, Za
 
 export default function DiagnosticPage() {
   const router = useRouter();
-  const { setSelectedServices, setPackage } = useBooking();
+  const { setSelectedServices, setSelectedPackage } = useBooking();
   
   const [description, setDescription] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -59,7 +59,7 @@ export default function DiagnosticPage() {
     if (!result || !result.services || result.services.length === 0) return;
     
     // Clear package if they are booking specific services from AI
-    setPackage('none');
+    setSelectedPackage(null);
     
     // Add these services to cart
     setSelectedServices(result.services);
@@ -203,7 +203,7 @@ export default function DiagnosticPage() {
                         const db = getMockDb();
                         const genService = db.services.find(s => s.id === 'engine-diagnosis');
                         if (genService) {
-                          setPackage('none');
+                          setSelectedPackage(null);
                           setSelectedServices([genService]);
                           router.push('/vehicle-selection');
                         }

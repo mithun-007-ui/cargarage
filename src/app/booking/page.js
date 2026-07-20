@@ -8,7 +8,7 @@ import ProgressBar from 'src/components/ProgressBar';
 import VehicleBanner from 'src/components/VehicleBanner';
 import { useAuth } from 'src/context/AuthContext';
 import { addBooking } from 'src/lib/mockDb';
-import { Calendar, Clock, ChevronLeft, AlertCircle, User, Mail, MapPin, Truck, Building2, Tag, Percent } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, AlertCircle, User, Mail, MapPin, Truck, Building2, Tag, Percent, Receipt } from 'lucide-react';
 
 const SERVICE_CENTERS = [
   { id: 'andheri', name: 'AutoCare Pro — Andheri West', address: 'Versova Link Rd, Andheri West, Mumbai 400058', timing: 'Mon–Sat: 8AM–7PM' },
@@ -67,8 +67,13 @@ export default function SlotBookingPage() {
     return days.slice(0, 10);
   };
 
+  const servicesSubtotal = selectedServices.reduce((acc, s) => acc + s.price, 0);
+  const packagePrice = pkg?.price || 0;
+  const subtotal = servicesSubtotal + packagePrice;
+  const gst = Math.round(subtotal * 0.18);
+  const basePrice = subtotal + gst;
   const pickupExtra = pickupOption === 'pickup' ? 499 : 0;
-  const total = estPrice + pickupExtra;
+  const total = basePrice + pickupExtra;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,25 +87,19 @@ export default function SlotBookingPage() {
 
     try {
       const center = SERVICE_CENTERS.find(c => c.id === serviceCenter);
-      const newBooking = addBooking({
+      const slotDetails = {
         customerName: name,
         customerEmail: email,
-        vehicle: vehicle || { make: 'Unknown', model: 'Unknown', year: '2022', plateNumber: 'XX-00-XX-0000' },
-        serviceType: selectedServices[0]?.name || 'General Service',
-        selectedServices,
-        packageSelected: pkg?.name || 'None',
-        packagePrice: pkg?.price || 0,
-        estimatedPrice: total,
         serviceCenter: center?.name || serviceCenter,
         pickupOption: pickupOption === 'pickup' ? 'Pickup & Delivery' : 'Drop-off',
-        date, time,
-      });
-      localStorage.setItem('booking_flow_confirmed_id', newBooking.id);
-      ['booking_flow_vehicle', 'booking_flow_services', 'booking_flow_service',
-       'booking_flow_estimated_price', 'booking_flow_package'].forEach(k => localStorage.removeItem(k));
-      router.push('/booking-confirmation');
+        date,
+        time,
+        totalPrice: total
+      };
+      localStorage.setItem('booking_flow_slot_details', JSON.stringify(slotDetails));
+      router.push('/booking/payment');
     } catch (err) {
-      setError('Failed to record booking. Please try again.');
+      setError('Failed to save slot details. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -111,7 +110,7 @@ export default function SlotBookingPage() {
       <Navbar />
       <main className="flex-grow py-6">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
-          <ProgressBar currentStep={6} />
+          <ProgressBar currentStep={4} />
 
           {vehicle && (
             <div className="mb-5">
@@ -119,7 +118,8 @@ export default function SlotBookingPage() {
             </div>
           )}
 
-          <div className="mb-5">
+          <div className="mb-5 mt-2">
+            <span className="section-label">Step 4 of 5 · Schedule Slot</span>
             <h1 className="text-xl font-extrabold tracking-tight" style={{ color: '#202020' }}>Schedule Your Service</h1>
             <p className="text-xs text-gray-500 mt-1">Pick a date, time slot, and service center to confirm your booking.</p>
           </div>
@@ -292,15 +292,58 @@ export default function SlotBookingPage() {
                       </div>
                     </div>
 
-                    {/* Order Summary */}
-                    <div className="rounded-xl p-3 border text-xs space-y-1.5 text-gray-600 bg-gray-50 border-gray-150" style={{ borderColor: '#E2D8CE' }}>
-                      {vehicle && <div className="flex justify-between"><span>Vehicle:</span><span className="font-semibold text-gray-800">{vehicle.make} {vehicle.model}</span></div>}
-                      {selectedServices.length > 0 && <div className="flex justify-between"><span>Services:</span><span className="font-semibold text-gray-800">{selectedServices.length} selected</span></div>}
-                      <div className="flex justify-between"><span>Package:</span><span className="font-semibold text-gray-800">{pkg?.name || 'None'}</span></div>
-                      {pickupOption === 'pickup' && <div className="flex justify-between"><span>Pickup:</span><span className="font-semibold text-gray-800">+₹499</span></div>}
-                      <div className="flex justify-between border-t pt-1.5 mt-1" style={{ borderColor: '#E2D8CE' }}>
-                        <span className="font-bold text-gray-850">Total:</span>
-                        <span className="font-black text-[#E65313]">₹{total.toLocaleString('en-IN')}</span>
+                    {/* Itemised Invoice Summary */}
+                    <div className="rounded-xl p-3.5 border text-xs space-y-2.5 bg-gray-50" style={{ borderColor: '#E2D8CE' }}>
+                      <div className="flex items-center gap-1.5 pb-2 border-b" style={{ borderColor: '#E2D8CE' }}>
+                        <Receipt size={13} style={{ color: '#E65313' }} />
+                        <span className="font-extrabold text-gray-800 text-[11px] uppercase tracking-wider">Estimated Invoice</span>
+                      </div>
+
+                      {/* Selected Vehicle */}
+                      {vehicle && (
+                        <div className="text-[11px] pb-2 border-b" style={{ borderColor: '#E2D8CE' }}>
+                          <span className="text-gray-400 font-bold block text-[9px] uppercase tracking-wider">Vehicle</span>
+                          <span className="font-bold text-gray-800">{vehicle.make} {vehicle.model} ({vehicle.year})</span>
+                        </div>
+                      )}
+
+                      {/* Services breakdown list */}
+                      <div className="space-y-1.5">
+                        <span className="text-gray-400 font-bold block text-[9px] uppercase tracking-wider">Services Breakdown</span>
+                        {selectedServices.map(s => (
+                          <div key={s.id} className="flex justify-between items-center text-[11px]">
+                            <span className="text-gray-600 font-medium truncate max-w-[180px]">{s.name}</span>
+                            <span className="font-semibold text-gray-800">₹{s.price.toLocaleString('en-IN')}</span>
+                          </div>
+                        ))}
+                        {pkg && (
+                          <div className="flex justify-between items-center text-[11px]">
+                            <span className="text-gray-600 font-medium">Package ({pkg.name})</span>
+                            <span className="font-semibold text-gray-800">₹{packagePrice.toLocaleString('en-IN')}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Tax and Total */}
+                      <div className="border-t pt-2 space-y-1.5" style={{ borderColor: '#E2D8CE' }}>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-gray-500 font-medium flex items-center gap-1"><Tag size={10} /> Subtotal</span>
+                          <span className="font-semibold text-gray-800">₹{subtotal.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-gray-500 font-medium flex items-center gap-1"><Percent size={10} /> GST (18%)</span>
+                          <span className="font-semibold text-gray-800">₹{gst.toLocaleString('en-IN')}</span>
+                        </div>
+                        {pickupOption === 'pickup' && (
+                          <div className="flex justify-between items-center text-[11px]">
+                            <span className="text-gray-500 font-medium flex items-center gap-1"><Truck size={10} /> Pickup & Delivery</span>
+                            <span className="font-semibold text-gray-800">₹499</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between items-baseline border-t pt-2 mt-1" style={{ borderColor: '#E2D8CE' }}>
+                          <span className="font-bold text-gray-800 text-sm">Estimated Total:</span>
+                          <span className="font-black text-base text-[#E65313]">₹{total.toLocaleString('en-IN')}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -310,7 +353,7 @@ export default function SlotBookingPage() {
                     disabled={isSubmitting}
                     className="w-full btn-primary py-3 text-sm justify-center disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Booking...' : 'Confirm Service Booking'}
+                    {isSubmitting ? 'Redirecting...' : 'Proceed to Payment'}
                   </button>
                 </div>
               </div>
@@ -320,7 +363,7 @@ export default function SlotBookingPage() {
           <div className="flex justify-start">
             <button
               type="button"
-              onClick={() => router.push('/estimator')}
+              onClick={() => router.push('/packages')}
               className="btn-outline text-sm"
             >
               <ChevronLeft size={15} /> Back

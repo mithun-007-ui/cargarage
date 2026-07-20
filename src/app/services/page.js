@@ -214,7 +214,7 @@ export default function ChooseServicePage() {
           <div className="mb-8 mt-2">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <span className="section-label">Step 2 of 6 · Service Selection</span>
+                <span className="section-label">Step 2 of 4 · Service Selection</span>
                 <h1 className="text-2xl md:text-3xl font-black mt-1 tracking-tight flex items-center gap-2.5" style={{ color: '#202020' }}>
                   <div className="w-9 h-9 rounded-xl icon-orange flex items-center justify-center shrink-0">
                     <Wrench size={18} />
@@ -250,8 +250,8 @@ export default function ChooseServicePage() {
 
           {/* ── Search & Category Filters ── */}
           <div className="flex flex-col sm:flex-row gap-3 mb-8">
-            <div className="relative sm:w-72">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2" size={15} style={{ color: '#9CA3AF' }} />
+            <div className="relative sm:w-72 flex items-center">
+              <Search className="absolute left-3.5" size={15} style={{ color: '#9CA3AF', transform: 'translateY(-50%)', top: '50%' }} />
               <input
                 type="text"
                 placeholder="Search services…"
