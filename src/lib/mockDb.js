@@ -558,6 +558,18 @@ export const updateEmergencyStatus = (id, status) => {
   }
   return null;
 };
+// Full patch — used by the admin emergency detail panel
+export const updateEmergencyRequest = (id, patch) => {
+  const db = getMockDb();
+  db.emergencyRequests = db.emergencyRequests || [];
+  const idx = db.emergencyRequests.findIndex(r => r.id === id);
+  if (idx !== -1) {
+    db.emergencyRequests[idx] = { ...db.emergencyRequests[idx], ...patch, updatedAt: new Date().toISOString() };
+    saveMockDb(db);
+    return db.emergencyRequests[idx];
+  }
+  return null;
+};
 
 // ─── Saved Vehicles ───
 export const getSavedVehicles = (email) => {
