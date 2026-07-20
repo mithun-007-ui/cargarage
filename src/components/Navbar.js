@@ -98,7 +98,7 @@ export default function Navbar() {
           </Link>
 
           {/* ── Desktop Nav Links ── */}
-          <ul className="navbar-links hidden md:flex" style={{ gap: '2.25rem' }}>
+          <ul className="navbar-links hidden lg:flex" style={{ gap: '2.25rem' }}>
             {NAV_ITEMS.map(({ name, href, icon: Icon }) => {
               const active = isActive(href);
               return (
@@ -121,7 +121,7 @@ export default function Navbar() {
           </ul>
 
           {/* ── Desktop Right Side ── */}
-          <div className="navbar-right hidden md:flex">
+          <div className="navbar-right hidden lg:flex">
             {user ? (
               <UserProfile />
             ) : (
@@ -133,7 +133,7 @@ export default function Navbar() {
           </div>
 
           {/* ── Mobile Right (hamburger) ── */}
-          <div className="flex md:hidden items-center gap-1.5">
+          <div className="flex lg:hidden items-center gap-1.5">
             <button
               onClick={() => setIsMobileOpen(true)}
               className="navbar-hamburger"
@@ -257,7 +257,7 @@ export default function Navbar() {
         !pathname.startsWith('/admin') &&
         pathname !== '/login' &&
         pathname !== '/booking-confirmation' && (
-          <div className="navbar-bottom-cta md:hidden">
+          <div className="navbar-bottom-cta lg:hidden">
             <div>
               <p className="text-[10px] uppercase tracking-widest font-extrabold" style={{ color: '#9CA3AF' }}>
                 Bug Slayers Garage
@@ -359,8 +359,11 @@ export default function Navbar() {
           align-items: center;
           gap: 2.25rem;
           margin: 0; padding: 0;
-          /* Hide on small screens */
-          @media (max-width: 767px) { display: none; }
+        }
+        @media (max-width: 1023px) {
+          .navbar-links {
+            display: none !important;
+          }
         }
         .navbar-link {
           position: relative;
@@ -395,7 +398,16 @@ export default function Navbar() {
         }
 
         /* ─── Right side ─── */
-        .navbar-right { display: flex; align-items: center; gap: 2rem; }
+        .navbar-right {
+          display: flex;
+          align-items: center;
+          gap: 2rem;
+        }
+        @media (max-width: 1023px) {
+          .navbar-right {
+            display: none !important;
+          }
+        }
 
         /* ─── Bell ─── */
         .navbar-bell {
@@ -452,6 +464,11 @@ export default function Navbar() {
           background: transparent;
           cursor: pointer;
           transition: background 0.18s, border-color 0.18s;
+        }
+        @media (min-width: 1024px) {
+          .navbar-hamburger {
+            display: none !important;
+          }
         }
         .navbar-hamburger:hover { background: #F8F5F0; border-color: #ccc; }
 
@@ -606,8 +623,8 @@ export default function Navbar() {
           border-top: 1px solid #E2D8CE;
           box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
           /* Hide on larger screens */
-          @media (min-width: 768px) { display: none; }
-          @media (max-width: 767px) { padding: 0.75rem 0.875rem; }
+          @media (min-width: 1024px) { display: none; }
+          @media (max-width: 1023px) { padding: 0.75rem 0.875rem; }
         }
       `}</style>
     </>
