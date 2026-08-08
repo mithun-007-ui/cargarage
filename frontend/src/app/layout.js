@@ -1,6 +1,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "src/context/AuthContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { BookingProvider } from "@/context/BookingContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -8,17 +9,19 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "AutoCare Pro | Premium Vehicle Service & Management",
+  title: "Bug Slayers | Premium Car Service Garage",
   description: "Experience transparent, high-quality, and hassle-free automotive servicing. Get real-time health reports, instant approvals, and expert maintenance for your vehicle.",
-  keywords: "car repair, vehicle service, auto maintenance, oil change, brake repair, car health report",
+  keywords: "car repair, vehicle service, auto maintenance, oil change, brake repair, car health report, Bug Slayers",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans">
+    <html lang="en" className={`${inter.variable} h-full antialiased`} data-scroll-behavior="smooth">
+      <body className="min-h-full flex flex-col bg-[#F8F5F0] text-[#202020] font-sans">
         <AuthProvider>
-          {children}
+          <BookingProvider>
+            {children}
+          </BookingProvider>
         </AuthProvider>
       </body>
     </html>

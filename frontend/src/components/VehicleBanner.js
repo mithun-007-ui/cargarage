@@ -4,7 +4,6 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Car, Fuel, Calendar, Edit2 } from 'lucide-react';
 
-// Brand color map for pill avatars
 const BRAND_COLORS = {
   'Toyota': { bg: '#CC0000', text: '#fff' },
   'Hyundai': { bg: '#002C5F', text: '#fff' },
@@ -23,32 +22,20 @@ const BRAND_COLORS = {
   'Audi': { bg: '#BB0000', text: '#fff' },
 };
 
-// Short abbreviations for brand logos
 const BRAND_ABBR = {
-  'Toyota': 'TY',
-  'Hyundai': 'HY',
-  'Honda': 'HO',
-  'Maruti Suzuki': 'MS',
-  'Tata': 'TA',
-  'Mahindra': 'MH',
-  'Kia': 'KI',
-  'MG': 'MG',
-  'Volkswagen': 'VW',
-  'Skoda': 'SK',
-  'Renault': 'RN',
-  'Nissan': 'NS',
-  'BMW': 'BMW',
-  'Mercedes-Benz': 'MB',
-  'Audi': 'AU',
+  'Toyota': 'TY', 'Hyundai': 'HY', 'Honda': 'HO', 'Maruti Suzuki': 'MS',
+  'Tata': 'TA', 'Mahindra': 'MH', 'Kia': 'KI', 'MG': 'MG',
+  'Volkswagen': 'VW', 'Skoda': 'SK', 'Renault': 'RN', 'Nissan': 'NS',
+  'BMW': 'BMW', 'Mercedes-Benz': 'MB', 'Audi': 'AU',
 };
 
 function BrandBadge({ make, size = 'md' }) {
-  const color = BRAND_COLORS[make] || { bg: '#1e40af', text: '#fff' };
+  const color = BRAND_COLORS[make] || { bg: '#E65313', text: '#fff' };
   const abbr = BRAND_ABBR[make] || (make ? make.slice(0, 2).toUpperCase() : 'XX');
-  const dim = size === 'sm' ? 'w-8 h-8 text-[9px]' : 'w-12 h-12 text-[11px]';
+  const dim = size === 'sm' ? 'w-8 h-8 text-[9px]' : 'w-10 h-10 text-[10px]';
   return (
     <div
-      className={`${dim} rounded-xl flex items-center justify-center font-extrabold tracking-widest border border-white/10 shrink-0`}
+      className={`${dim} rounded-lg flex items-center justify-center font-extrabold tracking-widest shrink-0`}
       style={{ backgroundColor: color.bg, color: color.text }}
     >
       {abbr}
@@ -62,66 +49,63 @@ export default function VehicleBanner({ vehicle, compact = false }) {
 
   if (compact) {
     return (
-      <div className="bg-white border border-slate-100 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-sm">
+      <div
+        className="rounded-xl px-4 py-3 flex items-center justify-between"
+        style={{ background: '#FFFFFF', border: '1px solid #E2D8CE', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+      >
         <div className="flex items-center gap-3">
           <BrandBadge make={vehicle.make} size="sm" />
           <div className="flex items-center gap-2 text-xs flex-wrap">
-            <span className="font-extrabold text-slate-800">{vehicle.make} {vehicle.model}</span>
-            <span className="text-slate-300">•</span>
-            <span className="text-slate-500">{vehicle.year}</span>
-            <span className="text-slate-300">•</span>
-            <span className="text-slate-500">{vehicle.fuelType}</span>
+            <span className="font-extrabold" style={{ color: '#202020' }}>{vehicle.make} {vehicle.model}</span>
+            <span style={{ color: '#E2D8CE' }}>•</span>
+            <span style={{ color: '#667085' }}>{vehicle.year}</span>
+            <span style={{ color: '#E2D8CE' }}>•</span>
+            <span style={{ color: '#667085' }}>{vehicle.fuelType}</span>
             {vehicle.transmission && (
               <>
-                <span className="text-slate-300">•</span>
-                <span className="text-slate-500">{vehicle.transmission}</span>
+                <span style={{ color: '#E2D8CE' }}>•</span>
+                <span style={{ color: '#667085' }}>{vehicle.transmission}</span>
               </>
             )}
             {vehicle.color && (
               <>
-                <span className="text-slate-300">•</span>
-                <span className="text-slate-500">{vehicle.color}</span>
+                <span style={{ color: '#E2D8CE' }}>•</span>
+                <span style={{ color: '#667085' }}>{vehicle.color}</span>
               </>
             )}
           </div>
         </div>
         <button
           onClick={() => router.push('/vehicle-selection')}
-          className="text-primary-600 hover:text-primary-700 text-xs font-bold cursor-pointer flex items-center gap-1 hover:underline transition-colors shrink-0 ml-2"
+          className="text-xs font-bold cursor-pointer flex items-center gap-1 transition-colors shrink-0 ml-2 hover:opacity-80"
+          style={{ color: '#E65313' }}
         >
-          <Edit2 size={11} /> Edit Vehicle
+          <Edit2 size={11} /> Edit
         </button>
       </div>
     );
   }
 
   return (
-    <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-2xl p-4 flex items-center justify-between shadow-md shadow-primary-800/10">
+    <div
+      className="rounded-2xl p-4 flex items-center justify-between"
+      style={{ background: '#211F1D', border: '1px solid rgba(255,255,255,0.06)' }}
+    >
       <div className="flex items-center gap-4">
         <BrandBadge make={vehicle.make} size="lg" />
         <div>
           <h3 className="text-white font-extrabold text-base">{vehicle.make} {vehicle.model}</h3>
-          <div className="flex items-center gap-2 text-primary-200 text-xs mt-0.5 flex-wrap">
+          <div className="flex items-center gap-2 text-xs mt-0.5 flex-wrap" style={{ color: '#9CA3AF' }}>
             <span className="flex items-center gap-1"><Calendar size={10} />{vehicle.year}</span>
-            <span className="text-primary-300/50">•</span>
+            <span>•</span>
             <span className="flex items-center gap-1"><Fuel size={10} />{vehicle.fuelType}</span>
-            {vehicle.transmission && (
-              <>
-                <span className="text-primary-300/50">•</span>
-                <span>{vehicle.transmission}</span>
-              </>
-            )}
-            {vehicle.color && (
-              <>
-                <span className="text-primary-300/50">•</span>
-                <span>{vehicle.color}</span>
-              </>
-            )}
+            {vehicle.transmission && <><span>•</span><span>{vehicle.transmission}</span></>}
+            {vehicle.color && <><span>•</span><span>{vehicle.color}</span></>}
           </div>
         </div>
       </div>
       <div className="text-right hidden sm:block">
-        <p className="text-primary-200 text-[10px] font-bold uppercase">Reg. No.</p>
+        <p className="text-[10px] font-bold uppercase" style={{ color: '#6B7280' }}>Reg. No.</p>
         <p className="text-white font-mono font-bold text-sm">{vehicle.plateNumber}</p>
       </div>
     </div>

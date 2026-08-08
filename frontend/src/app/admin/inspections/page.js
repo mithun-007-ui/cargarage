@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getBookingById, addHealthReport } from 'src/lib/mockDb';
+import { getBookingById, addHealthReport } from '@/lib/supabaseDb';
 import {
   ClipboardCheck, Plus, Trash2, ChevronLeft, ArrowRight,
   Wrench, AlertTriangle, CheckCircle2, Car, User, Hash, Activity
@@ -53,16 +53,18 @@ function AdminInspectionsContent() {
 
   useEffect(() => {
     if (bookingId) {
-      const data = getBookingById(bookingId);
-      if (data) {
-        setBooking(data);
-        if (data.healthReport) {
-          setNotes(data.healthReport.notes || '');
-          setHealthScore(data.healthReport.healthScore || 85);
-          if (data.healthReport.components) setComponents({ ...DEFAULT_COMPONENTS, ...data.healthReport.components });
-          if (data.healthReport.items?.length > 0) setItems(data.healthReport.items.map(i => ({ ...DEFAULT_ITEM(), ...i })));
+      (async () => {
+        const data = await getBookingById(bookingId);
+        if (data) {
+          setBooking(data);
+          if (data.healthReport) {
+            setNotes(data.healthReport.notes || '');
+            setHealthScore(data.healthReport.healthScore || 85);
+            if (data.healthReport.components) setComponents({ ...DEFAULT_COMPONENTS, ...data.healthReport.components });
+            if (data.healthReport.items?.length > 0) setItems(data.healthReport.items.map(i => ({ ...DEFAULT_ITEM(), ...i })));
+          }
         }
-      }
+      })();
     }
   }, [bookingId]);
 
@@ -103,9 +105,8 @@ function AdminInspectionsContent() {
 
     setIsSubmitting(true);
     setError('');
-    await new Promise(r => setTimeout(r, 700));
     try {
-      addHealthReport(booking.id, notes, items, healthScore, components);
+      await addHealthReport(booking.id, notes, items, healthScore, components);
       router.push('/admin/dashboard');
     } catch (err) {
       setError('Failed to save inspection report. Please try again.');
@@ -344,7 +345,7 @@ function AdminInspectionsContent() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-accent-500 hover:bg-accent-600 active:scale-[0.98] text-white px-6 py-2.5 rounded-xl font-extrabold text-sm flex items-center gap-2 shadow-lg shadow-accent-500/20 border border-accent-600 cursor-pointer disabled:opacity-50 transition-all"
+                className="bg-primary-500 hover:bg-primary-600 active:scale-[0.98] text-white px-6 py-2.5 rounded-xl font-extrabold text-sm flex items-center gap-2 shadow-lg shadow-primary-500/20 border border-primary-600 cursor-pointer disabled:opacity-50 transition-all"
               >
                 {isSubmitting ? 'Saving...' : 'Save Inspection Report'}
                 <ArrowRight size={15} />
@@ -356,7 +357,7 @@ function AdminInspectionsContent() {
           <div className="lg:col-span-4">
             <div className="bg-slate-900 border border-slate-800 text-slate-300 rounded-2xl p-5 shadow-md space-y-4 sticky top-4">
               <h2 className="font-extrabold text-xs text-white uppercase tracking-wider flex items-center gap-2">
-                <Car size={13} className="text-accent-500" /> Booking Summary
+                <Car size={13} className="text-primary-500" /> Booking Summary
               </h2>
 
               <div className="space-y-3 text-xs">
