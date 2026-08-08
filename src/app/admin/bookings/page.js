@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
-import { getBookings, updateBookingStatus, assignTechnician } from 'src/lib/mockDb';
+import { getBookings, updateBookingStatus, assignTechnician } from '@/lib/supabaseDb';
 import { ClipboardList, Search, RefreshCw, Car, Calendar, Clock, User, Wrench } from 'lucide-react';
 
 const STATUS_COLORS = {
@@ -36,7 +36,7 @@ export default function AdminBookingsPage() {
   const [expandedId, setExpandedId] = useState(null);
   const [techInput, setTechInput] = useState({});
 
-  const load = useCallback(() => setBookings(getBookings()), []);
+  const load = useCallback(async () => setBookings(await getBookings()), []);
   useEffect(() => { load(); }, [load]);
 
   const statuses = ['all', ...new Set(bookings.map(b => b.status))];
@@ -49,10 +49,10 @@ export default function AdminBookingsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleAssign = (id) => {
+  const handleAssign = async (id) => {
     const name = techInput[id]?.trim();
     if (!name) return;
-    assignTechnician(id, name);
+    await assignTechnician(id, name);
     load();
   };
 
@@ -130,7 +130,7 @@ export default function AdminBookingsPage() {
                   {/* Status change */}
                   <div className="flex flex-wrap gap-2">
                     {['Vehicle Received', 'Inspection Pending', 'Repair in Progress', 'Completed', 'Cancelled'].map(s => (
-                      <button key={s} onClick={() => { updateBookingStatus(b.id, s); load(); }}
+                      <button key={s} onClick={async () => { await updateBookingStatus(b.id, s); load(); }}
                         className="px-3 py-1.5 rounded-lg text-xs font-bold border cursor-pointer"
                         style={b.status === s
                           ? { background: '#D96C2F', color: '#FFF7ED', borderColor: 'rgba(217,108,47,0.5)' }

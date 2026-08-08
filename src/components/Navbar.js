@@ -3,12 +3,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from 'src/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import UserProfile from './UserProfile';
 import {
   Wrench, Menu, X, Phone, MessageCircle,
   Home, Zap, Package, Stethoscope, CalendarCheck, BookOpen,
-  ChevronRight,
+  ChevronRight, LayoutDashboard,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -118,6 +118,23 @@ export default function Navbar() {
                 </li>
               );
             })}
+            {/* ── Admin link (desktop) — only visible when user.role === 'admin' ── */}
+            {user?.role === 'admin' && (
+              <li className="relative">
+                <Link
+                  href="/admin/dashboard"
+                  className={`navbar-link${isActive('/admin/dashboard') ? ' navbar-link-active' : ''}`}
+                >
+                  <LayoutDashboard
+                    size={13}
+                    className="navbar-link-icon"
+                    strokeWidth={isActive('/admin/dashboard') ? 2.5 : 2}
+                  />
+                  Admin
+                  {isActive('/admin/dashboard') && <span className="navbar-active-dot" />}
+                </Link>
+              </li>
+            )}
           </ul>
 
           {/* ── Desktop Right Side ── */}
@@ -202,6 +219,21 @@ export default function Navbar() {
               </Link>
             );
           })}
+          {/* ── Admin link (mobile drawer) — only visible when user.role === 'admin' ── */}
+          {user?.role === 'admin' && (
+            <Link
+              href="/admin/dashboard"
+              onClick={() => setIsMobileOpen(false)}
+              className={`navbar-drawer-link${isActive('/admin/dashboard') ? ' navbar-drawer-link-active' : ''}`}
+              style={{ animationDelay: `${NAV_ITEMS.length * 40}ms` }}
+            >
+              <span className={`navbar-drawer-icon${isActive('/admin/dashboard') ? ' navbar-drawer-icon-active' : ''}`}>
+                <LayoutDashboard size={16} strokeWidth={isActive('/admin/dashboard') ? 2.5 : 2} />
+              </span>
+              <span className="flex-1">Admin Panel</span>
+              {isActive('/admin/dashboard') && <ChevronRight size={14} style={{ color: '#E65313' }} />}
+            </Link>
+          )}
         </nav>
 
         {/* Drawer footer — user block */}
@@ -209,13 +241,13 @@ export default function Navbar() {
           {user ? (
             <div className="navbar-drawer-user">
               <div className="navbar-drawer-avatar">
-                {user.role === 'Admin' ? 'A' : user.email?.[0]?.toUpperCase() || 'U'}
+                {user.role === 'admin' ? 'A' : (user.name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U')}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold truncate" style={{ color: '#202020' }}>
-                  {user.role === 'Admin' ? 'Admin Dashboard' : 'My Profile'}
+                  {user.name || (user.role === 'admin' ? 'Admin Dashboard' : 'My Profile')}
                 </p>
-                <p className="text-[10px] truncate" style={{ color: '#667085' }}>{user.email}</p>
+                <p className="text-[10px] truncate capitalize" style={{ color: '#667085' }}>{user.role}</p>
               </div>
               <UserProfile />
             </div>

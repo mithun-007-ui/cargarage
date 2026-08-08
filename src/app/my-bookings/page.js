@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from 'src/components/Navbar';
-import Footer from 'src/components/Footer';
-import { useAuth } from 'src/context/AuthContext';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { useAuth } from '@/context/AuthContext';
 import {
-  getBookings, getNotifications, markNotificationsAsRead,
+  getBookingsByEmail, getNotifications, markNotificationsAsRead,
   getUnreadNotificationsCount, updateHealthReportItem
-} from 'src/lib/mockDb';
+} from '@/lib/supabaseDb';
 import {
   Car, CalendarDays, ClipboardList, FileText, CheckSquare, Receipt,
   History, Bell, ChevronRight, Lock, Check, X, Activity,
@@ -293,11 +293,10 @@ function RepairApprovalsTab({ bookings, onDecisionSubmit }) {
 
           const handleSubmit = async (bId) => {
             setSubmitting(prev => ({ ...prev, [bId]: true }));
-            await new Promise(r => setTimeout(r, 700));
             const bChoices = choices[bId] || {};
-            Object.keys(bChoices).forEach(idxStr => {
-              updateHealthReportItem(bId, parseInt(idxStr), bChoices[idxStr]);
-            });
+            for (const idxStr of Object.keys(bChoices)) {
+              await updateHealthReportItem(bId, parseInt(idxStr), bChoices[idxStr]);
+            }
             setSubmitted(prev => ({ ...prev, [bId]: true }));
             setSubmitting(prev => ({ ...prev, [bId]: false }));
             if (onDecisionSubmit) onDecisionSubmit();
@@ -404,9 +403,12 @@ function RepairApprovalsTab({ bookings, onDecisionSubmit }) {
 function NotificationsTab({ user }) {
   const [notifs, setNotifs] = useState([]);
   useEffect(() => {
-    const list = getNotifications(user.email);
-    setNotifs(list);
-    markNotificationsAsRead(user.email);
+    const list = [];
+    (async () => {
+      const data = await getNotifications(user.email);
+      setNotifs(data);
+      await markNotificationsAsRead(user.email);
+    })();
   }, [user.email]);
 
   const formatTime = (ts) => {
@@ -462,11 +464,12 @@ export default function CustomerDashboardPage() {
   const [bookings, setBookings] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const loadData = () => {
+  const loadData = async () => {
     if (!user) return;
-    const all = getBookings().filter(b => b.customerEmail?.toLowerCase() === user.email?.toLowerCase());
+    const all = await getBookingsByEmail(user.email);
     setBookings(all);
-    setUnreadCount(getUnreadNotificationsCount(user.email));
+    const count = await getUnreadNotificationsCount(user.email);
+    setUnreadCount(count);
   };
 
   useEffect(() => {

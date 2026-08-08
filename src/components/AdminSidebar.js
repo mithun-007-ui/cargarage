@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from 'src/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import {
   LayoutDashboard, LogOut, Wrench, AlertTriangle,
   ClipboardList, Bell, Settings, Users,
 } from 'lucide-react';
-import { getEmergencyRequests, getUnreadNotificationsCount } from 'src/lib/mockDb';
+import { getEmergencyRequests, getUnreadNotificationsCount } from '@/lib/supabaseDb';
 
 /* ── 6 core nav items ── */
 const NAV_ITEMS = [
@@ -27,10 +27,11 @@ export default function AdminSidebar() {
   const [notifCount, setNotifCount] = useState(0);
 
   useEffect(() => {
-    const load = () => {
-      const reqs = getEmergencyRequests();
+    const load = async () => {
+      const reqs = await getEmergencyRequests();
       setEmergencyCount(reqs.filter(r => !['Completed', 'Cancelled'].includes(r.status)).length);
-      setNotifCount(getUnreadNotificationsCount('admin@gmail.com'));
+      const count = await getUnreadNotificationsCount('admin');
+      setNotifCount(count);
     };
     load();
     const interval = setInterval(load, 15000);

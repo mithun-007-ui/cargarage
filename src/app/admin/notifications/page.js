@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { getNotifications, markNotificationsAsRead } from 'src/lib/mockDb';
+import { getNotifications, markNotificationsAsRead } from '@/lib/supabaseDb';
 import { Bell, CheckCheck, Clock, RefreshCw } from 'lucide-react';
 
 function timeAgo(iso) {
@@ -17,14 +17,15 @@ export default function AdminNotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('all'); // 'all' | 'unread'
 
-  const load = useCallback(() => {
-    setNotifications(getNotifications('admin@gmail.com'));
+  const load = useCallback(async () => {
+    const data = await getNotifications('admin');
+    setNotifications(data);
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
-  const handleMarkAllRead = () => {
-    markNotificationsAsRead('admin@gmail.com');
+  const handleMarkAllRead = async () => {
+    await markNotificationsAsRead('admin');
     load();
   };
 

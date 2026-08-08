@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import BillSummary from './BillSummary';
 import { ChevronUp, ChevronDown, Receipt } from 'lucide-react';
-import { useBooking } from 'src/context/BookingContext';
+import { useBooking } from '@/context/BookingContext';
 
 export default function BookingLayout({
   children,

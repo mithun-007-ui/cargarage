@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from 'src/components/Navbar';
-import Footer from 'src/components/Footer';
-import ProgressBar from 'src/components/ProgressBar';
-import VehicleBanner from 'src/components/VehicleBanner';
-import BillSummary from 'src/components/BillSummary';
-import { getMockDb } from 'src/lib/mockDb';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import ProgressBar from '@/components/ProgressBar';
+import VehicleBanner from '@/components/VehicleBanner';
+import BillSummary from '@/components/BillSummary';
+import { getServices } from '@/lib/supabaseDb';
 import {
   ChevronLeft, ChevronRight, AlertCircle, Wrench, Search,
   Check, Clock, Droplet, Wind, ShieldAlert, BatteryCharging,
@@ -161,15 +161,15 @@ export default function ChooseServicePage() {
   const [expandedCard, setExpandedCard] = useState(null);
 
   useEffect(() => {
-    const db = getMockDb();
-    const storedVehicle = localStorage.getItem('booking_flow_vehicle');
-    const storedServices = localStorage.getItem('booking_flow_services');
-    setTimeout(() => {
-      setServices(db.services);
+    (async () => {
+      const storedVehicle = localStorage.getItem('booking_flow_vehicle');
+      const storedServices = localStorage.getItem('booking_flow_services');
+      const data = await getServices();
+      setServices(data);
       if (storedVehicle) { try { setVehicle(JSON.parse(storedVehicle)); } catch (e) { console.error(e); } }
       if (storedServices) { try { setSelectedServices(JSON.parse(storedServices)); } catch (e) { console.error(e); } }
       setIsLoaded(true);
-    }, 0);
+    })();
   }, []);
 
   const handleToggleService = (service) => {
@@ -195,8 +195,8 @@ export default function ChooseServicePage() {
   };
 
   const filteredServices = services.filter(service => {
-    const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          service.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (service.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (service.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     const serviceCategory = getServiceCategory(service.id);
     const matchesCategory = selectedCategory === 'all' || serviceCategory === selectedCategory;
     return matchesSearch && matchesCategory;

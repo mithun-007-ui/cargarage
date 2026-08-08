@@ -3,8 +3,8 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from 'src/context/AuthContext';
-import { Wrench, Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { Wrench, Eye, EyeOff, Lock, Mail, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 function LoginContent() {
   const { user, login } = useAuth();
@@ -16,12 +16,16 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [errorMessage, setErrorMessage] = useState('');
+  const [isInvalidCredentials, setIsInvalidCredentials] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Read ?message= set by signup page on redirect
+  const successMessage = searchParams.get('message');
 
   // If already logged in, redirect away
   useEffect(() => {
     if (user) {
-      const redirect = searchParams.get('redirect') || (user.role === 'Admin' ? '/admin/dashboard' : '/');
+      const redirect = searchParams.get('redirect') || (user.role === 'admin' ? '/admin/dashboard' : '/');
       router.push(redirect);
     }
   }, [user, router, searchParams]);
@@ -45,15 +49,28 @@ function LoginContent() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
+    setIsInvalidCredentials(false);
     if (!validate()) return;
     setIsSubmitting(true);
     try {
       const res = await login(email, password);
-      if (res.success) {
-        router.push(res.redirect);
-      } else {
-        setErrorMessage(res.message);
+      // login() handles the redirect internally (role-based).
+      // We only need to handle the error case here.
+      if (!res.success) {
+        // Supabase returns "Invalid login credentials" for both wrong password
+        // and non-existent accounts (intentionally vague for security).
+        const isCredError =
+          res.message?.toLowerCase().includes('invalid login credentials') ||
+          res.message?.toLowerCase().includes('invalid credentials') ||
+          res.message?.toLowerCase().includes('email not confirmed');
+        if (isCredError) {
+          setIsInvalidCredentials(true);
+          setErrorMessage('');
+        } else {
+          setErrorMessage(res.message);
+        }
       }
+      // If successful, login() already called router.push() — nothing to do.
     } catch (err) {
       setErrorMessage('An unexpected error occurred. Please try again.');
     } finally {
@@ -81,31 +98,37 @@ function LoginContent() {
           </p>
         </div>
 
-        {/* ── Demo Credentials ── */}
-        <div className="mx-6 mt-5 rounded-xl p-4 text-xs" style={{ background: '#FFF3EE', border: '1px solid #FFD9C8' }}>
-          <p className="font-bold mb-3 flex items-center gap-1.5" style={{ color: '#E65313' }}>
-            💡 Quick Demo Credentials
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 text-[11.5px] leading-relaxed">
-            <div>
-              <p className="font-bold uppercase tracking-wider text-[9px] mb-1" style={{ color: '#9CA3AF' }}>User Access</p>
-              <p style={{ color: '#374151' }}>Email: <span className="font-mono font-semibold" style={{ color: '#E65313' }}>user@gmail.com</span></p>
-              <p style={{ color: '#374151' }}>Password: <span className="font-mono font-semibold" style={{ color: '#E65313' }}>user123</span></p>
-            </div>
-            <div className="pt-3 sm:pt-0" style={{ borderTop: '1px solid #FFD9C8' }}>
-              <p className="font-bold uppercase tracking-wider text-[9px] mb-1 sm:hidden" style={{ color: '#9CA3AF' }}>Admin Access</p>
-              <p className="font-bold uppercase tracking-wider text-[9px] mb-1 hidden sm:block" style={{ color: '#9CA3AF' }}>Admin Access</p>
-              <p style={{ color: '#374151' }}>Email: <span className="font-mono font-semibold" style={{ color: '#E65313' }}>admin@gmail.com</span></p>
-              <p style={{ color: '#374151' }}>Password: <span className="font-mono font-semibold" style={{ color: '#E65313' }}>admin123</span></p>
-            </div>
-          </div>
-        </div>
 
-        {/* ── Error ── */}
+        {/* ── Success message (from signup redirect) ── */}
+        {successMessage && (
+          <div className="mx-6 mt-4 rounded-xl p-3 flex items-start gap-2 text-sm" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', color: '#15803D' }}>
+            <CheckCircle2 size={16} className="shrink-0 mt-0.5" />
+            <span>{successMessage}</span>
+          </div>
+        )}
+
+        {/* ── Generic error ── */}
         {errorMessage && (
           <div className="mx-6 mt-4 rounded-xl p-3 flex items-start gap-2 text-sm" style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}>
             <AlertCircle size={16} className="shrink-0 mt-0.5" />
             <span>{errorMessage}</span>
+          </div>
+        )}
+
+        {/* ── Invalid-credentials error with signup nudge ── */}
+        {isInvalidCredentials && (
+          <div className="mx-6 mt-4 rounded-xl p-3 flex items-start gap-2 text-sm" style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}>
+            <AlertCircle size={16} className="shrink-0 mt-0.5" />
+            <span>
+              Login failed. If you don&apos;t have an account yet, please{' '}
+              <Link
+                href="/signup"
+                style={{ color: '#DC2626', fontWeight: 600, textDecoration: 'underline' }}
+              >
+                sign up
+              </Link>
+              .
+            </span>
           </div>
         )}
 
@@ -233,6 +256,20 @@ function LoginContent() {
               ) : 'Sign In'}
             </button>
           </div>
+
+          {/* Sign-up link */}
+          <p className="text-center text-sm pt-2" style={{ color: '#667085' }}>
+            Don&apos;t have an account?{' '}
+            <Link
+              href="/signup"
+              className="font-semibold transition-colors"
+              style={{ color: '#E65313' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#C44510'}
+              onMouseLeave={e => e.currentTarget.style.color = '#E65313'}
+            >
+              Sign up
+            </Link>
+          </p>
         </form>
       </div>
     </div>

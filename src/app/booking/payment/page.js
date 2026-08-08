@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from 'src/components/Navbar';
-import Footer from 'src/components/Footer';
-import ProgressBar from 'src/components/ProgressBar';
-import VehicleBanner from 'src/components/VehicleBanner';
-import { addBooking } from 'src/lib/mockDb';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import ProgressBar from '@/components/ProgressBar';
+import VehicleBanner from '@/components/VehicleBanner';
+import { addBooking } from '@/lib/supabaseDb';
 import { 
   CreditCard, 
   ChevronLeft, 
@@ -150,7 +150,7 @@ export default function PaymentPage() {
 
     try {
       // Record booking in the mock database
-      const newBooking = addBooking({
+      const booking = await addBooking({
         customerName: slotDetails.customerName,
         customerEmail: slotDetails.customerEmail,
         vehicle: vehicle || { make: 'Unknown', model: 'Unknown', year: '2022', plateNumber: 'XX-00-XX-0000' },
@@ -166,7 +166,7 @@ export default function PaymentPage() {
       });
 
       // Set booking flow final ID
-      localStorage.setItem('booking_flow_confirmed_id', newBooking.id);
+      localStorage.setItem('booking_flow_confirmed_id', booking.id);
 
       // Clean up localStorage booking items
       ['booking_flow_vehicle', 'booking_flow_services', 'booking_flow_service',

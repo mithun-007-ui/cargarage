@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Navbar from 'src/components/Navbar';
-import Footer from 'src/components/Footer';
-import { getBookingById, updateHealthReportItem } from 'src/lib/mockDb';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { getBookingById, updateHealthReportItem } from '@/lib/supabaseDb';
 import { Check, X, AlertTriangle, ShieldCheck, ChevronLeft, ChevronRight } from 'lucide-react';
-import ProgressBar from 'src/components/ProgressBar';
+import ProgressBar from '@/components/ProgressBar';
 
 function RepairApprovalContent() {
   const router = useRouter();
@@ -20,9 +20,9 @@ function RepairApprovalContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setTimeout(() => {
+    (async () => {
       if (bookingId) {
-        const data = getBookingById(bookingId);
+        const data = await getBookingById(bookingId);
         if (data && data.healthReport && data.healthReport.reportSent) {
           setBooking(data);
           const initialChoices = {};
@@ -33,7 +33,7 @@ function RepairApprovalContent() {
         }
       }
       setLoading(false);
-    }, 0);
+    })();
   }, [bookingId]);
 
   if (loading) {
@@ -75,13 +75,13 @@ function RepairApprovalContent() {
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 800));
     try {
-      Object.keys(choices).forEach((idxKey) => {
+      for (const idxKey of Object.keys(choices)) {
         const itemIdx = parseInt(idxKey);
         const approvedStatus = choices[itemIdx];
         if (approvedStatus !== null && approvedStatus !== undefined) {
-          updateHealthReportItem(booking.id, itemIdx, approvedStatus);
+          await updateHealthReportItem(booking.id, itemIdx, approvedStatus);
         }
-      });
+      }
       setSuccess(true);
     } catch (err) {
       console.error(err);

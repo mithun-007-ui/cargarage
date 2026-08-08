@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from 'src/components/Navbar';
-import Footer from 'src/components/Footer';
-import { useBooking } from 'src/context/BookingContext';
-import { getMockDb } from 'src/lib/mockDb';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { useBooking } from '@/context/BookingContext';
+import { getServices } from '@/lib/supabaseDb';
 import { Sparkles, Wrench, AlertCircle, CheckCircle2, ChevronRight, Activity, Zap } from 'lucide-react';
 
 export default function DiagnosticPage() {
@@ -39,10 +39,44 @@ export default function DiagnosticPage() {
       }
 
       // Map recommended IDs back to actual service objects from our mock DB
-      const db = getMockDb();
+      let servicesList = await getServices();
+      
+      // Fallback if the database hasn't been seeded yet
+      if (!servicesList || servicesList.length === 0) {
+        servicesList = [
+          { id: 'general-maintenance', name: 'General Maintenance Check', price: 1499, description: '50-point vehicle health inspection covering engine, brakes, tyres and more.' },
+          { id: 'oil-change', name: 'Synthetic Oil Change', price: 2499, description: 'Full synthetic oil & OES filter replacement with fluid top-up.' },
+          { id: 'brake-service', name: 'Brake Pad Service', price: 1999, description: 'Inspect, clean and replace brake pads with disc check and fluid top-up.' },
+          { id: 'ac-service', name: 'AC Gas Recharge & Clean', price: 1299, description: 'Pressure test, refrigerant recharge and cabin filter clean.' },
+          { id: 'battery-replacement', name: 'Battery Check & Replace', price: 899, description: 'Load test existing battery and fit new Amaron/Exide if needed.' },
+          { id: 'wheel-alignment', name: 'Wheel Alignment & Balancing', price: 999, description: 'Full 4-wheel alignment, balance and tyre rotation.' },
+          { id: 'car-wash', name: 'Premium Car Wash & Spa', price: 799, description: 'Full exterior hand wash, tyre dressing and interior vacuum.' },
+          { id: 'interior-cleaning', name: 'Deep Interior Dry Cleaning', price: 1499, description: 'Shampoo seats, mats, roof lining and dashboard detailing.' },
+          { id: 'exterior-polishing', name: 'Exterior Wax & Polish', price: 1999, description: 'Machine polish, paint correction and carnauba wax coat.' },
+          { id: 'coolant-replacement', name: 'Radiator Coolant Flush', price: 1199, description: 'Drain and refill with OEM-spec coolant and pressure test.' },
+          { id: 'suspension-check', name: 'Suspension & Shock Check', price: 899, description: 'Full suspension geometry check and shock absorber inspection.' },
+          { id: 'spark-plug-replacement', name: 'Spark Plug Replacement', price: 699, description: 'Remove old plugs and fit new NGK/Bosch spec plugs.' },
+          { id: 'air-filter-replacement', name: 'Air & Cabin Filter', price: 599, description: 'Replace engine air filter and cabin pollen filter.' },
+          { id: 'tyre-replacement', name: 'Tyre Rotation & Inspection', price: 499, description: 'Rotate all 4 tyres, inspect tread depth and set correct pressure.' },
+          { id: 'engine-diagnosis', name: 'Engine Diagnosis Scan', price: 799, description: 'OBD2 scan, fault code read and full engine diagnosis report.' }
+        ];
+      }
+
       const mappedServices = (data.recommendedServiceIds || [])
-        .map(id => db.services.find(s => s.id === id))
+        .map(id => servicesList.find(s => s.id.toLowerCase() === String(id).toLowerCase()))
         .filter(Boolean);
+
+      // If the AI returned IDs but none matched, create fallback mock services so they still show up
+      if (mappedServices.length === 0 && data.recommendedServiceIds && data.recommendedServiceIds.length > 0) {
+        data.recommendedServiceIds.forEach(id => {
+          mappedServices.push({
+            id: String(id),
+            name: String(id).replace(/-/g, ' ').toUpperCase(),
+            price: 999,
+            description: 'AI Recommended Service'
+          });
+        });
+      }
 
       setResult({
         ...data,
@@ -97,6 +131,12 @@ export default function DiagnosticPage() {
               placeholder="E.g. My car makes a high-pitched squealing noise when I brake, and the steering wheel vibrates..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleAnalyze();
+                }
+              }}
               disabled={isAnalyzing}
             />
 
@@ -199,9 +239,9 @@ export default function DiagnosticPage() {
                     <p className="font-bold text-slate-700">We couldn&apos;t match this to a standard service.</p>
                     <p className="text-sm text-slate-500 mt-2">Please book a General Engine Diagnosis so our mechanics can take a closer look.</p>
                     <button
-                      onClick={() => {
-                        const db = getMockDb();
-                        const genService = db.services.find(s => s.id === 'engine-diagnosis');
+                      onClick={async () => {
+                        const svcs = await getServices();
+                        const genService = svcs.find(s => s.id === 'engine-diagnosis');
                         if (genService) {
                           setSelectedPackage(null);
                           setSelectedServices([genService]);

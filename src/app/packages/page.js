@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from 'src/components/Navbar';
-import Footer from 'src/components/Footer';
-import ProgressBar from 'src/components/ProgressBar';
-import VehicleBanner from 'src/components/VehicleBanner';
-import BillSummary from 'src/components/BillSummary';
-import PackageCard from 'src/components/PackageCard';
-import { getMockDb } from 'src/lib/mockDb';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import ProgressBar from '@/components/ProgressBar';
+import VehicleBanner from '@/components/VehicleBanner';
+import BillSummary from '@/components/BillSummary';
+import PackageCard from '@/components/PackageCard';
+import { getPackages } from '@/lib/supabaseDb';
 import { ChevronLeft, ChevronRight, Check, X, Shield, Star } from 'lucide-react';
 
 const COMPARISON_ITEMS = [
@@ -30,19 +30,21 @@ export default function ChoosePackagePage() {
   const [vehicle, setVehicle] = useState(null);
 
   useEffect(() => {
-    const db = getMockDb();
-    setPackages(db.packages);
-    const storedServices = localStorage.getItem('booking_flow_services');
-    if (storedServices) { try { setSelectedServices(JSON.parse(storedServices)); } catch (e) {} }
-    const storedVehicle = localStorage.getItem('booking_flow_vehicle');
-    if (storedVehicle) { try { setVehicle(JSON.parse(storedVehicle)); } catch (e) {} }
-    const storedPackage = localStorage.getItem('booking_flow_package');
-    if (storedPackage) {
-      try {
-        const parsed = JSON.parse(storedPackage);
-        setSelectedPackage(parsed === 'none' ? 'none' : db.packages.find(p => p.id === parsed.id) || null);
-      } catch (e) {}
-    }
+    (async () => {
+      const pkgs = await getPackages();
+      setPackages(pkgs);
+      const storedServices = localStorage.getItem('booking_flow_services');
+      if (storedServices) { try { setSelectedServices(JSON.parse(storedServices)); } catch (e) {} }
+      const storedVehicle = localStorage.getItem('booking_flow_vehicle');
+      if (storedVehicle) { try { setVehicle(JSON.parse(storedVehicle)); } catch (e) {} }
+      const storedPackage = localStorage.getItem('booking_flow_package');
+      if (storedPackage) {
+        try {
+          const parsed = JSON.parse(storedPackage);
+          setSelectedPackage(parsed === 'none' ? 'none' : pkgs.find(p => p.id === parsed.id) || null);
+        } catch (e) {}
+      }
+    })();
   }, []);
 
   const handleContinue = () => {

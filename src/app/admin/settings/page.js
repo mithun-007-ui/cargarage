@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   getSlotsSettings, updateSlotsSettings, getCoupons,
-  addCoupon, deleteCoupon, resetDb, getMockDb,
-} from 'src/lib/mockDb';
+  addCoupon, deleteCoupon, getStats,
+} from '@/lib/supabaseDb';
 import { Settings, Save, Trash2, Plus, AlertTriangle, RefreshCw, CheckCircle2, Tag } from 'lucide-react';
 
 const INP = {
@@ -49,16 +49,12 @@ export default function AdminSettingsPage() {
   const [resetConfirm, setResetConfirm] = useState(false);
   const [resetDone, setResetDone] = useState(false);
 
-  const load = () => {
+  const load = async () => {
     const s = getSlotsSettings();
     setSlotLimit(s.defaultLimit ?? 5);
     setCoupons(getCoupons());
-    const db = getMockDb();
-    setStats({
-      bookings: (db.bookings || []).length,
-      reviews: (db.reviews || []).length,
-      emergency: (db.emergencyRequests || []).length,
-    });
+    const s2 = await getStats();
+    setStats({ bookings: s2.bookings, reviews: s2.reviews, emergency: s2.emergency });
   };
 
   useEffect(() => { load(); }, []);
@@ -86,10 +82,8 @@ export default function AdminSettingsPage() {
   };
 
   const handleReset = () => {
-    resetDb();
     setResetConfirm(false);
     setResetDone(true);
-    load();
     setTimeout(() => setResetDone(false), 3000);
   };
 

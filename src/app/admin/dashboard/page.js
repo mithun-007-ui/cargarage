@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   getBookings, updateBookingStatus, sendReportToCustomer
-} from 'src/lib/mockDb';
+} from '@/lib/supabaseDb';
 import {
   CalendarDays, Clock, ClipboardList, AlertTriangle, Wrench,
   CheckCircle2, TrendingUp, Car, User, Activity, Send, ChevronRight,
@@ -82,16 +82,15 @@ function DetailPanel({ booking, onClose, onRefresh }) {
   if (!booking) return null;
   const meta = getStatusMeta(booking.status);
 
-  const handleStatus = (newStatus) => {
-    updateBookingStatus(booking.id, newStatus);
+  const handleStatus = async (newStatus) => {
+    await updateBookingStatus(booking.id, newStatus);
     onRefresh();
   };
 
   const handleSendReport = async () => {
     if (!booking.healthReport) return;
     setIsSending(true);
-    await new Promise(r => setTimeout(r, 600));
-    sendReportToCustomer(booking.id);
+    await sendReportToCustomer(booking.id);
     setSendSuccess(true);
     setTimeout(() => setSendSuccess(false), 3000);
     setIsSending(false);
@@ -461,8 +460,8 @@ export default function AdminDashboardPage() {
   const [activeSection, setActiveSection] = useState('recent');
   const [stats, setStats] = useState({ todaysBookings: 0, vehiclesWaiting: 0, inspectionPending: 0, waitingApproval: 0, repairsInProgress: 0, completedToday: 0, revenueToday: 0 });
 
-  const loadData = useCallback(() => {
-    const list = getBookings();
+  const loadData = useCallback(async () => {
+    const list = await getBookings();
     setBookings(list);
     const todayStr = new Date().toISOString().split('T')[0];
     const targetDate = '2026-07-19';

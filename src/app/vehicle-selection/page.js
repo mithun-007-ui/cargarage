@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from 'src/components/Navbar';
-import Footer from 'src/components/Footer';
-import ProgressBar from 'src/components/ProgressBar';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import ProgressBar from '@/components/ProgressBar';
 import {
   Car, ChevronRight, AlertCircle, CheckCircle2, Fuel, Settings, Gauge,
   ShieldCheck, Receipt, MapPin, Star

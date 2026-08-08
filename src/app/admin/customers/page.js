@@ -1,13 +1,13 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
-import { getBookings } from 'src/lib/mockDb';
+import { getBookings } from '@/lib/supabaseDb';
 import { Users, Search, Car, Calendar, Mail } from 'lucide-react';
 
 export default function AdminCustomersPage() {
   const [bookings, setBookings] = useState([]);
   const [search, setSearch] = useState('');
 
-  const load = useCallback(() => setBookings(getBookings()), []);
+  const load = useCallback(async () => setBookings(await getBookings()), []);
   useEffect(() => { load(); }, [load]);
 
   // Deduplicate by email

@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Navbar from 'src/components/Navbar';
-import Footer from 'src/components/Footer';
-import { getBookingById } from 'src/lib/mockDb';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { getBookingById } from '@/lib/supabaseDb';
 import { ClipboardCheck, FileText, CheckCircle, AlertTriangle, XCircle, ChevronLeft, ShieldCheck, ChevronRight, Activity } from 'lucide-react';
 import Link from 'next/link';
-import ProgressBar from 'src/components/ProgressBar';
+import ProgressBar from '@/components/ProgressBar';
 
 const COMPONENT_STATUS = {
   'Good': { color: 'text-emerald-700 bg-emerald-50 border-emerald-200', dot: 'bg-green-500', label: 'Good' },
@@ -39,12 +39,16 @@ function VehicleHealthReportContent() {
 
   useEffect(() => {
     if (bookingId) {
-      const data = getBookingById(bookingId);
-      if (data) {
-        setBooking(data);
-      }
+      (async () => {
+        const data = await getBookingById(bookingId);
+        if (data) {
+          setBooking(data);
+        }
+        setLoading(false);
+      })();
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, [bookingId]);
 
   if (loading) {

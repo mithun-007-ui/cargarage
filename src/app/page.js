@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Navbar from 'src/components/Navbar';
-import Footer from 'src/components/Footer';
-import ServiceCard from 'src/components/ServiceCard';
-import { getMockDb, getReviews, addEmergencyRequest } from 'src/lib/mockDb';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import ServiceCard from '@/components/ServiceCard';
+import { getServices, getReviews, addEmergencyRequest } from '@/lib/supabaseDb';
 import {
   ShieldCheck, CircleDollarSign, CalendarRange, ClipboardList, CheckSquare,
   ChevronRight, ArrowRight, Star, Phone, MessageCircle,
   Wrench, ShieldAlert, Check, CheckCircle2, UserCheck,
-  Clock, Award, Search, Calendar
+  Clock, Award, Search, Calendar, AlertTriangle
 } from 'lucide-react';
 import LinkNext from 'next/link';
 import Image from 'next/image';
@@ -26,11 +26,12 @@ export default function HomePage() {
   const [emergencyLoading, setEmergencyLoading] = useState(false);
 
   useEffect(() => {
-    const db = getMockDb();
-    setTimeout(() => {
-      setServices(db.services.slice(0, 6));
-      setReviews(getReviews().slice(0, 4));
-    }, 0);
+    (async () => {
+      const svcs = await getServices();
+      const revs = await getReviews();
+      setServices(svcs.slice(0, 6));
+      setReviews(revs.slice(0, 4));
+    })();
   }, []);
 
   const handleEmergencySubmit = async (e) => {
@@ -38,7 +39,7 @@ export default function HomePage() {
     if (!emergencyForm.name || !emergencyForm.phone || !emergencyForm.location || !emergencyForm.vehicleDetails || !emergencyForm.breakdownType) return;
     setEmergencyLoading(true);
     await new Promise(r => setTimeout(r, 1000));
-    const newReq = addEmergencyRequest({
+    const newReq = await addEmergencyRequest({
       name: emergencyForm.name,
       phone: emergencyForm.phone,
       location: emergencyForm.location,
@@ -144,6 +145,7 @@ export default function HomePage() {
               src="/images/hero_car.png"
               alt="Luxury sedan driving — Bug Slayers professional car service"
               fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover object-center lg:object-left"
               priority
             />
@@ -166,6 +168,7 @@ export default function HomePage() {
               src="/images/hero_car.png"
               alt="Luxury sedan driving — Bug Slayers professional car service"
               fill
+              sizes="100vw"
               className="object-cover object-center"
               priority
             />
@@ -214,6 +217,15 @@ export default function HomePage() {
               >
                 View Pricing <ChevronRight size={16} />
               </LinkNext>
+              <a
+                href="#emergency"
+                onClick={e => { e.preventDefault(); document.getElementById('emergency')?.scrollIntoView({ behavior: 'smooth' }); }}
+                className="flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold text-white shadow-md transition-all hover:opacity-90 active:scale-[0.98] cursor-pointer"
+                style={{ background: '#DC2626' }}
+                id="hero-road-assistance-btn"
+              >
+                <AlertTriangle size={16} /> 🚨 Road Assistance
+              </a>
             </div>
 
             {/* Trust badges — 4-column strip */}
@@ -362,8 +374,9 @@ export default function HomePage() {
             <h2 className="section-title mt-2">Choose Your Service Package</h2>
             <p className="section-sub mt-3">Bundle services and save up to 25% with our Silver, Gold, or Platinum care plans.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
             {[
+              { name: 'General Service', price: '₹799', items: ['50-Point Health Check', 'Fluid Level Top-up', 'Tyre Pressure Check', 'Battery & Lights Test'], color: '#E65313', bg: '#FFF3EE', border: '#FFD9C8', badge: 'Best Value' },
               { name: 'Silver Care', price: '₹1,499', items: ['24-Point Inspection', 'Synthetic Oil & Filter', 'Fluid Top-up'], color: '#64748B', bg: '#F1F5F9', border: '#CBD5E1' },
               { name: 'Gold Care', price: '₹2,499', items: ['Full Digital Scan', 'Premium Fluid Flush', 'Air & Cabin Filters'], color: '#D97706', bg: '#FFFBEB', border: '#FDE68A', popular: true },
               { name: 'Platinum Care', price: '₹3,999', items: ['Priority 120-Point', 'Ultra Fluid Service', 'Full Alignment + Wiper'], color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
@@ -371,10 +384,13 @@ export default function HomePage() {
               <div
                 key={i}
                 className="rounded-2xl p-6 border-2 relative transition-all hover:-translate-y-1"
-                style={{ background: '#FFFFFF', borderColor: pkg.popular ? pkg.color : '#E2D8CE' }}
+                style={{ background: '#FFFFFF', borderColor: pkg.popular || pkg.badge ? pkg.color : '#E2D8CE' }}
               >
                 {pkg.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: pkg.color }}>Most Popular</div>
+                )}
+                {pkg.badge && !pkg.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: pkg.color }}>{pkg.badge}</div>
                 )}
                 <h3 className="font-extrabold text-lg mb-1" style={{ color: '#202020' }}>{pkg.name}</h3>
                 <p className="text-3xl font-black mb-4" style={{ color: pkg.color }}>{pkg.price}</p>
@@ -536,7 +552,7 @@ export default function HomePage() {
       </section>
 
       {/* ════ EMERGENCY / ROADSIDE ════ */}
-      <section className="py-16 relative overflow-hidden" style={{ background: '#211F1D' }}>
+      <section id="emergency" className="py-16 relative overflow-hidden" style={{ background: '#211F1D' }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at top left, rgba(220,38,38,0.06) 0%, transparent 60%)' }} />
         <div className="content-wrapper relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
@@ -599,13 +615,16 @@ export default function HomePage() {
                         </div>
                         <div>
                           <label className="text-xs font-bold uppercase block mb-1.5 tracking-wider" style={{ color: '#667085' }}>Phone *</label>
-                          <input type="tel" required value={emergencyForm.phone} onChange={e => setEmergencyForm({ ...emergencyForm, phone: e.target.value })} className="input-field" placeholder="e.g. 96267 57303" />
+                          <input type="tel" required value={emergencyForm.phone} onChange={e => {
+                            const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                            setEmergencyForm({ ...emergencyForm, phone: val });
+                          }} className="input-field" placeholder="e.g. 9626757303" pattern="[0-9]{10}" maxLength={10} />
                         </div>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <label className="text-xs font-bold uppercase block mb-1.5 tracking-wider" style={{ color: '#667085' }}>Vehicle Details *</label>
-                          <input type="text" required value={emergencyForm.vehicleDetails} onChange={e => setEmergencyForm({ ...emergencyForm, vehicleDetails: e.target.value })} className="input-field" placeholder="e.g. Creta (TN38AB1234)" />
+                          <input type="text" required value={emergencyForm.vehicleDetails} onChange={e => setEmergencyForm({ ...emergencyForm, vehicleDetails: e.target.value.toUpperCase() })} className="input-field" placeholder="e.g. CRETA (TN38AB1234)" />
                         </div>
                         <div>
                           <label className="text-xs font-bold uppercase block mb-1.5 tracking-wider" style={{ color: '#667085' }}>Breakdown Type *</label>
@@ -665,12 +684,54 @@ export default function HomePage() {
         href="https://wa.me/919626757303?text=Hi%20Bug%20Slayers%2C%20I%20need%20help%20with%20my%20car."
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-20 right-4 sm:right-6 text-white p-4 rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 z-40 cursor-pointer"
+        className="fixed bottom-20 right-4 sm:right-6 text-white p-4 rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 z-40 cursor-pointer group"
         style={{ background: '#16A34A' }}
         title="Chat on WhatsApp"
       >
+        {/* Pulsing ring */}
+        <span className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ background: '#16A34A' }} />
         <MessageCircle size={22} fill="currentColor" />
+        {/* Tooltip label */}
+        <span
+          className="absolute right-14 top-1/2 -translate-y-1/2 whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
+          style={{ background: '#1A1A2E', color: '#4ADE80' }}
+        >
+          WhatsApp
+        </span>
       </a>
+
+      {/* AI Diagnostic Chatbot Float */}
+      <LinkNext
+        href="/diagnostic"
+        className="fixed right-4 sm:right-6 text-white p-4 rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 z-40 cursor-pointer group"
+        style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', bottom: '9.5rem' }}
+        title="AI Car Diagnostic"
+        id="ai-diagnostic-float-btn"
+      >
+        {/* Pulsing ring */}
+        <span className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ background: '#7C3AED' }} />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10a9.96 9.96 0 0 1-5.23-1.47L2 22l1.47-4.77A9.96 9.96 0 0 1 2 12 10 10 0 0 1 12 2z" />
+          <path d="M8 12h.01M12 12h.01M16 12h.01" strokeWidth="2.5" />
+        </svg>
+        {/* Tooltip label */}
+        <span
+          className="absolute right-14 top-1/2 -translate-y-1/2 whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
+          style={{ background: '#1A1A2E', color: '#A78BFA' }}
+        >
+          AI Diagnostic
+        </span>
+      </LinkNext>
 
       <Footer />
     </div>

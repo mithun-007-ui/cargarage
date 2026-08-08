@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useAuth } from 'src/context/AuthContext';
-import AdminSidebar from 'src/components/AdminSidebar';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import AdminSidebar from '@/components/AdminSidebar';
 import { Wrench, Menu, X, LayoutDashboard, LogOut, AlertTriangle, ClipboardList, Bell, Settings, Users } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 /* Same 6 items mirrored for the mobile drawer */
 const MOBILE_NAV = [
@@ -21,8 +21,15 @@ export default function AdminLayout({ children }) {
   const { user, loading, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
-  if (loading || !user || user.role !== 'Admin') {
+  useEffect(() => {
+    if (!loading && (!user || user.role !== 'admin')) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user || user.role !== 'admin') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: '#1F1A17' }}>
         <div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin mb-4"

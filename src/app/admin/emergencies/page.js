@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { getEmergencyRequests, updateEmergencyRequest } from 'src/lib/mockDb';
+import { getEmergencyRequests, updateEmergencyRequest } from '@/lib/supabaseDb';
 import {
   Phone, MapPin, Car, Clock, AlertTriangle, CheckCircle2,
   RefreshCw, ChevronDown, ChevronUp, Save, User, Timer, FileText,
@@ -76,8 +76,7 @@ function AdminPanel({ req, onSaved }) {
 
   const handleSave = async () => {
     setSaving(true);
-    await new Promise(r => setTimeout(r, 350));
-    updateEmergencyRequest(req.id, form);
+    await updateEmergencyRequest(req.id, form);
     setSaving(false);
     setSaved(true);
     onSaved();
@@ -234,8 +233,8 @@ export default function AdminEmergenciesPage() {
   const [filter, setFilter] = useState('all');
   const [expanded, setExpanded] = useState({});  // { [id]: bool }
 
-  const load = useCallback(() => {
-    setRequests(getEmergencyRequests());
+  const load = useCallback(async () => {
+    setRequests(await getEmergencyRequests());
   }, []);
 
   useEffect(() => { load(); }, [load]);

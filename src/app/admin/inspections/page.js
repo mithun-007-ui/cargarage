@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getBookingById, addHealthReport } from 'src/lib/mockDb';
+import { getBookingById, addHealthReport } from '@/lib/supabaseDb';
 import {
   ClipboardCheck, Plus, Trash2, ChevronLeft, ArrowRight,
   Wrench, AlertTriangle, CheckCircle2, Car, User, Hash, Activity
@@ -53,16 +53,18 @@ function AdminInspectionsContent() {
 
   useEffect(() => {
     if (bookingId) {
-      const data = getBookingById(bookingId);
-      if (data) {
-        setBooking(data);
-        if (data.healthReport) {
-          setNotes(data.healthReport.notes || '');
-          setHealthScore(data.healthReport.healthScore || 85);
-          if (data.healthReport.components) setComponents({ ...DEFAULT_COMPONENTS, ...data.healthReport.components });
-          if (data.healthReport.items?.length > 0) setItems(data.healthReport.items.map(i => ({ ...DEFAULT_ITEM(), ...i })));
+      (async () => {
+        const data = await getBookingById(bookingId);
+        if (data) {
+          setBooking(data);
+          if (data.healthReport) {
+            setNotes(data.healthReport.notes || '');
+            setHealthScore(data.healthReport.healthScore || 85);
+            if (data.healthReport.components) setComponents({ ...DEFAULT_COMPONENTS, ...data.healthReport.components });
+            if (data.healthReport.items?.length > 0) setItems(data.healthReport.items.map(i => ({ ...DEFAULT_ITEM(), ...i })));
+          }
         }
-      }
+      })();
     }
   }, [bookingId]);
 
@@ -103,9 +105,8 @@ function AdminInspectionsContent() {
 
     setIsSubmitting(true);
     setError('');
-    await new Promise(r => setTimeout(r, 700));
     try {
-      addHealthReport(booking.id, notes, items, healthScore, components);
+      await addHealthReport(booking.id, notes, items, healthScore, components);
       router.push('/admin/dashboard');
     } catch (err) {
       setError('Failed to save inspection report. Please try again.');

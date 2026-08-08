@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from 'src/components/Navbar';
-import Footer from 'src/components/Footer';
-import { getBookingById } from 'src/lib/mockDb';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { getBookingById } from '@/lib/supabaseDb';
 import { Check, Calendar, Clock, Car, Wrench, Download, MapPin, Truck, Package, Hash, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import ProgressBar from 'src/components/ProgressBar';
+import ProgressBar from '@/components/ProgressBar';
 
 export default function BookingConfirmationPage() {
   const router = useRouter();
@@ -16,10 +16,12 @@ export default function BookingConfirmationPage() {
   useEffect(() => {
     const storedId = localStorage.getItem('booking_flow_confirmed_id');
     if (storedId) {
-      const details = getBookingById(storedId);
-      if (details) {
-        setBooking(details);
-      }
+      (async () => {
+        const details = await getBookingById(storedId);
+        if (details) {
+          setBooking(details);
+        }
+      })();
     }
   }, []);
 

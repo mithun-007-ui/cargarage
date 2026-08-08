@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { useAuth } from 'src/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { User, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react';
 
 export default function UserProfile() {
@@ -24,7 +24,7 @@ export default function UserProfile() {
 
   if (!user) return null;
 
-  const dashboardUrl = user.role === 'Admin' ? '/admin/dashboard' : '/';
+  const dashboardUrl = user.role === 'admin' ? '/admin/dashboard' : '/';
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -34,12 +34,14 @@ export default function UserProfile() {
         id="user-profile-menu-button"
       >
         <div
-          className="w-7 h-7 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-sm"
-          style={{ background: '#E65313' }}
+          className="w-7 h-7 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-sm shrink-0"
+          style={{ background: user.role === 'admin' ? '#E65313' : '#3B82F6' }}
         >
-          {user.role === 'Admin' ? 'A' : 'U'}
+          {user.role === 'admin' ? 'A' : (user.name?.[0]?.toUpperCase() || 'U')}
         </div>
-        <span className="text-sm font-semibold pr-1" style={{ color: '#202020' }}>{user.role}</span>
+        <span className="text-sm font-semibold pr-1 truncate max-w-[150px]" style={{ color: '#202020' }}>
+          {user.name || user.role}
+        </span>
         <ChevronDown size={14} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} style={{ color: '#667085' }} />
       </button>
 
@@ -47,10 +49,10 @@ export default function UserProfile() {
         <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl py-2 border border-slate-100 z-50 animate-in fade-in slide-in-from-top-3 duration-200">
           <div className="px-4 py-2 border-b border-slate-100">
             <p className="text-xs text-slate-400 font-medium">Logged in as</p>
-            <p className="text-sm font-semibold text-slate-800 truncate">{user.email}</p>
+            <p className="text-sm font-semibold text-slate-800 truncate">{user.name || user.email}</p>
           </div>
           
-          {user.role === 'Admin' && (
+          {user.role === 'admin' && (
             <Link
               href={dashboardUrl}
               onClick={() => setIsOpen(false)}

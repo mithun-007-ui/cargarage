@@ -1,7 +1,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "src/context/AuthContext";
-import { BookingProvider } from "src/context/BookingContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { BookingProvider } from "@/context/BookingContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -16,7 +16,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} h-full antialiased`} data-scroll-behavior="smooth">
       <body className="min-h-full flex flex-col bg-[#F8F5F0] text-[#202020] font-sans">
         <AuthProvider>
           <BookingProvider>

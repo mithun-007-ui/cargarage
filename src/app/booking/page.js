@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from 'src/components/Navbar';
-import Footer from 'src/components/Footer';
-import ProgressBar from 'src/components/ProgressBar';
-import VehicleBanner from 'src/components/VehicleBanner';
-import { useAuth } from 'src/context/AuthContext';
-import { addBooking } from 'src/lib/mockDb';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import ProgressBar from '@/components/ProgressBar';
+import VehicleBanner from '@/components/VehicleBanner';
+import { useAuth } from '@/context/AuthContext';
+import { addBooking } from '@/lib/supabaseDb';
 import { Calendar, Clock, ChevronLeft, AlertCircle, User, Mail, MapPin, Truck, Building2, Tag, Percent, Receipt } from 'lucide-react';
 
 const SERVICE_CENTERS = [
