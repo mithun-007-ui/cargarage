@@ -129,15 +129,23 @@ export default function AdminBookingsPage() {
                   </div>
                   {/* Status change */}
                   <div className="flex flex-wrap gap-2">
-                    {['Vehicle Received', 'Inspection Pending', 'Repair in Progress', 'Completed', 'Cancelled'].map(s => (
-                      <button key={s} onClick={async () => { await updateBookingStatus(b.id, s); load(); }}
-                        className="px-3 py-1.5 rounded-lg text-xs font-bold border cursor-pointer"
-                        style={b.status === s
-                          ? { background: '#D96C2F', color: '#FFF7ED', borderColor: 'rgba(217,108,47,0.5)' }
-                          : { background: '#fff', color: '#475569', borderColor: '#e2e8f0' }}>
-                        → {s}
-                      </button>
-                    ))}
+                    {['Vehicle Received', 'Inspection Pending', 'Repair in Progress', 'Completed', 'Cancelled'].map(s => {
+                      const isFinished = ['Completed', 'Cancelled'].includes(b.status);
+                      const isDisabled = isFinished && s !== b.status;
+                      return (
+                        <button
+                          key={s}
+                          disabled={isDisabled}
+                          onClick={async () => { await updateBookingStatus(b.id, s); load(); }}
+                          className="px-3 py-1.5 rounded-lg text-xs font-bold border cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                          style={b.status === s
+                            ? { background: '#D96C2F', color: '#FFF7ED', borderColor: 'rgba(217,108,47,0.5)' }
+                            : { background: '#fff', color: '#475569', borderColor: '#e2e8f0' }}
+                        >
+                          → {s}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

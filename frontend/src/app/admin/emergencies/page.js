@@ -98,6 +98,8 @@ function AdminPanel({ req, onSaved }) {
     minHeight: '40px',
   };
 
+  const isFinished = ['Completed', 'Cancelled'].includes(req.status) || ['Completed', 'Cancelled'].includes(form.status);
+
   return (
     <div className="border-t border-slate-100 p-5 space-y-5 bg-slate-50 rounded-b-2xl">
 
@@ -105,23 +107,26 @@ function AdminPanel({ req, onSaved }) {
       <div>
         <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Update Status</label>
         <div className="flex flex-wrap gap-2">
-          {STATUS_FLOW.map(s => (
-            <button
-              key={s}
-              type="button"
-              disabled={isDone && s !== req.status}
-              onClick={() => setForm(prev => ({ ...prev, status: s }))}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-              style={form.status === s
-                ? { background: '#D96C2F', color: '#FFF7ED', borderColor: 'rgba(217,108,47,0.5)' }
-                : s === 'Cancelled'
-                  ? { background: 'rgba(239,68,68,0.06)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)' }
-                  : { background: '#fff', color: '#475569', borderColor: '#e2e8f0' }
-              }
-            >
-              {s}
-            </button>
-          ))}
+          {STATUS_FLOW.map(s => {
+            const isDisabled = isFinished && s !== form.status;
+            return (
+              <button
+                key={s}
+                type="button"
+                disabled={isDisabled}
+                onClick={() => setForm(prev => ({ ...prev, status: s }))}
+                className="px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                style={form.status === s
+                  ? { background: '#D96C2F', color: '#FFF7ED', borderColor: 'rgba(217,108,47,0.5)' }
+                  : s === 'Cancelled'
+                    ? { background: 'rgba(239,68,68,0.06)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)' }
+                    : { background: '#fff', color: '#475569', borderColor: '#e2e8f0' }
+                }
+              >
+                {s}
+              </button>
+            );
+          })}
         </div>
       </div>
 
