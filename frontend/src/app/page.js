@@ -217,15 +217,6 @@ export default function HomePage() {
               >
                 View Pricing <ChevronRight size={16} />
               </LinkNext>
-              <a
-                href="#emergency"
-                onClick={e => { e.preventDefault(); document.getElementById('emergency')?.scrollIntoView({ behavior: 'smooth' }); }}
-                className="flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold text-white shadow-md transition-all hover:opacity-90 active:scale-[0.98] cursor-pointer"
-                style={{ background: '#DC2626' }}
-                id="hero-road-assistance-btn"
-              >
-                <AlertTriangle size={16} /> 🚨 Road Assistance
-              </a>
             </div>
 
             {/* Trust badges — 4-column strip */}
