@@ -18,6 +18,52 @@ const DEFAULT_SERVICES = [
   { id: 'spark-plug-replacement', name: 'Spark Plug Replacement', price: 499 },
 ];
 
+function getFallbackDiagnosis(desc) {
+  const lower = (desc || '').toLowerCase();
+  
+  if (lower.includes('brake') || lower.includes('stop') || lower.includes('squeak') || lower.includes('grind')) {
+    return {
+      diagnosis: 'Potential brake pad wear or rotor friction imbalance.',
+      explanation: 'Worn brake components reduce stopping safety and can score brake rotors if left unserviced. We recommend an immediate brake system inspection.',
+      recommendedServiceIds: ['brake-service'],
+    };
+  }
+  if (lower.includes('ac') || lower.includes('cool') || lower.includes('heat') || lower.includes('smell') || lower.includes('air')) {
+    return {
+      diagnosis: 'AC refrigerant gas low or clogged cabin air filter.',
+      explanation: 'Inefficient cooling or unusual cabin odors are typical signs of low refrigerant or dust accumulation in the AC evaporator and filter.',
+      recommendedServiceIds: ['ac-service', 'air-filter-replacement'],
+    };
+  }
+  if (lower.includes('battery') || lower.includes('start') || lower.includes('click') || lower.includes('power') || lower.includes('dead')) {
+    return {
+      diagnosis: 'Low battery charge or alternator charging system fault.',
+      explanation: 'Difficulty starting the engine or clicking sounds when turning the key indicate battery degradation or alternator output drop.',
+      recommendedServiceIds: ['battery-replacement', 'general-maintenance'],
+    };
+  }
+  if (lower.includes('oil') || lower.includes('smoke') || lower.includes('leak') || lower.includes('engine') || lower.includes('knock')) {
+    return {
+      diagnosis: 'Degraded engine oil or ignition system misfire.',
+      explanation: 'Engine hesitation or unusual smoke suggests contaminated engine oil or worn spark plugs affecting cylinder combustion.',
+      recommendedServiceIds: ['engine-diagnosis', 'oil-change', 'spark-plug-replacement'],
+    };
+  }
+  if (lower.includes('tyre') || lower.includes('tire') || lower.includes('wheel') || lower.includes('vibrat') || lower.includes('pull')) {
+    return {
+      diagnosis: 'Wheel misalignment or uneven tyre tread wear.',
+      explanation: 'Steering vibrations or vehicle pulling to one side indicate out-of-balance wheels or suspension geometry offset.',
+      recommendedServiceIds: ['wheel-alignment', 'tyre-replacement', 'suspension-check'],
+    };
+  }
+
+  return {
+    diagnosis: 'General vehicle performance issue or routine service due.',
+    explanation: 'Based on your description, a comprehensive multi-point health inspection will identify any underlying component wear or fluid level issues.',
+    recommendedServiceIds: ['general-maintenance', 'engine-diagnosis'],
+  };
+}
+
 export async function POST(request) {
   try {
     const { problemDescription } = await request.json();
@@ -28,8 +74,8 @@ export async function POST(request) {
 
     const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      console.error('Missing OPENROUTER_API_KEY environment variable.');
-      return NextResponse.json({ error: 'Server misconfiguration: missing API key.' }, { status: 500 });
+      console.warn('OPENROUTER_API_KEY missing, using fallback diagnostic engine.');
+      return NextResponse.json(getFallbackDiagnosis(problemDescription));
     }
 
     const servicesJson = JSON.stringify(DEFAULT_SERVICES, null, 2);
@@ -44,67 +90,53 @@ export async function POST(request) {
       '{"diagnosis":"one sentence describing the likely root cause","explanation":"2-3 friendly sentences explaining the issue and urgency","recommendedServiceIds":["service-id-1","service-id-2"]}\n' +
       'Only include IDs from the list above. Always include at least one service ID.';
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': 'http://localhost:3000',
-        'X-Title': 'Car Garage AI',
-      },
-      body: JSON.stringify({
-        model: 'openai/gpt-4o',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: problemDescription },
-        ],
-        temperature: 0.2,
-        max_tokens: 400,
-      }),
-    });
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'HTTP-Referer': 'http://localhost:3000',
+          'X-Title': 'Car Garage AI',
+        },
+        body: JSON.stringify({
+          model: 'openai/gpt-4o',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: problemDescription },
+          ],
+          temperature: 0.2,
+          max_tokens: 400,
+        }),
+      });
 
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      const errMsg = errData?.error?.message || errData?.message || '';
-      console.error('OpenRouter API status:', response.status);
-      console.error('OpenRouter Error:', JSON.stringify(errData, null, 2));
-
-      if (response.status === 429 || errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('rate')) {
-        return NextResponse.json(
-          { error: 'AI service is busy. Please wait a moment and try again.' },
-          { status: 429 }
-        );
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        const errMsg = errData?.error?.message || errData?.message || '';
+        console.warn('OpenRouter API returned error status:', response.status, errMsg);
+        // Fallback gracefully so user gets diagnostic result
+        return NextResponse.json(getFallbackDiagnosis(problemDescription));
       }
 
-      return NextResponse.json(
-        { error: 'Failed to communicate with AI diagnostic service.', detail: errMsg || response.status },
-        { status: 502 }
-      );
-    }
+      const data = await response.json();
+      const candidateText = data.choices?.[0]?.message?.content;
 
-    const data = await response.json();
-    const candidateText = data.choices?.[0]?.message?.content;
+      if (!candidateText) {
+        return NextResponse.json(getFallbackDiagnosis(problemDescription));
+      }
 
-    if (!candidateText) {
-      console.error('Empty OpenRouter response:', JSON.stringify(data, null, 2));
-      return NextResponse.json({ error: 'No response from AI.' }, { status: 500 });
-    }
-
-    let parsedResult;
-    try {
-      // Strip markdown code fences if the model adds them anyway
       const cleaned = candidateText
         .replace(/^```json\s*/i, '')
         .replace(/^```\s*/i, '')
         .replace(/```\s*$/g, '')
         .trim();
-      parsedResult = JSON.parse(cleaned);
-    } catch (e) {
-      console.error('Failed to parse AI JSON. Raw output:', candidateText);
-      return NextResponse.json({ error: 'Failed to parse AI response.' }, { status: 500 });
-    }
+      const parsedResult = JSON.parse(cleaned);
 
-    return NextResponse.json(parsedResult);
+      return NextResponse.json(parsedResult);
+    } catch (apiError) {
+      console.warn('OpenRouter API call failed, using fallback engine:', apiError);
+      return NextResponse.json(getFallbackDiagnosis(problemDescription));
+    }
 
   } catch (error) {
     console.error('Diagnostic API Route Error:', error);
