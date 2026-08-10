@@ -670,17 +670,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* WhatsApp Float */}
+      {/* 1. WhatsApp Float (Bottom of stack) */}
       <a
         href="https://wa.me/919626757303?text=Hi%20Bug%20Slayers%2C%20I%20need%20help%20with%20my%20car."
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-20 right-4 sm:right-6 text-white p-4 rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 z-40 cursor-pointer group"
+        className="fixed bottom-5 right-4 sm:right-6 text-white p-4 rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 z-40 cursor-pointer group"
         style={{ background: '#16A34A' }}
         title="Chat on WhatsApp"
       >
-        {/* Pulsing ring */}
-        <span className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ background: '#16A34A' }} />
         <MessageCircle size={22} fill="currentColor" />
         {/* Tooltip label */}
         <span
@@ -691,16 +689,14 @@ export default function HomePage() {
         </span>
       </a>
 
-      {/* AI Diagnostic Chatbot Float */}
+      {/* 2. AI Diagnostic Chatbot Float (Middle of stack) */}
       <LinkNext
         href="/diagnostic"
         className="fixed right-4 sm:right-6 text-white p-4 rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 z-40 cursor-pointer group"
-        style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', bottom: '9.5rem' }}
+        style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', bottom: '5.5rem' }}
         title="AI Car Diagnostic"
         id="ai-diagnostic-float-btn"
       >
-        {/* Pulsing ring */}
-        <span className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ background: '#7C3AED' }} />
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="22"
@@ -723,6 +719,42 @@ export default function HomePage() {
           AI Diagnostic
         </span>
       </LinkNext>
+
+      {/* 3. 24/7 Emergency Road Assistance Float (Siren Light Logo, top of stack) */}
+      <a
+        href="#emergency"
+        onClick={e => { e.preventDefault(); document.getElementById('emergency')?.scrollIntoView({ behavior: 'smooth' }); }}
+        className="fixed right-4 sm:right-6 text-white p-4 rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 z-40 cursor-pointer group"
+        style={{ background: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)', bottom: '10rem' }}
+        title="24/7 Roadside Assistance"
+        id="emergency-roadside-float-btn"
+      >
+        {/* Enhanced Red Emergency Siren Beacon Light Icon matching user image */}
+        <svg
+          width="26"
+          height="26"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="shrink-0 drop-shadow-md"
+        >
+          {/* Radiating Light Rays */}
+          <path d="M12 1v3.5M4.6 4.6l2.5 2.5M19.4 4.6l-2.5 2.5M1 12h3.5M23 12h-3.5" stroke="#FDE047" strokeWidth="2.6" strokeLinecap="round" />
+          {/* Red Siren Dome */}
+          <path d="M7 13.5C7 10.74 9.24 8.5 12 8.5C14.76 8.5 17 10.74 17 13.5V18.5H7V13.5Z" fill="#EF4444" stroke="#DC2626" strokeWidth="0.8" />
+          {/* Highlight shine on dome */}
+          <path d="M9.5 11.2C9 11.9 8.8 13.2 8.8 14.8" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" opacity="0.85" />
+          {/* Dark Siren Base */}
+          <path d="M5.5 18.5H18.5V20.8C18.5 21.46 17.96 22 17.3 22H6.7C6.04 22 5.5 21.46 5.5 20.8V18.5Z" fill="#0F172A" stroke="#334155" strokeWidth="0.8" />
+        </svg>
+        {/* Tooltip label */}
+        <span
+          className="absolute right-14 top-1/2 -translate-y-1/2 whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
+          style={{ background: '#1A1A2E', color: '#F87171' }}
+        >
+          🚨 Road Assistance
+        </span>
+      </a>
 
       <Footer />
     </div>

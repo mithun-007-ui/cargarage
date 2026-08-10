@@ -78,24 +78,6 @@ export default function Navbar() {
             <MessageCircle size={11} />
             WhatsApp
           </a>
-          <span className="navbar-utility-divider" />
-          {/* Top right sparkling emergency button */}
-          <a
-            href="/#emergency"
-            onClick={(e) => {
-              if (pathname === '/') {
-                e.preventDefault();
-                document.getElementById('emergency')?.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            className="navbar-emergency-sparkle-btn group"
-            id="top-utility-emergency-btn"
-          >
-            <span className="navbar-emergency-pulse-ring" />
-            <ShieldAlert size={13} className="text-yellow-300 animate-bounce shrink-0" />
-            <span className="font-black text-[11px] uppercase tracking-wider text-white">🚨 Road Assistance</span>
-            <Sparkles size={12} className="navbar-sparkle-icon text-yellow-300" />
-          </a>
         </div>
       </div>
 
@@ -156,23 +138,7 @@ export default function Navbar() {
           </ul>
 
           {/* ── Desktop Right Side ── */}
-          <div className="navbar-right hidden lg:flex items-center gap-3">
-            <a
-              href="/#emergency"
-              onClick={(e) => {
-                if (pathname === '/') {
-                  e.preventDefault();
-                  document.getElementById('emergency')?.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-              className="navbar-emergency-sparkle-btn group"
-              id="top-nav-emergency-btn"
-            >
-              <span className="navbar-emergency-pulse-ring" />
-              <ShieldAlert size={14} className="text-yellow-300 animate-bounce shrink-0" />
-              <span className="font-extrabold text-xs text-white">🚨 Road Assistance</span>
-              <Sparkles size={13} className="navbar-sparkle-icon text-yellow-300" />
-            </a>
+          <div className="navbar-right hidden lg:flex">
             {user ? (
               <UserProfile />
             ) : (
@@ -183,24 +149,8 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* ── Mobile Right (emergency + hamburger) ── */}
-          <div className="flex lg:hidden items-center gap-2">
-            <a
-              href="/#emergency"
-              onClick={(e) => {
-                if (pathname === '/') {
-                  e.preventDefault();
-                  document.getElementById('emergency')?.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-              className="navbar-emergency-sparkle-btn"
-              style={{ padding: '0.35rem 0.65rem' }}
-              id="mobile-nav-emergency-btn"
-            >
-              <ShieldAlert size={13} className="text-yellow-300 animate-pulse shrink-0" />
-              <span className="font-extrabold text-[11px] text-white">🚨 Road Help</span>
-              <Sparkles size={11} className="navbar-sparkle-icon text-yellow-300" />
-            </a>
+          {/* ── Mobile Right (hamburger) ── */}
+          <div className="flex lg:hidden items-center gap-1.5">
             <button
               onClick={() => setIsMobileOpen(true)}
               className="navbar-hamburger"

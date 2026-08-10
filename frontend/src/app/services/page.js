@@ -219,12 +219,12 @@ export default function ChooseServicePage() {
                   <div className="w-9 h-9 rounded-xl icon-orange flex items-center justify-center shrink-0">
                     <Wrench size={18} />
                   </div>
-                  {vehicle ? `Services for ${vehicle.make} ${vehicle.model}` : 'Service Directory'}
+                  {vehicle ? `Services for ${vehicle.make} ${vehicle.model}` : 'Services'}
                 </h1>
                 <p className="text-sm mt-1.5 max-w-lg" style={{ color: '#667085' }}>
                   {vehicle
                     ? 'Select one or more repair services. Prices shown are base estimates — final cost approved after inspection.'
-                    : 'Browse transparent pricing, step-by-step service breakdowns, and certified inclusions.'}
+                    : 'Select one or more repair services for transparent pricing, step-by-step breakdowns, and certified inclusions.'}
                 </p>
               </div>
               {selectedServices.length > 0 && (
