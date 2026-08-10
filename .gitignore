@@ -40,3 +40,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ignore orphan utils directories outside src
+frontend/utils/
+utils/
+
