@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import { useAuth } from '@/context/AuthContext';
 import {
   getBookingsByEmail, getNotifications, markNotificationsAsRead,
-  getUnreadNotificationsCount, updateHealthReportItem
+  getUnreadNotificationsCount, updateHealthReportItem, getSavedVehicles, getServiceHistory
 } from '@/lib/supabaseDb';
 import {
   Car, CalendarDays, ClipboardList, FileText, CheckSquare, Receipt,
@@ -44,13 +44,45 @@ const STATUS_BADGE = {
 
 // ───── TAB COMPONENTS ─────
 
-function MyVehiclesTab({ bookings }) {
-  const vehicles = Array.from(
-    new Map(bookings.map(b => [b.vehicle.plateNumber, b.vehicle])).values()
-  );
+function MyVehiclesTab({ bookings, user }) {
+  const [vehicles, setVehicles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadVehicles() {
+      if (user?.email) {
+        const fromDb = await getSavedVehicles(user.email);
+        if (fromDb && fromDb.length > 0) {
+          setVehicles(fromDb);
+        } else {
+          const bookingVehicles = Array.from(
+            new Map(bookings.filter(b => b.vehicle?.plateNumber).map(b => [b.vehicle.plateNumber, b.vehicle])).values()
+          );
+          setVehicles(bookingVehicles);
+        }
+      } else {
+        const bookingVehicles = Array.from(
+          new Map(bookings.filter(b => b.vehicle?.plateNumber).map(b => [b.vehicle.plateNumber, b.vehicle])).values()
+        );
+        setVehicles(bookingVehicles);
+      }
+      setLoading(false);
+    }
+    loadVehicles();
+  }, [user, bookings]);
+
+  if (loading) {
+    return <div className="text-center py-10 text-gray-400">Loading vehicles...</div>;
+  }
+
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-extrabold text-gray-800">My Vehicles</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-extrabold text-gray-800">My Vehicles</h2>
+        <Link href="/vehicle-selection" className="text-xs font-bold text-[#E65313] hover:underline flex items-center gap-1">
+          + Add New Vehicle
+        </Link>
+      </div>
       {vehicles.length === 0 ? (
         <div className="text-center py-16 text-gray-400 border border-dashed border-gray-200 rounded-2xl bg-white">
           No vehicles registered yet.
@@ -546,7 +578,7 @@ export default function CustomerDashboardPage() {
 
             {/* Content Area */}
             <div className="flex-1 min-w-0">
-              {activeTab === 'vehicles' && <MyVehiclesTab bookings={bookings} />}
+              {activeTab === 'vehicles' && <MyVehiclesTab bookings={bookings} user={user} />}
               {activeTab === 'bookings' && (
                 <div className="space-y-4">
                   <h2 className="text-lg font-extrabold text-gray-800">My Bookings</h2>

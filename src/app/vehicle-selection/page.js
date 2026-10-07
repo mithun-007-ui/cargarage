@@ -10,6 +10,8 @@ import {
   ShieldCheck, Receipt, MapPin, Star
 } from 'lucide-react';
 
+import { addSavedVehicle } from '@/lib/supabaseDb';
+
 const FUEL_TYPES = ['Petrol', 'Diesel', 'CNG', 'Electric', 'Hybrid'];
 const TRANSMISSIONS = ['Manual', 'Automatic'];
 
@@ -107,7 +109,7 @@ export default function VehicleSelectionPage() {
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.make || !form.model || !form.plateNumber || !form.fuelType || !form.transmission || !form.kmReading) {
       setError('Please fill in all required vehicle details.');
@@ -116,6 +118,19 @@ export default function VehicleSelectionPage() {
     setError('');
     localStorage.setItem('booking_flow_vehicle', JSON.stringify(form));
     setSavedVehicle(form);
+
+    try {
+      const userStr = localStorage.getItem('autocare_user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        if (user?.email) {
+          await addSavedVehicle(user.email, form);
+        }
+      }
+    } catch (err) {
+      console.error('Save vehicle DB error:', err);
+    }
+
     router.push('/services');
   };
 

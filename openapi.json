@@ -1,4 +1,167 @@
 {
-  "message": "Invalid API key",
-  "hint": "Only the `service_role` API key can be used for this endpoint."
+  "openapi": "3.0.3",
+  "info": {
+    "title": "CarGarage - StayPlus Partner Integration API",
+    "version": "1.0.0",
+    "description": "Secure Integration REST API allowing StayPlus to securely consume and synchronize CarGarage customer profiles, vehicles, service bookings, inspection reports, services catalog, service history, emergency requests, and business statistics."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api/integration",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    },
+    {
+      "BearerAuth": []
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Integration Discovery & Status",
+        "responses": {
+          "200": {
+            "description": "API status and directory of available endpoints"
+          }
+        }
+      }
+    },
+    "/customers": {
+      "get": {
+        "summary": "List/Search Customers",
+        "parameters": [
+          { "name": "email", "in": "query", "schema": { "type": "string" } },
+          { "name": "phone", "in": "query", "schema": { "type": "string" } },
+          { "name": "query", "in": "query", "schema": { "type": "string" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 50 } },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 } }
+        ],
+        "responses": {
+          "200": { "description": "Customer profiles and vehicle list" }
+        }
+      }
+    },
+    "/bookings": {
+      "get": {
+        "summary": "List/Search Service Bookings",
+        "parameters": [
+          { "name": "booking_id", "in": "query", "schema": { "type": "string" } },
+          { "name": "customer_email", "in": "query", "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          { "name": "payment_status", "in": "query", "schema": { "type": "string" } },
+          { "name": "from_date", "in": "query", "schema": { "type": "string" } },
+          { "name": "to_date", "in": "query", "schema": { "type": "string" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 50 } },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 } }
+        ],
+        "responses": {
+          "200": { "description": "List of bookings with health reports" }
+        }
+      },
+      "post": {
+        "summary": "Create Referral/Integration Booking",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["customerName", "customerEmail"],
+                "properties": {
+                  "customerName": { "type": "string" },
+                  "customerEmail": { "type": "string" },
+                  "vehicle": { "type": "object" },
+                  "serviceType": { "type": "string" },
+                  "packageSelected": { "type": "string" },
+                  "estimatedPrice": { "type": "number" },
+                  "serviceCenter": { "type": "string" },
+                  "bookingDate": { "type": "string" },
+                  "bookingTime": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Booking created" }
+        }
+      }
+    },
+    "/services": {
+      "get": {
+        "summary": "List Services & Maintenance Packages",
+        "responses": {
+          "200": { "description": "Services catalog and package pricing" }
+        }
+      }
+    },
+    "/service-history": {
+      "get": {
+        "summary": "List Vehicle Service History",
+        "parameters": [
+          { "name": "customer_email", "in": "query", "schema": { "type": "string" } },
+          { "name": "plate_number", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Service records" }
+        }
+      }
+    },
+    "/vehicles": {
+      "get": {
+        "summary": "List Customer Vehicles",
+        "parameters": [
+          { "name": "customer_email", "in": "query", "schema": { "type": "string" } },
+          { "name": "plate_number", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Vehicles list" }
+        }
+      }
+    },
+    "/emergency-requests": {
+      "get": {
+        "summary": "List Emergency & Roadside Requests",
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Emergency requests" }
+        }
+      }
+    },
+    "/reviews": {
+      "get": {
+        "summary": "List Customer Reviews & Ratings",
+        "responses": {
+          "200": { "description": "Reviews list" }
+        }
+      }
+    },
+    "/stats": {
+      "get": {
+        "summary": "Business Analytics & Summary Stats",
+        "responses": {
+          "200": { "description": "Aggregated summary metrics" }
+        }
+      }
+    }
+  }
 }

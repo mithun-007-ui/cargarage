@@ -39,6 +39,12 @@ export const AuthProvider = ({ children }) => {
           name: profile?.full_name || session.user.email,
           role: profile?.role || 'customer',
           phone: profile?.phone,
+          state_id: profile?.state_id || session.user.user_metadata?.state_id,
+          district_id: profile?.district_id || session.user.user_metadata?.district_id,
+          area_id: profile?.area_id || session.user.user_metadata?.area_id,
+          state: profile?.state || session.user.user_metadata?.state,
+          district: profile?.district || session.user.user_metadata?.district,
+          area: profile?.area || session.user.user_metadata?.area,
           active: profile?.active !== false
         });
         setLoading(false);
@@ -66,6 +72,12 @@ export const AuthProvider = ({ children }) => {
             name: profile?.full_name || session.user.email,
             role: profile?.role || 'customer',
             phone: profile?.phone,
+            state_id: profile?.state_id || session.user.user_metadata?.state_id,
+            district_id: profile?.district_id || session.user.user_metadata?.district_id,
+            area_id: profile?.area_id || session.user.user_metadata?.area_id,
+            state: profile?.state || session.user.user_metadata?.state,
+            district: profile?.district || session.user.user_metadata?.district,
+            area: profile?.area || session.user.user_metadata?.area,
             active: profile?.active !== false
           });
           setLoading(false);

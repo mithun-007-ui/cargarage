@@ -168,7 +168,7 @@ export default function HomePage() {
               src="/images/hero_car.png"
               alt="Luxury sedan driving — Bug Slayers professional car service"
               fill
-              sizes="100vw"
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover object-center"
               priority
             />

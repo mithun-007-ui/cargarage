@@ -7,10 +7,10 @@ import Footer from '@/components/Footer';
 import ProgressBar from '@/components/ProgressBar';
 import VehicleBanner from '@/components/VehicleBanner';
 import { useAuth } from '@/context/AuthContext';
-import { addBooking } from '@/lib/supabaseDb';
+import { addBooking, getLocations } from '@/lib/supabaseDb';
 import { Calendar, Clock, ChevronLeft, AlertCircle, User, Mail, MapPin, Truck, Building2, Tag, Percent, Receipt } from 'lucide-react';
 
-const SERVICE_CENTERS = [
+const DEFAULT_SERVICE_CENTERS = [
   { id: 'andheri', name: 'AutoCare Pro — Andheri West', address: 'Versova Link Rd, Andheri West, Mumbai 400058', timing: 'Mon–Sat: 8AM–7PM' },
   { id: 'bandra', name: 'AutoCare Pro — Bandra East', address: 'Station Rd, Bandra East, Mumbai 400051', timing: 'Mon–Sat: 9AM–6PM' },
   { id: 'powai', name: 'AutoCare Pro — Powai', address: 'Hiranandani Gardens, Powai, Mumbai 400076', timing: 'Mon–Sun: 8AM–8PM' },
@@ -35,6 +35,7 @@ export default function SlotBookingPage() {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [serviceCenter, setServiceCenter] = useState('');
+  const [serviceCentersList, setServiceCentersList] = useState(DEFAULT_SERVICE_CENTERS);
   const [pickupOption, setPickupOption] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -51,6 +52,39 @@ export default function SlotBookingPage() {
     if (sp) { try { const p = JSON.parse(sp); setPkg(p === 'none' ? null : p); } catch (e) {} }
     if (pr) setEstPrice(parseFloat(pr));
     if (user) { setName(user.name); setEmail(user.email); }
+  }, [user]);
+
+  // Load locations filtered by User State + User District
+  useEffect(() => {
+    async function loadFilteredLocations() {
+      if (user?.state_id || user?.district_id || user?.district) {
+        const locs = await getLocations(user.state_id, user.district_id);
+        if (locs && locs.length > 0) {
+          const formatted = locs.map((l) => ({
+            id: String(l.id),
+            name: l.name,
+            address: l.address,
+            timing: l.timing || 'Mon–Sat: 8AM–8PM',
+          }));
+          setServiceCentersList(formatted);
+          setServiceCenter(formatted[0].id);
+          return;
+        }
+      }
+      // Fallback load all locations
+      const allLocs = await getLocations();
+      if (allLocs && allLocs.length > 0) {
+        const formatted = allLocs.map((l) => ({
+          id: String(l.id),
+          name: l.name,
+          address: l.address,
+          timing: l.timing || 'Mon–Sat: 8AM–8PM',
+        }));
+        setServiceCentersList(formatted);
+        setServiceCenter(formatted[0].id);
+      }
+    }
+    loadFilteredLocations();
   }, [user]);
 
   const getNextDays = () => {
@@ -86,7 +120,7 @@ export default function SlotBookingPage() {
     setError('');
 
     try {
-      const center = SERVICE_CENTERS.find(c => c.id === serviceCenter);
+      const center = serviceCentersList.find(c => c.id === serviceCenter);
       const slotDetails = {
         customerName: name,
         customerEmail: email,
@@ -185,11 +219,19 @@ export default function SlotBookingPage() {
 
               {/* Service Center */}
               <div className="bg-white rounded-2xl p-5 border shadow-sm" style={{ borderColor: '#E2D8CE' }}>
-                <h2 className="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
-                  <MapPin size={15} style={{ color: '#E65313' }} /> Service Center
-                </h2>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
+                  <h2 className="font-bold text-gray-800 text-sm flex items-center gap-2">
+                    <MapPin size={15} style={{ color: '#E65313' }} /> Service Center
+                  </h2>
+                  {user?.district && user?.state && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full text-[#E65313] bg-[#FFF3EE] border border-[#FCD9C8]">
+                      📍 Showing centers for {user.district}, {user.state}
+                    </span>
+                  )}
+                </div>
+
                 <div className="space-y-2">
-                  {SERVICE_CENTERS.map(center => (
+                  {serviceCentersList.map(center => (
                     <button
                       key={center.id}
                       type="button"
