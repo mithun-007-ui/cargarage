@@ -44,9 +44,9 @@ export async function getIntegrationCustomers({ email, phone, query, limit = 50,
   if (email) vehiclesQuery = vehiclesQuery.eq('customer_email', email);
 
   const [profilesRes, bookingsRes, vehiclesRes] = await Promise.all([
-    profilesQuery.order('created_at', { ascending: false }).catch((e) => ({ data: [], error: e })),
-    bookingsQuery.order('created_at', { ascending: false }).catch((e) => ({ data: [], error: e })),
-    vehiclesQuery.catch((e) => ({ data: [], error: e })),
+    profilesQuery.order('created_at', { ascending: false }),
+    bookingsQuery.order('created_at', { ascending: false }),
+    vehiclesQuery,
   ]);
 
   const customerMap = new Map();
